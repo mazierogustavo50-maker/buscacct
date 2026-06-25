@@ -4,7 +4,6 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=buscacct.settings
-ENV DJANGO_SECRET_KEY=change-me-in-production
 ENV DJANGO_DEBUG=False
 ENV DJANGO_ALLOWED_HOSTS=*
 
@@ -26,28 +25,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Instala Google Chrome (necessário para o scraper)
-# Usa download direto do .deb para evitar problemas com apt-key em Debian bookworm
+# Baixa o .deb e deixa o apt resolver dependências automaticamente — evita quebra quando nomes de pacotes mudam entre Debian releases
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
-    fonts-liberation \
-    libappindicator3-1 \
-    libasound2 \
-    libatk-bridge2.0-0 \
-    libatk1.0-0 \
-    libcups2 \
-    libdbus-1-3 \
-    libgdk-pixbuf2.0-0 \
-    libnspr4 \
-    libnss3 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxfixes3 \
-    libxrandr2 \
     xdg-utils \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget -q --timeout=30 https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O /tmp/chrome.deb \
-    && dpkg -i /tmp/chrome.deb || apt-get install -y -f --no-install-recommends \
+    && dpkg -i /tmp/chrome.deb || true \
+    && apt-get update && apt-get install -f -y --no-install-recommends \
     && rm -f /tmp/chrome.deb \
     && rm -rf /var/lib/apt/lists/*
 
