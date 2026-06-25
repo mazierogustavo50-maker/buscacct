@@ -72,3 +72,4 @@ mediadorcct/
 ## 📝 Licença
 
 Projeto interno – uso profissional.
+# Trigger workflow
