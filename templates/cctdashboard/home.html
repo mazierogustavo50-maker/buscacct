@@ -2,144 +2,138 @@
 {% block title %}Dashboard - Mediador CCT{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="flex justify-between items-center mb-6">
     <div>
-        <h4 class="fw-bold mb-1">Dashboard</h4>
-        <p class="text-muted small mb-0">Visão geral do sistema</p>
+        <h4 class="text-xl font-bold text-slate-800 mb-1">Dashboard</h4>
+        <p class="text-slate-500 text-sm mb-0">Visão geral do sistema</p>
     </div>
-    <span class="badge bg-light text-dark border">{{ request.user.username }}</span>
+    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+        {{ request.user.username }}
+    </span>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-md-3 col-sm-6">
-        <div class="card kpi-card kpi-soft-blue h-100 shadow-sm">
-            <div class="card-body d-flex align-items-center">
-                <div class="flex-grow-1">
-                    <div class="card-title">Sindicatos</div>
-                    <h2 class="mb-0">{{ total_sindicatos }}</h2>
-                </div>
-                <i class="bi bi-people-fill fs-1 opacity-50"></i>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="card kpi-card kpi-soft-blue shadow-sm">
+        <div class="p-5 flex items-center relative z-10">
+            <div class="flex-grow">
+                <div class="text-xs font-semibold uppercase tracking-wider opacity-85 mb-1">Sindicatos</div>
+                <h2 class="text-4xl font-bold tracking-tight">{{ total_sindicatos }}</h2>
             </div>
-            <div class="card-footer">
-                <a href="{% url 'cctdashboard:lista_sindicatos' %}" class="text-decoration-none">Ver todos <i class="bi bi-arrow-right ms-1"></i></a>
-            </div>
+            <i class="bi bi-people-fill text-4xl opacity-40"></i>
+        </div>
+        <div class="px-5 py-3 text-sm font-medium border-t border-blue-900/5">
+            <a href="{% url 'cctdashboard:lista_sindicatos' %}" class="text-blue-900 hover:opacity-80 transition inline-flex items-center">
+                Ver todos <i class="bi bi-arrow-right ml-1"></i>
+            </a>
         </div>
     </div>
-    <div class="col-md-3 col-sm-6">
-        <div class="card kpi-card kpi-soft-green h-100 shadow-sm">
-            <div class="card-body d-flex align-items-center">
-                <div class="flex-grow-1">
-                    <div class="card-title">Empresas</div>
-                    <h2 class="mb-0">{{ total_empresas }}</h2>
-                </div>
-                <i class="bi bi-building fs-1 opacity-50"></i>
+    <div class="card kpi-card kpi-soft-green shadow-sm">
+        <div class="p-5 flex items-center relative z-10">
+            <div class="flex-grow">
+                <div class="text-xs font-semibold uppercase tracking-wider opacity-85 mb-1">Empresas</div>
+                <h2 class="text-4xl font-bold tracking-tight">{{ total_empresas }}</h2>
             </div>
-            <div class="card-footer">
-                <a href="{% url 'cctdashboard:lista_empresas' %}" class="text-decoration-none">Ver todas <i class="bi bi-arrow-right ms-1"></i></a>
-            </div>
+            <i class="bi bi-building text-4xl opacity-40"></i>
+        </div>
+        <div class="px-5 py-3 text-sm font-medium border-t border-green-900/5">
+            <a href="{% url 'cctdashboard:lista_empresas' %}" class="text-green-900 hover:opacity-80 transition inline-flex items-center">
+                Ver todas <i class="bi bi-arrow-right ml-1"></i>
+            </a>
         </div>
     </div>
-    <div class="col-md-3 col-sm-6">
-        <div class="card kpi-card kpi-soft-cyan h-100 shadow-sm">
-            <div class="card-body d-flex align-items-center">
-                <div class="flex-grow-1">
-                    <div class="card-title">Documentos CCT</div>
-                    <h2 class="mb-0">{{ total_documentos }}</h2>
-                </div>
-                <i class="bi bi-files fs-1 opacity-50"></i>
+    <div class="card kpi-card kpi-soft-cyan shadow-sm">
+        <div class="p-5 flex items-center relative z-10">
+            <div class="flex-grow">
+                <div class="text-xs font-semibold uppercase tracking-wider opacity-85 mb-1">Documentos CCT</div>
+                <h2 class="text-4xl font-bold tracking-tight">{{ total_documentos }}</h2>
             </div>
-            <div class="card-footer">
-                <a href="{% url 'cctdashboard:lista_documentos' %}" class="text-decoration-none">Ver todos <i class="bi bi-arrow-right ms-1"></i></a>
-            </div>
+            <i class="bi bi-files text-4xl opacity-40"></i>
+        </div>
+        <div class="px-5 py-3 text-sm font-medium border-t border-cyan-900/5">
+            <a href="{% url 'cctdashboard:lista_documentos' %}" class="text-cyan-900 hover:opacity-80 transition inline-flex items-center">
+                Ver todos <i class="bi bi-arrow-right ml-1"></i>
+            </a>
         </div>
     </div>
-    <div class="col-md-3 col-sm-6">
-        <div class="card kpi-card kpi-soft-amber h-100 shadow-sm">
-            <div class="card-body d-flex align-items-center">
-                <div class="flex-grow-1">
-                    <div class="card-title">Termos Aditivos</div>
-                    <h2 class="mb-0">{{ total_ta_cct }}</h2>
-                </div>
-                <i class="bi bi-file-earmark-plus fs-1 opacity-50"></i>
+    <div class="card kpi-card kpi-soft-amber shadow-sm">
+        <div class="p-5 flex items-center relative z-10">
+            <div class="flex-grow">
+                <div class="text-xs font-semibold uppercase tracking-wider opacity-85 mb-1">Termos Aditivos</div>
+                <h2 class="text-4xl font-bold tracking-tight">{{ total_ta_cct }}</h2>
             </div>
-            <div class="card-footer">
-                <a href="{% url 'cctdashboard:lista_documentos' %}?tipo=TA-CCT" class="text-decoration-none">Ver todos <i class="bi bi-arrow-right ms-1"></i></a>
-            </div>
+            <i class="bi bi-file-earmark-plus text-4xl opacity-40"></i>
         </div>
-    </div>
-</div>
-
-<div class="row g-4 mb-4">
-    <div class="col-lg-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-header d-flex align-items-center">
-                <i class="bi bi-pie-chart-fill me-2 text-primary"></i>Distribuição por Tipo
-            </div>
-            <div class="card-body">
-                <canvas id="chartTipo" height="220"></canvas>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-header d-flex align-items-center">
-                <i class="bi bi-bar-chart-fill me-2 text-success"></i>Top 10 Sindicatos por Documentos
-            </div>
-            <div class="card-body">
-                <canvas id="chartSindicato" height="220"></canvas>
-            </div>
+        <div class="px-5 py-3 text-sm font-medium border-t border-amber-900/5">
+            <a href="{% url 'cctdashboard:lista_documentos' %}?tipo=TA-CCT" class="text-amber-900 hover:opacity-80 transition inline-flex items-center">
+                Ver todos <i class="bi bi-arrow-right ml-1"></i>
+            </a>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span class="d-flex align-items-center"><i class="bi bi-robot me-2 text-warning"></i>Últimas Execuções do Scraper</span>
-                <a href="{% url 'cctdashboard:execucoes_scraper' %}" class="btn btn-sm btn-outline-primary">Ver todas</a>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Data Início</th>
-                                <th>Status</th>
-                                <th>Baixados</th>
-                                <th>Já Existentes</th>
-                                <th>Não Encontrados</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for exec in execucoes_recentes %}
-                            <tr>
-                                <td class="fw-mono text-muted">#{{ exec.id }}</td>
-                                <td>{{ exec.data_inicio|date:"d/m/Y H:i" }}</td>
-                                <td>
-                                    {% if exec.status == "CONCLUIDO" %}
-                                        <span class="badge bg-success">Concluído</span>
-                                    {% elif exec.status == "ERRO" %}
-                                        <span class="badge bg-danger">Erro</span>
-                                    {% else %}
-                                        <span class="badge bg-warning text-dark">Em andamento</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ exec.total_baixados }}</td>
-                                <td>{{ exec.total_ja_existentes }}</td>
-                                <td>{{ exec.total_nao_encontrados }}</td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="6" class="text-center text-muted py-4">Nenhuma execução encontrada.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+    <div class="card shadow-sm">
+        <div class="card-header flex items-center">
+            <i class="bi bi-pie-chart-fill mr-2 text-blue-600"></i>Distribuição por Tipo
         </div>
+        <div class="p-5">
+            <canvas id="chartTipo" height="220"></canvas>
+        </div>
+    </div>
+    <div class="card shadow-sm">
+        <div class="card-header flex items-center">
+            <i class="bi bi-bar-chart-fill mr-2 text-green-600"></i>Top 10 Sindicatos por Documentos
+        </div>
+        <div class="p-5">
+            <canvas id="chartSindicato" height="220"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header flex justify-between items-center">
+        <span class="flex items-center"><i class="bi bi-robot mr-2 text-amber-500"></i>Últimas Execuções do Scraper</span>
+        <a href="{% url 'cctdashboard:execucoes_scraper' %}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition">
+            Ver todas
+        </a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="data-table mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Data Início</th>
+                    <th>Status</th>
+                    <th>Baixados</th>
+                    <th>Já Existentes</th>
+                    <th>Não Encontrados</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exec in execucoes_recentes %}
+                <tr>
+                    <td class="fw-mono text-slate-500">#{{ exec.id }}</td>
+                    <td>{{ exec.data_inicio|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if exec.status == "CONCLUIDO" %}
+                            <span class="badge bg-green-100 text-green-800">Concluído</span>
+                        {% elif exec.status == "ERRO" %}
+                            <span class="badge bg-red-100 text-red-800">Erro</span>
+                        {% else %}
+                            <span class="badge bg-amber-100 text-amber-800">Em andamento</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ exec.total_baixados }}</td>
+                    <td>{{ exec.total_ja_existentes }}</td>
+                    <td>{{ exec.total_nao_encontrados }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-slate-500 py-8">Nenhuma execução encontrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}
@@ -152,7 +146,7 @@
             labels: {{ documentos_por_tipo.labels|safe }},
             datasets: [{
                 data: {{ documentos_por_tipo.data|safe }},
-                backgroundColor: ['#0d6efd', '#ffc107'],
+                backgroundColor: ['#3b82f6', '#f59e0b'],
                 borderWidth: 0,
                 hoverOffset: 6
             }]
@@ -174,7 +168,7 @@
             datasets: [{
                 label: 'Documentos',
                 data: {{ sindicato_data|safe }},
-                backgroundColor: '#198754',
+                backgroundColor: '#16a34a',
                 borderRadius: 6,
                 barThickness: 24
             }]

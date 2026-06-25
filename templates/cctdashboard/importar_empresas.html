@@ -2,52 +2,52 @@
 {% block title %}Importar Empresas - Mediador CCT{% endblock %}
 
 {% block content %}
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:home' %}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:lista_empresas' %}">Empresas</a></li>
-        <li class="breadcrumb-item active">Importar</li>
+        <li><a href="{% url 'cctdashboard:home' %}">Home</a></li>
+        <li><a href="{% url 'cctdashboard:lista_empresas' %}">Empresas</a></li>
+        <li class="active">Importar</li>
     </ol>
 </nav>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0"><i class="bi bi-upload me-2 text-success"></i>Importar Empresas (Excel)</h2>
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-slate-800 mb-0"><i class="bi bi-upload mr-2 text-green-600"></i>Importar Empresas (Excel)</h2>
 </div>
 
 <div class="card shadow-sm mb-4">
-    <div class="card-header bg-success text-white fw-bold">
-        <i class="bi bi-info-circle-fill me-2"></i>Instruções
+    <div class="card-header bg-green-600 text-white font-bold flex items-center">
+        <i class="bi bi-info-circle-fill mr-2"></i>Instruções
     </div>
-    <div class="card-body">
-        <p class="mb-1">O arquivo Excel deve conter as colunas:</p>
-        <ul class="mb-0">
+    <div class="p-5">
+        <p class="mb-2 text-sm">O arquivo Excel deve conter as colunas:</p>
+        <ul class="list-disc list-inside text-sm space-y-1 mb-3">
             <li><strong>codempresa</strong> — Código da empresa no sistema (obrigatório)</li>
             <li><strong>nomeempresa</strong> — Nome da empresa (obrigatório)</li>
             <li><strong>codsindicato</strong> — Código do sindicato vinculado</li>
             <li><strong>codsindicato2</strong> — Código do 2º sindicato (opcional)</li>
             <li><strong>codsindicato3</strong> — Código do 3º sindicato (opcional)</li>
         </ul>
-        <p class="text-muted small mt-2 mb-0">Se o código da empresa já existir, ela será atualizada. Os vínculos com sindicatos serão recriados.</p>
+        <p class="text-slate-500 text-xs mb-0">Se o código da empresa já existir, ela será atualizada. Os vínculos com sindicatos serão recriados.</p>
     </div>
 </div>
 
 <div class="card shadow-sm">
-    <div class="card-body">
+    <div class="p-5">
         <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
-            <div class="mb-3">
-                <label for="{{ form.arquivo.id_for_label }}" class="form-label">{{ form.arquivo.label }}</label>
+            <div class="mb-4">
+                <label for="{{ form.arquivo.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">{{ form.arquivo.label }}</label>
                 {{ form.arquivo }}
                 {% if form.arquivo.errors %}
-                    <div class="invalid-feedback d-block">{{ form.arquivo.errors|join:", " }}</div>
+                    <div class="mt-1 text-sm text-red-600">{{ form.arquivo.errors|join:", " }}</div>
                 {% endif %}
             </div>
-            <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-success">
-                    <i class="bi bi-upload me-1"></i>Importar
+            <div class="flex gap-2">
+                <button type="submit" class="btn bg-green-600 text-white hover:bg-green-700">
+                    <i class="bi bi-upload mr-1"></i>Importar
                 </button>
-                <a href="{% url 'cctdashboard:lista_empresas' %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-x-lg me-1"></i>Cancelar
+                <a href="{% url 'cctdashboard:lista_empresas' %}" class="btn bg-white text-slate-700 border border-slate-300 hover:bg-slate-50">
+                    <i class="bi bi-x-lg mr-1"></i>Cancelar
                 </a>
             </div>
         </form>
