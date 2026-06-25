@@ -19,6 +19,16 @@
     --shadow-lg: 0 10px 30px rgba(13,110,253,0.08);
     --radius: 0.875rem;
     --radius-sm: 0.5rem;
+
+    /* Soft KPI palette */
+    --kpi-blue-bg: #dbeafe;
+    --kpi-blue-text: #1e3a8a;
+    --kpi-green-bg: #d1fae5;
+    --kpi-green-text: #064e3b;
+    --kpi-cyan-bg: #cffafe;
+    --kpi-cyan-text: #155e75;
+    --kpi-amber-bg: #fef3c7;
+    --kpi-amber-text: #78350f;
 }
 
 /* Base */
@@ -156,6 +166,71 @@ body {
 
 .kpi-card .card-footer a:hover {
     opacity: 1;
+}
+
+/* Soft KPI variants (lighter backgrounds + dark text) */
+.kpi-soft-blue {
+    background-color: var(--kpi-blue-bg) !important;
+    color: var(--kpi-blue-text) !important;
+}
+.kpi-soft-blue .card-title,
+.kpi-soft-blue h2,
+.kpi-soft-blue .card-footer a {
+    color: var(--kpi-blue-text) !important;
+}
+.kpi-soft-blue .card-footer {
+    background: rgba(30,58,138,0.08);
+}
+
+.kpi-soft-green {
+    background-color: var(--kpi-green-bg) !important;
+    color: var(--kpi-green-text) !important;
+}
+.kpi-soft-green .card-title,
+.kpi-soft-green h2,
+.kpi-soft-green .card-footer a {
+    color: var(--kpi-green-text) !important;
+}
+.kpi-soft-green .card-footer {
+    background: rgba(6,78,59,0.08);
+}
+
+.kpi-soft-cyan {
+    background-color: var(--kpi-cyan-bg) !important;
+    color: var(--kpi-cyan-text) !important;
+}
+.kpi-soft-cyan .card-title,
+.kpi-soft-cyan h2,
+.kpi-soft-cyan .card-footer a {
+    color: var(--kpi-cyan-text) !important;
+}
+.kpi-soft-cyan .card-footer {
+    background: rgba(21,94,117,0.08);
+}
+
+.kpi-soft-amber {
+    background-color: var(--kpi-amber-bg) !important;
+    color: var(--kpi-amber-text) !important;
+}
+.kpi-soft-amber .card-title,
+.kpi-soft-amber h2,
+.kpi-soft-amber .card-footer a {
+    color: var(--kpi-amber-text) !important;
+}
+.kpi-soft-amber .card-footer {
+    background: rgba(120,53,15,0.08);
+}
+
+/* Navbar link colour safeguard */
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255,255,255,0.95) !important;
+}
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link.active {
+    color: #fff !important;
+}
+.navbar-dark .navbar-brand {
+    color: #fff !important;
 }
 
 /* Tables */
