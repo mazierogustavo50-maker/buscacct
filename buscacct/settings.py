@@ -28,15 +28,19 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
-# CSRF para funcionar em desenvolvimento local e Docker
+# Proxy reverso (EasyPanel, Nginx, Traefik, etc.)
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# CSRF — permite origens dinâmicas via env, e fallback para localhost/dev
 CSRF_TRUSTED_ORIGINS = os.getenv(
     'DJANGO_CSRF_TRUSTED_ORIGINS',
-    'http://localhost,http://127.0.0.1,http://localhost:8000,http://127.0.0.1:8000,http://0.0.0.0:8000'
+    'http://localhost,http://127.0.0.1,http://localhost:8000,http://127.0.0.1:8000'
 ).split(',')
 
-# Cookies não exigem HTTPS em desenvolvimento
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
+# Cookies não exigem HTTPS em dev (ajuste via env em produção)
+CSRF_COOKIE_SECURE = os.getenv('DJANGO_CSRF_COOKIE_SECURE', 'False') == 'True'
+SESSION_COOKIE_SECURE = os.getenv('DJANGO_SESSION_COOKIE_SECURE', 'False') == 'True'
 CSRF_COOKIE_HTTPONLY = False
 
 # Login / Logout
