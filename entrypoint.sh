@@ -7,6 +7,17 @@ python manage.py migrate --noinput
 echo "Coletando arquivos estáticos..."
 python manage.py collectstatic --noinput
 
+# Importa dados das planilhas se o banco estiver vazio
+python manage.py shell -c "
+from cctcore.models import Sindicato
+if Sindicato.objects.count() == 0:
+    print('Banco vazio — importando dados...')
+    from django.core.management import call_command
+    call_command('importar_dados')
+else:
+    print('Dados já importados (' + str(Sindicato.objects.count()) + ' sindicatos). Pulando importação.')
+"
+
 # Se não houver superusuário, cria um padrão
 python manage.py shell -c "
 from django.contrib.auth import get_user_model

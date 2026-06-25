@@ -3,12 +3,14 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.http import FileResponse, Http404
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from pathlib import Path
 
 from cctcore.models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT
 from cctbuscador.models import ExecucaoScraper
 
 
+@login_required
 def home(request):
     total_sindicatos = Sindicato.objects.count()
     total_empresas = Empresa.objects.count()
@@ -46,6 +48,7 @@ def home(request):
     return render(request, "cctdashboard/home.html", context)
 
 
+@login_required
 def lista_sindicatos(request):
     queryset = Sindicato.objects.all()
     q = request.GET.get("q", "").strip()
@@ -65,6 +68,7 @@ def lista_sindicatos(request):
     return render(request, "cctdashboard/lista_sindicatos.html", context)
 
 
+@login_required
 def detalhe_sindicato(request, pk):
     sindicato = get_object_or_404(Sindicato, pk=pk)
     empresas = (
@@ -82,6 +86,7 @@ def detalhe_sindicato(request, pk):
     return render(request, "cctdashboard/detalhe_sindicato.html", context)
 
 
+@login_required
 def lista_empresas(request):
     queryset = Empresa.objects.all()
     q = request.GET.get("q", "").strip()
@@ -101,6 +106,7 @@ def lista_empresas(request):
     return render(request, "cctdashboard/lista_empresas.html", context)
 
 
+@login_required
 def detalhe_empresa(request, pk):
     empresa = get_object_or_404(Empresa, pk=pk)
     sindicatos = (
@@ -116,6 +122,7 @@ def detalhe_empresa(request, pk):
     return render(request, "cctdashboard/detalhe_empresa.html", context)
 
 
+@login_required
 def lista_documentos(request):
     queryset = DocumentoCCT.objects.select_related("sindicato").all()
 
@@ -154,6 +161,7 @@ def lista_documentos(request):
     return render(request, "cctdashboard/lista_documentos.html", context)
 
 
+@login_required
 def detalhe_documento(request, pk):
     documento = get_object_or_404(DocumentoCCT, pk=pk)
     context = {
@@ -162,6 +170,7 @@ def detalhe_documento(request, pk):
     return render(request, "cctdashboard/detalhe_documento.html", context)
 
 
+@login_required
 def execucoes_scraper(request):
     queryset = ExecucaoScraper.objects.all()
     paginator = Paginator(queryset, 20)
