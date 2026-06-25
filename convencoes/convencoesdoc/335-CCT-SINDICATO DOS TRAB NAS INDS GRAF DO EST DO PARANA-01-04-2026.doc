@@ -1,0 +1,1856 @@
+
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <title>
+        Mediador - Extrato Conven&#231;&#227;o Coletiva
+    </title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+    <script src="https://www.google.com/recaptcha/api.js?render=6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G"></script>
+
+    <script src='/sistemas/mediador/WebResource.axd?d=ls-JK0luimixBX3RtKP4OuM6Nbr55f1ikjLAMnxPrvPWRxDuzHsg65FphFc0YmwGvPuaSOvOnFNL4Mq2J7O55VkuvR-JNDegUEHaozvuG4GfYZuef32jriBr06lvlGac5F6-tkLMmrZoMutKUlmTDs6EfByvhBlqjoPaLqkzgWOQbhBdGIEvithrw3-5H5qk0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=Px3s_uYn4d177Bapr6UItVAG4ySRRwV1FTF9REvDumgGERVSCp8kyUryq_3KpZpUTfDe5TqxyIZGZxX5ozdMPUJbZ6hLNkyZcQs3Jq49Tq4elUn1XVD0J1HZdSLCj4u7lSEusPaT52P-dmmUW16Zx-F1DukKY3vEPHf0rDfBa2Ek1wHWv_TRP5IVvEToeq9-7oWzL-s-gnso82iAY4IHaA2&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=CjtT-uoLDoJdb4jgIJsBSRfL44ke78nKZN-T9Xh3VSuD7RX_5Bbo7zl2hrjZ0swKv3_WHboUwa3CrIc3r4fFnDK9--SThodGc3omd1KRkx-JcDZI56y8-pa3_jBuZ_Ja8EMw_zpGdh3c9iwxA6DgF6ADJueXAYnVerg4cx6Bv0PIW6hB8qDQX-29PZKYY9GD0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=hlEAjtYEwmyXvO53WOf3q1zm2M7vuEdUVyDiqXVCgKr5riw1ELy1ZRVj03iNlJYxSTquNrQZHsvSiEbqGSmz3MMcWp23BUlw4alWlNPe5NP81SNNQVIF6kR2DGagvrRoBfqFTWglcSdlZQtbZxa5nSJXuFFkjU7ovmwG9osuidcErpqwHbUr6Ngxm-jvdKpU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=NCcLU-zMz9clvVmV2ucp3Ot41YxhAEEnw1oODrj8U91mAFxGPkAkQeWXV5fcdwyy0mrLKva6KKMcHAaFm2jnwiusIA32tvo4e5f3N2JCWpIcY6qf8KJPLTTSkEYlrbyi5wATnAAhBkhIGD7thl1Lbyo0K8SYohjMh-git_nbtJv05RRshlEMjUi_DzdFBcqU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=1io6R1AjpcUezik5_qSigmQJFRbaB2L40L4rOH4MFKicVZMDTRO2C05XLVrubr29MfmMtziY_kIcjW_ZmQGmx7YNmW57PfPG1GkmCEILrEoNQLwRbo25stWZt8KVTCCGiLf2PdSQiW2RglNOyI0M__DHWfTq1HvMHualKSNfkpcafH4w3IeATgirTQJMa3Ry0&t=639106604800000000' type='text/javascript'></script>
+
+
+<script type="text/javascript">
+        var recaptchaSiteKey = '6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G';
+        var pageLoadToken = '';
+        var isPageValidated = false;
+
+        function onRecaptchaLoad() {
+            console.log('reCAPTCHA carregado, validando página...');
+            executePageLoadRecaptcha();
+        }
+
+        function executePageLoadRecaptcha() {
+            if (typeof grecaptcha === 'undefined') {
+                console.error('reCAPTCHA não carregado');
+                return;
+            }
+
+            grecaptcha.ready(function() {
+                grecaptcha.execute(recaptchaSiteKey, {
+                    action: 'page_load_resumo'
+                }).then(function(token) {
+                    console.log('Token de página gerado');
+                    pageLoadToken = token;
+
+                    // Enviar o token para o servidor
+                    validatePageLoadToken(token);
+                }).catch(function(error) {
+                    console.error('Erro no reCAPTCHA de página:', error);
+                    // Em desenvolvimento, permitir continuar
+                });
+            });
+        }
+
+        function validatePageLoadToken(token) {
+            var currentUrl = window.location.href;
+            var queryString = window.location.search;
+            var nrSolicitacao = 'MR023093/2026';
+
+            $.ajax({
+                url: '/sistemas/mediador/Resumo/ValidateResumoPageLoad',
+                type: 'POST',
+                data: {
+                    recaptchaToken: token,
+                    currentUrl: currentUrl,
+                    queryString: queryString,
+                    nrSolicitacao: nrSolicitacao
+                },
+                success: function(response) {
+                    if (response.success) {
+                        console.log('Página validada com sucesso');
+                        isPageValidated = true;
+                        showPageContent();
+                    } else {
+                        console.warn('Validação de página falhou:', response.message);
+                        handleValidationFailed(response);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao validar página:', error);
+                    handleValidationFailed({ message: 'Erro de comunicação com o servidor' });
+                }
+            });
+        }
+
+        function showPageContent() {
+            // Remover overlay de loading se existir
+            $('#recaptcha-loading').remove();
+            console.log('Conteúdo da página liberado');
+        }
+
+        function handleValidationFailed(response) {
+            // Mostrar mensagem de erro
+            var errorHtml = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                    <div style="text-align: center; padding: 20px;">
+                        <h2 style="color: #d32f2f;">Validação de Segurança</h2>
+                        <p style="font-size: 16px; margin: 20px 0;">${response.message || 'Falha na validação de segurança.'}</p>
+                        <button onclick="window.location.reload()" style="padding: 10px 20px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Tentar Novamente
+                        </button>
+                        <br><br>
+                        <button onclick="window.location.href='/sistemas/mediador/'" style="padding: 8px 16px; background: #757575; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Voltar para Página Inicial
+                        </button>
+                    </div>
+                </div>
+            `;
+            $('body').prepend(errorHtml);
+        }
+
+        $(document).ready(function() {
+            console.log('Página carregada - ambiente de produção');
+
+            // Pular validação reCAPTCHA em produção
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.log('Produção - validando sem reCAPTCHA');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 1000);
+
+            // Timeout de segurança reduzido
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.warn('Timeout na validação - liberando conteúdo');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 5000); // Reduzido para 5 segundos
+        });
+
+        function Imprimir() {
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "none";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "none";
+            window.print();
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "";
+            return true;
+        }
+        $(function () {
+            var marcaDaguaHtml = $('.MarcaDagua').html();
+            var width = $('body').width();
+            var marcaW = $('.MarcaDagua').width();
+
+            var qtdNescessarios = Math.round((width / marcaW) + 0.4);
+            if (qtdNescessarios > 0)
+                for (var incrementador = 0; incrementador < qtdNescessarios; incrementador++) {
+                    $('.MarcaDagua').append("<br />");
+                    $('.MarcaDagua').append(marcaDaguaHtml);
+                }
+        });
+
+
+</script>
+    <style type="text/css">
+        .titulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .Subtitulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 13px;
+        }
+        .texto
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .tituloClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .descricaoClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .textogrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+        .textosubgrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        .textonome
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .textofuncao
+        {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .pagebreak
+        {
+            page-break-after: always;
+        }
+        table.titulo
+        {
+            text-align: left;
+        }
+        @page Section2 {size:21cm 29.7cm ;mso-page-orientation:portrait;margin-top:2cm; margin-rigth:2cm; mso-paper-source:0;}
+        div.Section2 {page:Section2;}
+        pre
+        {
+            white-space: pre-wrap; /* css-3 */
+            white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+            white-space: -pre-wrap; /* Opera 4-6 */
+            white-space: -o-pre-wrap; /* Opera 7 */
+            word-wrap: break-word; /* Internet Explorer 5.5+ */
+            white-space: normal;
+        }
+    </style>
+    <!--[if gte mso 9]>
+    <xml>
+    <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+    </xml>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="Section2">
+
+        <center>
+            <table border="0" style="width: 18cm;" id="tblConteudo">
+                <tr>
+                    <td>
+                        <table style="width: 100%;" cellpadding="0" cellspacing="0">
+
+                                                            <tr>
+                                    <td align="center" class="titulo" style="text-transform: uppercase;">
+                                        <b>
+                                            Conven&#231;&#227;o Coletiva De Trabalho 2026/2026
+                                        </b>
+                                        <br />
+                                        <br />
+                                    </td>
+                                </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: left;">
+                                        <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <td>
+                                                        <b>NÚMERO DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        PR001127/2026
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        20/05/2026
+                                                    </td>
+                                                </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>NÚMERO DA SOLICITAÇÃO:</b>
+                                                </td>
+                                                <td style="width: 10px">
+                                                </td>
+                                                <td>
+                                                    MR023093/2026
+                                                </td>
+                                            </tr>
+                                                                                            <tr>
+                                                    <td>
+                                                        <b>NÚMERO DO PROCESSO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        13068.203455/2026-90
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DO PROTOCOLO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+19/05/2026                                                    </td>
+                                                </tr>
+                                        </table>
+                                        <br />
+
+                                                        <p>
+                                                            <label class="texto">
+                                                                <b>
+                                                                    Confira a autenticidade no endereço http://www3.mte.gov.br/sistemas/mediador/.
+                                                                </b>
+                                                            </label>
+                                                        </p>
+                                                    <br />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" class="texto">
+                                    <p align="justify">
+SINDICATO DOS TRAB NAS INDS GRAF DO EST DO PARANA, CNPJ n. 76.905.918/0001-41, neste ato representado(a) por seu 
+
+Presidente, Sr(a). SUSANA BEATRIS GUTHNER ARRUA;
+    <br />
+&nbsp;
+    <br />
+                                        <label>
+                                            E
+                                        </label>
+                                        <br />
+                                        <br />
+FEDERACAO DAS INDUSTRIAS DO ESTADO DO PARANA, CNPJ n. 76.709.898/0001-33, neste ato representado(a) por seu 
+
+Vice-Presidente, Sr(a). VIRGILIO MOREIRA FILHO;
+    <br />
+&nbsp;
+    <br />
+                                                                                    celebram
+                                                                                    a
+                                         presente CONVEN&#199;&#195;O COLETIVA DE TRABALHO,
+ estipulando as condi&#231;&#245;es de trabalho previstas nas cl&#225;usulas seguintes:                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA PRIMEIRA - VIG&#202;NCIA E DATA-BASE
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    As partes fixam a vigência da presente Convenção Coletiva de Trabalho no período de 01º de abril de 2026 a 31 de dezembro de 2026 e a data-base da categoria em 01º de abril.
+                                                </label>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA SEGUNDA - ABRANG&#202;NCIA
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    A presente Convenção Coletiva de Trabalho abrangerá a(s) categoria(s) <b>  Profissional, dos trabalhadores nas indústrias gráficas do plano da CNTI                         </b>, com abrangência territorial em <b>Altamira do Paraná/PR, Alto Piquiri/PR, Altônia/PR, Ampére/PR, Anahy/PR, Assis Chateaubriand/PR, Barbosa Ferraz/PR, Barracão/PR, Boa Vista da Aparecida/PR, Braganey/PR, Cafelândia/PR, Cafezal do Sul/PR, Campina da Lagoa/PR, Campo Mourão/PR, Candói/PR, Cantagalo/PR, Capanema/PR, Capitão Leônidas Marques/PR, Cascavel/PR, Catanduvas/PR, Céu Azul/PR, Chopinzinho/PR, Clevelândia/PR, Corbélia/PR, Coronel Domingos Soares/PR, Coronel Vivida/PR, Corumbataí do Sul/PR, Cruzeiro do Oeste/PR, Dois Vizinhos/PR, Douradina/PR, Enéas Marques/PR, Engenheiro Beltrão/PR, Farol/PR, Flor da Serra do Sul/PR, Formosa do Oeste/PR, Foz do Iguaçu/PR, Francisco Alves/PR, Francisco Beltrão/PR, Goioerê/PR, Guaíra/PR, Guaraniaçu/PR, Guarapuava/PR, Honório Serpa/PR, Ibema/PR, Icaraíma/PR, Iporã/PR, Iretama/PR, Itaipulândia/PR, Itapejara d'Oeste/PR, Ivaté/PR, Janiópolis/PR, Jesuítas/PR, Juranda/PR, Laranjal/PR, Laranjeiras do Sul/PR, Lindoeste/PR, Luiziana/PR, Mamborê/PR, Mangueirinha/PR, Marechal Cândido Rondon/PR, Maria Helena/PR, Mariluz/PR, Mariópolis/PR, Maripá/PR, Marmeleiro/PR, Matelândia/PR, Medianeira/PR, Missal/PR, Moreira Sales/PR, Nova Aurora/PR, Nova Cantu/PR, Nova Esperança do Sudoeste/PR, Nova Olímpia/PR, Nova Prata do Iguaçu/PR, Nova Santa Rosa/PR, Nova Tebas/PR, Ouro Verde do Oeste/PR, Palmas/PR, Palmital/PR, Palotina/PR, Pato Bragado/PR, Pato Branco/PR, Peabiru/PR, Pérola/PR, Pinhal de São Bento/PR, Pinhão/PR, Pitanga/PR, Planalto/PR, Pranchita/PR, Quatro Pontes/PR, Quedas do Iguaçu/PR, Quinta do Sol/PR, Ramilândia/PR, Rancho Alegre/PR, Realeza/PR, Renascença/PR, Roncador/PR, Salgado Filho/PR, Salto do Lontra/PR, Santa Helena/PR, Santa Izabel do Oeste/PR, Santa Maria do Oeste/PR, São João/PR, São Jorge do Patrocínio/PR, São Jorge d'Oeste/PR, São José das Palmeiras/PR, São Miguel do Iguaçu/PR, Saudade do Iguaçu/PR, Sulina/PR, Tapejara/PR, Tapira/PR, Terra Boa/PR, Terra Roxa/PR, Toledo/PR, Três Barras do Paraná/PR, Tuneiras do Oeste/PR, Tupãssi/PR, Turvo/PR, Ubiratã/PR, Umuarama/PR, Vera Cruz do Oeste/PR, Verê/PR, Virmond/PR, Vitorino/PR e Xambrê/PR</b>.
+                                                </label>
+                                                <br />
+                                    </p>
+
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Salários, Reajustes e Pagamento
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Reajustes/Correções Salariais
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TERCEIRA - DAS CONDI&#199;&#213;ES DE TRABALHO E SAL&#193;RIO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <div class="WordSection1">
+<p style="text-align: justify;"><span style="font-size: small;">As condi&ccedil;&otilde;es ajustadas para reger as rela&ccedil;&otilde;es individuais de trabalho durante a vig&ecirc;ncia desta Conven&ccedil;&atilde;o, s&atilde;o as seguintes:</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h3 style="text-align: justify;"><span style="font-size: small;">a)&nbsp; CONDI&Ccedil;&Otilde;ES SALARIAIS GERAIS</span></h3>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>&nbsp;</strong></span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>a.1 - Reajuste Salarial &ndash; 2026:</strong></span></p>
+<p style="text-align: justify;"><span style="font-size: small;">As empresas reajustar&atilde;o os sal&aacute;rios de todos seus empregados da seguinte forma. <strong>No m&ecirc;s de abril de 2026, </strong>os sal&aacute;rios de todos os empregados integrantes da categoria profissional ser&atilde;o reajustados pelo percentual de 4% (quatro por cento), que ser&aacute; aplicado <strong>sobre os sal&aacute;rios de mar&ccedil;o de 2026&nbsp;</strong>e em todas as faixas salariais inclusive sobre os valores dos pisos salariais m&iacute;nimos previstos nas conven&ccedil;&otilde;es anteriores.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h3 style="text-align: justify;"><span style="font-size: small;">a.2&nbsp; - Proporcionalidade</span></h3>
+<p style="text-align: justify;"><span style="font-size: small;">Para os empregados admitidos ap&oacute;s 01/04/2025 ou para as empresas que tiveram o in&iacute;cio de suas atividades ap&oacute;s 01/04/2025, deve-se aplicar a proporcionalidade de 1/12 (um doze avos) de acordo com o n&uacute;mero de meses trabalhados a partir do m&ecirc;s de admiss&atilde;o ou de in&iacute;cio das atividades da empresa.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">Na aplica&ccedil;&atilde;o dos reajustes poder&atilde;o ser compensadas todas as antecipa&ccedil;&otilde;es, com exce&ccedil;&atilde;o das altera&ccedil;&otilde;es salariais decorrentes de t&eacute;rmino de aprendizagem, promo&ccedil;&atilde;o, transfer&ecirc;ncia de cargos, fun&ccedil;&atilde;o.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">Nenhum sal&aacute;rio profissional poder&aacute; ficar abaixo do piso m&iacute;nimo da respectiva fun&ccedil;&atilde;o.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h3 style="text-align: justify;"><span style="font-size: small;">a.3&nbsp; - Pagamentos e Vales Obrigat&oacute;rios:</span></h3>
+<p style="text-align: justify;"><span style="font-size: small;">Os sal&aacute;rios devem ser pagos at&eacute; o quinto dia do m&ecirc;s subsequente ao vencido, se este quinto dia corrido cair em s&aacute;bado n&atilde;o trabalhado, domingo ou feriado; o pagamento ser&aacute; realizado no primeiro dia &uacute;til subsequente.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">Ainda h&aacute; concess&atilde;o obrigat&oacute;ria de adiantamentos ou vales, at&eacute; o d&eacute;cimo quinto dia ap&oacute;s o pagamento, observada a hip&oacute;tese de antecipa&ccedil;&atilde;o acima mencionada, em valor n&atilde;o inferior a 40% (quarenta por cento) dos sal&aacute;rios do m&ecirc;s; em nenhuma hip&oacute;tese, a concess&atilde;o de adiantamento ou vales pode efetivar-se ap&oacute;s o dia 20 (vinte).</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">As empresas e os empregados, de comum acordo, podem reduzir o percentual da antecipa&ccedil;&atilde;o para 20% (vinte por cento), com os sal&aacute;rios pagos dentro do pr&oacute;prio m&ecirc;s.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">Ressalva-se que tratamento mais favor&aacute;veis que j&aacute; v&ecirc;m sendo dispensados em torno dos temas s&atilde;o mantidos.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h3 style="text-align: justify;"><span style="font-size: small;">a.4&nbsp; - Revis&atilde;o das Cl&aacute;usulas Econ&ocirc;micas:</span></h3>
+</div>
+<p style="text-align: justify;">&nbsp;<strong style="font-size: small;">&nbsp;</strong></p>
+<p style="text-align: justify;"><span style="font-size: small;">A qualquer tempo, desde que as condi&ccedil;&otilde;es assim o exigirem, poder&atilde;o ser analisadas e de comum acordo revistas as cl&aacute;usulas e condi&ccedil;&otilde;es econ&ocirc;micas da presente conven&ccedil;&atilde;o Coletiva de Trabalho.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">b)&nbsp; CLASSIFICA&Ccedil;&Atilde;O FUNCIONAL E SAL&Aacute;RIO PROFISSIONAL:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>&nbsp;</strong></span></p>
+<p style="text-align: justify;"><span style="font-size: small;">Permanecem classificadas nesta Conven&ccedil;&atilde;o Coletiva de Trabalho, as seguintes fun&ccedil;&otilde;es:</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">BLOQUISTA/ACABAMENTO:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7663-15 </strong>- Assim entendido aquele que: batendo os impressos, intercalando-os (caso com numera&ccedil;&atilde;o), fazendo escolha e revis&atilde;o, serrilhando ou picotando quando necess&aacute;rio prensando, passando cola no lombo, destacando, grampeando, colando a tira, furando quando preciso e separando a numera&ccedil;&atilde;o. Pode dobrar a folha com numera&ccedil;&atilde;o manualmente, margear os impressos na m&aacute;quina de dobrar ou de envernizar, colecionar cadernos com numera&ccedil;&atilde;o, esquadrar o papel, cortar no balancim, cortar no fac&atilde;o, costurar a m&aacute;quina ou a M&atilde;o, contar o papel, fechar envelopes manualmente e confeccionar folhinhas, colando cabe&ccedil;alho ou bloco. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica da 2&ordf; s&eacute;rie do primeiro grau, com conhecimentos espec&iacute;ficos em m&aacute;quinas e materiais usados e processos de impress&atilde;o. Experi&ecirc;ncia m&iacute;nima de 12 (doze), 24 (vinte e quatro) e 48 (quarenta e oito) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">CORTADOR:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7663-20 </strong>- Assim entendido aquele que corta e refila o papel e blocos na guilhotina, verificando a guia, estudando as medidas, quando necess&aacute;rio, batendo o papel, cortando-o e conferindo, colando-o na m&aacute;quina, acertando sua posi&ccedil;&atilde;o e acionando a guilhotina, empilhando o papel cortado, colocando-o no estrado, acertando o esquadro e marcando-o com tinta a pincel, lateralmente. Troca a faca da guilhotina, quando necess&aacute;rio, colando uma nova e fazendo o acerto exigido. Pode transportar papel em carrinho at&eacute; a guilhotina. Utiliza r&eacute;gua, fita m&eacute;trica, jogo de chaves da m&aacute;quina, motolia, l&aacute;pis, carrinho e guilhotina. Experi&ecirc;ncia m&iacute;nima de 24 (vinte e quatro) e 36 (trinta e seis) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">COMPOSITOR MANUAL:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7686-05 </strong>- (tip&oacute;grafo, formista, chapista) - Assim entendido aquele que: efetua a composi&ccedil;&atilde;o manual de chapas tipogr&aacute;ficas, ajustando o componedor e dispondo ordenadamente os tipos no mesmo e na bolandeira, para possibilitar a reprodu&ccedil;&atilde;o de textos diversos. Examina o texto, observando o tamanho, espa&ccedil;amento e letras, palavras e linhas, tipos a serem utilizados e outras caracter&iacute;sticas do trabalho, para programar a composi&ccedil;&atilde;o; ajusta o componedor, armando-o de acordo com o comprimento das linhas, para proceder &agrave; composi&ccedil;&atilde;o desejada; forma as linhas da composi&ccedil;&atilde;o, lendo o texto, escolhendo e dispondo os tipos e espa&ccedil;os no componedor e fazendo as medidas com a r&eacute;gua tipogr&aacute;fica para reproduzir o original arma a bolandeira, transferindo os grupos de linhas tirando do componedor, para montar a chapa (forma) ou granel; desamarra granez fundidos no monotipo(ou linhas de linotipo), colocando espa&ccedil;os e entrelinhas; monta clich&ecirc;s de uma ou mais cores; amarra chapas, contornando-as com barbantes ou acess&oacute;rios adequados. Faz rubricas, desamarrando-as, trocando tipos ou linhas, conforme seja necess&aacute;rio, amarrando totalmente a chapa; providencia as provas de composi&ccedil;&atilde;o, encaminhando-as a impress&atilde;o, para possibilitar a verifica&ccedil;&atilde;o e a corre&ccedil;&atilde;o de erros e falhas; examina a prova corrigida, verificando as corre&ccedil;&otilde;es efetuadas para realizar as modifica&ccedil;&otilde;es necess&aacute;rias na composi&ccedil;&atilde;o e envi&aacute;-las a impress&atilde;o final; pode distribuir chapas, depois de usadas, lavando-as se necess&aacute;rio; desamarrando-as separando os materiais e distribuindo-os nas gavetas ou caixas; pode paginar; pode tirar e corrigir provas; pode efetuar o desdobramento da chapa para impress&atilde;o a cores; pode programar a disposi&ccedil;&atilde;o est&eacute;tica de impress&otilde;es, como cart&otilde;es, avisos, convites e prospectos; utiliza r&eacute;gua tipogr&aacute;fica. Componedor; pin&ccedil;a; bolandeira; barbante (ou acess&oacute;rio); chanfrador e prelo de provas. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica do primeiro grau ou curso t&eacute;cnico do SENAI. Experi&ecirc;ncia m&iacute;nima de 48 (quarenta e oito) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">COMPOSITOR MEC&Acirc;NICO:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>(LINOTIPISTA CBO 7686-10) </strong>- Assim entendido aquele que opera m&aacute;quina linotipo, regulando os dispositivos e manipulando o teclado segundo o texto original, para efetuar a composi&ccedil;&atilde;o autom&aacute;tica do mesmo; fixa as extremidades das margens e as cunhas da m&aacute;quina, manejando os dispositivos de preens&atilde;o, para determinar o comprimento e espessura das linhas a serem formadas; manipula o teclado da m&aacute;quina, dedilhando as teclas segundo as disposi&ccedil;&otilde;es das letras do texto, para fazer cair as matrizes dos magazines e formar as linhas; funde a linha de matrizes acionando o mecanismo de fus&atilde;o, para montar a composi&ccedil;&atilde;o; providencia as provas da composi&ccedil;&atilde;o, encaminhando a mesma a impress&atilde;o, para permitir a revis&atilde;o do trabalho e a corre&ccedil;&atilde;o de erros e falhas; examina a prova, verificando os erros cometidos, para refazer as linhas incorretas e permitir a impress&atilde;o; quando houver letra ou sinal especial, introduz no componedor a matriz correspondente manualmente; corta as linhas, quando necess&aacute;rio, utilizando serra; guarda as linhas, retirando-as da m&aacute;quina, formando granel, pondo em tabuleiros e guardando-as; abastece a m&aacute;quina ou chumbo, introduzindo-o nas caldeiras e controlando, constantemente, a temperatura. Utiliza r&eacute;gua tipogr&aacute;fica, chave de fenda, chave fixa, jogo de chaves pr&oacute;prio da m&aacute;quina e linotipo. Deve possuir instru&ccedil;&atilde;o b&aacute;sica do primeiro grau ou o curso do SENAI. Experi&ecirc;ncia m&iacute;nima de 48 (quarenta e oito) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">MONOTIPISTA:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7686-15 </strong>- Assim entendido aquele que opera equipamento de composi&ccedil;&atilde;o regulando seus componentes e manipulando um teclado, para perfurar fitas de papel destinadas a uma m&aacute;quina monotipo de fundir, examina o texto, observando tamanho, espa&ccedil;amento de linhas, tipos de letras e outras caracter&iacute;sticas do trabalho, para programar a composi&ccedil;&atilde;o; seleciona o teclado, verificando sua correspond&ecirc;ncia ao tamanho e tipo de letras desejados, para instal&aacute;- lo na unidade compositora; procede a instala&ccedil;&atilde;o do teclado na compositora, a fixa&ccedil;&atilde;o da escala de espa&ccedil;amento e a coloca&ccedil;&atilde;o do rolo de papel entre as guias da m&aacute;quina, orientando- se pelas especifica&ccedil;&otilde;es do trabalho e manipulando os dispositivos pr&oacute;prios, a fim de preparar a m&aacute;quina para a perfura&ccedil;&atilde;o da fita de papel; manipulando a m&aacute;quina, abrindo o dispositivo de ar comprimido, dedilhando as teclas segundo o texto original e espa&ccedil;amento devido, para perfurar a fita de papel; providencia o encaminhamento do trabalho, retirando da m&aacute;quina o rolo de papel perfurado e enviando-o a m&aacute;quina de fundir com as instru&ccedil;&otilde;es necess&aacute;rias, para permitir a fundi&ccedil;&atilde;o e composi&ccedil;&atilde;o de tipos soltos. Utiliza r&eacute;gua tipogr&aacute;fica, r&eacute;gua m&eacute;trica, l&aacute;pis, pin&ccedil;a, teclado de monotipo e motolia para lubrifica&ccedil;&atilde;o do mesmo. Deve possuir instru&ccedil;&atilde;o b&aacute;sica de primeiro grau ou curso t&eacute;cnico do SENAI. Experi&ecirc;ncia m&iacute;nima de 48 (quarenta e oito) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">ARTEFINALISTA:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7661-20 - </strong>Assim entendido aquele que confecciona, cria, finaliza, impressos em geral, embalagens, jornais, revistas, folhetos, leiautes, etc. Preparara a arte final do material a ser impresso. Analisa o planejamento gr&aacute;fico, fazendo a diagrama&ccedil;&atilde;o e a marca&ccedil;&atilde;o. Efetua tarefas pertinentes &agrave; ocupa&ccedil;&atilde;o utiliza-se de microcomputador e programas de inform&aacute;tica espec&iacute;ficos e profissionais da computa&ccedil;&atilde;o gr&aacute;fica, para o desenvolvimento das artes e trabalhos que poder&atilde;o ser gravados em papel vegetal, e ou convertidos em filmes ou chapas, os quais tornar-se-&atilde;o matrizes para impress&atilde;o em off set em geral, off set plana, rotativa fria, quente e seco, tipogr&aacute;fica, litogr&aacute;fica, rotooffset, plotter, serigr&aacute;fica, tampogr&aacute;fica, hologr&aacute;fica, letterpress, digital e outras t&eacute;cnicas de impress&atilde;o sobre qualquer tipo de suporte Deve possuir instru&ccedil;&atilde;o b&aacute;sica de segundo grau, ou curso do SENAI de arte final ou pr&eacute;-impress&atilde;o, ou equivalente. Experi&ecirc;ncia m&iacute;nima de 12 (doze) e 24 (vinte e quatro) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">COMPOSITOR ELETR&Ocirc;NICO:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7661-20 </strong>- operador de m&aacute;quina compositora (teclador; digitador) - Assim entendido aquele que opera m&aacute;quinas de composi&ccedil;&atilde;o eletr&ocirc;nica (composer IBM ou similar), ajustando a mesma de acordo com o trabalho a ser executado, ou seja, coloca o tipo de esfera adequado ao trabalho; introduz o papel; verifica se a m&aacute;quina est&aacute; na posi&ccedil;&atilde;o de impress&atilde;o; faz o acerto das medidas de acordo com o texto original datilografando-o na mem&oacute;ria do equipamento, para posterior reprodu&ccedil;&atilde;o. Possui conhecimento do equipamento e seus recursos. Deve possuir instru&ccedil;&atilde;o b&aacute;sica do primeiro grau, forma&ccedil;&atilde;o profissional do SENAI ou IBM, conhecimentos espec&iacute;ficos em terminologia gr&aacute;fica, bem como, de grafia e gram&aacute;tica, capacidade de efetuar 180 (cento e oitenta) toques por minuto. Experi&ecirc;ncia m&iacute;nima de 48 (quarenta e oito) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">IMPRESSOR TIPOGR&Aacute;FICO MANUAL:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7262-50 </strong>- (m&aacute;quinas manuais) - Assim entendido aquele que opera m&aacute;quinas de impress&atilde;o manuais ou cil&iacute;ndricas, regalando-as e acionando-as por meio de manipula&ccedil;&atilde;o dos dispositivos de controle, para imprimir textos diversos. Verifica as caracter&iacute;sticas do trabalho, observando as indica&ccedil;&otilde;es de tinta, papel e outros detalhes, para inteirar-se das especifica&ccedil;&otilde;es a seguir; engrada as chapas, dispondo-as na rama e preenchendo os espa&ccedil;os com pe&ccedil;as complementares, colocando cunhas de press&atilde;o e pressionado os tipos (de chumbo) com instrumento apropriado, a fim de preparar o mecanismo e possibilitar a sua coloca&ccedil;&atilde;o na m&aacute;quina, procede a fixa&ccedil;&atilde;o na m&aacute;quina, procede a fixa&ccedil;&atilde;o da rama na platina da m&aacute;quina e ao nivelamento da superf&iacute;cie de impress&atilde;o; carrega os dispositivos de alimenta&ccedil;&atilde;o da m&aacute;quina, enchendo-os com as quantidades indicadas de n&iacute;vel e papel, para prov&ecirc;-la do material necess&aacute;rio a impress&atilde;o; ajusta a m&aacute;quina, regulando os dispositivos de press&atilde;o e pressionando os tipos com instrumento apropriado, a fim de preparar a execu&ccedil;&atilde;o do tipo de impress&atilde;o desejado, imprime as provas de m&aacute;quina, acionado a impressora, para permitir a &uacute;ltima revis&atilde;o do texto, verifica a precis&atilde;o da regulagem e efetua os acertos necess&aacute;rios, opera a m&aacute;quina, acionando seus comandos, margeando o papel no esquadro e retirando-o ap&oacute;s a impress&atilde;o, quando for o caso, para obter a tiragem desejada. Pode manejar uma guilhotina para cortar o papel de impress&atilde;o, pode preparar tintas, misturando duas ou mais cores, tirando a prova, experimentando-a no papel, misturando secantes ou solventes, conforme a necessidade e colocando-a no interior da m&aacute;quina, pode lavar as chapas, retirando a rama da m&aacute;quina, pode limpar e lubrificar a m&aacute;quina. Utiliza r&eacute;gua, compasso, esp&aacute;tula, pin&ccedil;a, tesoura, chaves fixa e de fenda, alicate, tamborete e m&aacute;quina impressora manual (minerva ou cil&iacute;ndrica). Deve possuir instru&ccedil;&atilde;o b&aacute;sica de primeiro grau, curso t&eacute;cnico do SENAI ou equivalente. Experi&ecirc;ncia m&iacute;nima de 36 (trinta e seis) meses; Experi&ecirc;ncia M&iacute;nima de 48 (quarenta e oito) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">IMPRESSOR TIPOGR&Aacute;FICO AUTOM&Aacute;TICO:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7262-50 </strong>- (m&aacute;quinas autom&aacute;ticas) - Assim entendido aquele que opera m&aacute;quinas impressoras autom&aacute;ticas (minerva ou cil&iacute;ndricas), regulando e acionando-as por meio da manipula&ccedil;&atilde;o dos dispositivos de controle, para imprimir textos, ilustra&ccedil;&otilde;es, desenhos e trabalhos similares, verifica as caracter&iacute;sticas do trabalho, observando as indica&ccedil;&otilde;es de tinta, papel e outros detalhes, para inteirar-se das especifica&ccedil;&otilde;es a seguir: engrada as chapas, dispondo-as na rama e preenchendo espa&ccedil;os com pe&ccedil;as complementares, colocando cunhas de press&atilde;o e pressionando os tipos (de chumbo) com instrumento apropriado, a fim de preparar o mecanismo e possibilitar sua coloca&ccedil;&atilde;o na m&aacute;quina, procede a fixa&ccedil;&atilde;o da rama na platina da m&aacute;quina e ao nivelamento da superf&iacute;cie de impress&atilde;o; carrega os dispositivos de alimenta&ccedil;&atilde;o da m&aacute;quina, enchendo-os com as quantidades indicadas de papel e tinta, para prov&ecirc;-lo do material necess&aacute;rio a impress&atilde;o, ajusta a m&aacute;quina, regulando os dispositivos de press&atilde;o e pressionado os tipos (de chumbo) com instrumento apropriado, a fim de preparar o tipo de impress&atilde;o desejada, imprime as provas de m&aacute;quina, acionando a impressora, para permitir a revis&atilde;o do texto, verificar a precis&atilde;o da regulagem e efetuar os acertos necess&aacute;rios da press&atilde;o, tintagem, velocidade e outros detalhes adequados ao pleno desempenho do trabalho a ser executado, opera a m&aacute;quina, acionando seus comandos e controlando o seu funcionamento para obter a tiragem necess&aacute;ria e desejada. Pode manejar uma guilhotina para cortar papel de impress&atilde;o, pode limpar e lubrificar a impressora, pode fazer rubricas, quando for o caso, pode confiar a ajudantes (se houver) a execu&ccedil;&atilde;o de algumas tarefas a si indicadas, como alimenta&ccedil;&atilde;o da m&aacute;quina com papel, pode preparar tintas, misturando duas ou mais cores, tirando a prova, experimentando-a no papel, misturando secantes ou solvente, conforme a necessidade e colocando-as no tinteiro da m&aacute;quina. Utiliza r&eacute;gua, compasso, esp&aacute;tula, pin&ccedil;a, tesoura, chaves fixa e de fenda, tamborete e m&aacute;quina impressora autom&aacute;tica (minerva ou cil&iacute;ndrica). Deve possuir a instru&ccedil;&atilde;o b&aacute;sica do primeiro grau, curso t&eacute;cnico do SENAI ou equivalente. Experi&ecirc;ncia m&iacute;nima de 36 (trinta e seis) e 48 (quarenta e oito) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">IMPRESSOR CATEGORIA COMERCIAL:</span></h2>
+<h2 style="text-align: justify;"><span style="font-size: small;">CBO 7262-15 - offset (formatos 8 e 4) - Assim entendido aquele que opera m&aacute;quinas de impress&atilde;o offset (inclusive as chamadas duplicadoras offset), regulando e acionando-as por meio de dispositivos de controle e regulagem, ou pain&eacute;is de controle, para imprimir todo e qualquer impresso de caracter&iacute;sticas a tra&ccedil;o. Verifica e analisa as especifica&ccedil;&otilde;es do trabalho, observando tinta, &aacute;gua, solu&ccedil;&atilde;o, papel e outros detalhes para o bom registro de servi&ccedil;os. Regula o sistema de alimenta&ccedil;&atilde;o de papel, press&atilde;o, tinta e &aacute;gua. Substitui blanquetas; c&oacute;pia e troca chapas; inclusive as eletrost&aacute;ticas, lava e lubrifica a m&aacute;quina; lava rolos de molha, troca os revestimentos dos rolos de molha, cal&ccedil;a chapas, troca cilindros, prepara tintas, misturando duas ou mais cores, ajustando a sua distribui&ccedil;&atilde;o. Pode carregar e descarregar o papel da m&aacute;quina, bater o papel ou supervisionar o trabalho do batedor. Utiliza lente, micr&ocirc;metro, r&eacute;gua, esquadro, proveta, jogos de chaves, estilete, tesoura, esp&aacute;tula, raspador, mesa, bandeja, al&eacute;m da pr&oacute;pria m&aacute;quina impressora. Utiliza ainda, quando da lavagem do equipamento ou retoque de chapas, as seguintes solu&ccedil;&otilde;es qu&iacute;micas: querosene, thiner, &aacute;lcool, gasolina, restaurolito e os &aacute;cidos f&ecirc;nicos, fosf&oacute;ricos e n&iacute;tricos). Deve possuir a instru&ccedil;&atilde;o b&aacute;sica do primeiro grau, curso t&eacute;cnico do SENAI ou equivalente. Experi&ecirc;ncia m&iacute;nima de 12 (doze) a 48 (quarenta e oito) meses;</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">IMPRESSOR CATEGORIA INDUSTRIAL:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7262-15 </strong>- offset cores (formatos 4, 2 e 1) - Plana e Rotativa. Assim entendido aquele que opera m&aacute;quinas de impress&atilde;o offset denominadas industriais, por serem dotadas de maiores condi&ccedil;&otilde;es de registro. Exige do operador, al&eacute;m do conhecimento inerente a atividade da categoria comercial os de: fotolito (para saber avaliar a for&ccedil;a da ret&iacute;cula, tonalidade da cor necess&aacute;ria ao bom desempenho do trabalho em execu&ccedil;&atilde;o), sistemas de tintagem, registro, manipula&ccedil;&atilde;o de tintas, pulveriza&ccedil;&atilde;o de talco industrial, vernizes, combina&ccedil;&atilde;o de cores, densidade de pap&eacute;is, controle do PH (pode preparar a &aacute;gua, misturando-a com bicromato de s&oacute;dio e verificando a sua densidade), solu&ccedil;&atilde;o de umedecimento do papel, calibragem dos instrumentos, temperatura, peso, volume, c&oacute;pia e retoque de chapas. Estes operadores regulam o sistema de numera&ccedil;&atilde;o, de picote, para o correto ajuste do equipamento ao tipo de impress&atilde;o a ser produzido. Pode revelar chapas, cortar papel conforme original, lavar, limpar e lubrificar o equipamento, ou confiar ao ajudante estas tarefas. Deve possuir comando e lideran&ccedil;a de sua equipe de auxiliares, a ponto de obter destes, com perfei&ccedil;&atilde;o e desembara&ccedil;o, os servi&ccedil;os complementares, responsabilidade em atingir padr&otilde;es de produ&ccedil;&atilde;o, qualidade e produtividade de acordo com os par&acirc;metros comuns &agrave; atividade. Deve apresentar as primeiras provas de impress&atilde;o a aprova&ccedil;&atilde;o, acompanhamento e mantendo toda a tiragem no mesmo padr&atilde;o aprovado. Deve possuir recursos necess&aacute;rios para resolver o repinte, enrugamento do papel e outras ocorr&ecirc;ncias que possam comprometer a qualidade e produtividade do trabalho em andamento. Utiliza lente, micr&ocirc;metro, r&eacute;gua, esquadro, proveta, jogo de chaves, estilete, tesoura, esp&aacute;tula, raspador, mesa, bandeja, al&eacute;m da pr&oacute;pria m&aacute;quina impressora. Utiliza ainda, quando da lavagem do equipamento ou retoque de chapas, as seguintes solu&ccedil;&otilde;es qu&iacute;micas: querosene, thiner, &aacute;lcool, gasolina, restaurolito e os &aacute;cidos f&ecirc;nicos, fosf&oacute;ricos e n&iacute;tricos. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica do primeiro grau, curso do SENAI (preferencialmente com estagio nas demais &aacute;reas do curso Artes Gr&aacute;ficas). F-4 Experi&ecirc;ncia m&iacute;nima de 48 (quarenta e oito) meses; F-2 Experi&ecirc;ncia m&iacute;nima de 54 (cinquenta e quatro) meses; F-1 Experi&ecirc;ncia m&iacute;nima de 54 (cinquenta e quatro) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">AUXILIAR DE IMPRESSOR CATEGORIA INDUSTRIAL:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7262-15 </strong>offset cores (formatos 4, 2 e 1) - Assim entendido aquele que ajuda a colocar as chapas no cilindro, atrav&eacute;s das instru&ccedil;&otilde;es do impressor, prendendo-as com parafusos, medindo a espessura de cada chapa com o papel atrav&eacute;s da utiliza&ccedil;&atilde;o do micr&ocirc;metro. Auxilia no ajustamento da m&aacute;quina, acertando o registro das chapas, o margeador autom&aacute;tico, os rolos de tinta e de &aacute;gua. Utilizando-se de ferramentas diversas, da pr&oacute;pria m&aacute;quina, prepara as tintas, conforme as instru&ccedil;&otilde;es do impressor ou verificando a composi&ccedil;&atilde;o das cores no original ou por amostras, misturando duas ou mais cores de cada tinta, batendo-as sobre o papel e comparando-as com os elementos da guia. Auxilia e acompanha a impress&atilde;o, observando a sua qualidade e corrigindo, quando necess&aacute;rio, o margeador autom&aacute;tico. Limpa os rolos de tinta, passando-lhes estopa com gasolina, lubrifica a m&aacute;quina, enchendo sua bomba de &oacute;leo, utilizando-se de uma motolia. Limpa as chapas e os cilindros de borracha, passando-lhes uma esponja com &aacute;gua. Carrega o papel na m&aacute;quina, retirando-o do estrado e empilhando no carro pr&oacute;prio da impressora. Pode trocar a &aacute;gua, retirando a usada e substituindo-a por nova; pode lavar os rolos de &aacute;gua, retirando e escovando-os no tanque com &aacute;gua e sab&atilde;o, bem como recobrir os rolos molhadores de moletom. Pode tamb&eacute;m providenciar materiais diversos, retirando-os do almoxarifado, atrav&eacute;s de requisi&ccedil;&atilde;o autorizada pelo chefe de se&ccedil;&atilde;o. Utiliza lente, micr&ocirc;metro, jogo de chaves da m&aacute;quina, esponja, estopa, balde de &aacute;gua, esp&aacute;tula, bandeja e m&aacute;quina offset e motilia. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica do primeiro grau. Experi&ecirc;ncia m&iacute;nima de 36 (trinta e seis) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">IMPRESSOR DE CORTE E VINCO:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7663-10 </strong>- (m&aacute;quinas manuais) - Assim entendido aquele que coloca a forma de corte e vinco na m&aacute;quina, fixando-a adequadamente e passando tinta nos fios para fazer a folha de prova (ajuste e registro da forma com a folha impressa). Troca o forro do padr&atilde;o, retirando o anterior, preparando novos e prendendo-os. Nivela facas, fazendo m&aacute;scara com papel e usa tinta ou carbono nos fios para que a mesma fique uma c&oacute;pia perfeita da forma de corte e vinco no forro do padr&atilde;o, fazendo as canaletas de acordo com as especifica&ccedil;&otilde;es de gramatura do papel ou cart&atilde;o. Inicia o cal&ccedil;amento para nivelar a altura das facas com cal&ccedil;os de papel, conforme a altura vari&aacute;vel das l&acirc;minas, nas posi&ccedil;&otilde;es adequadas. Ap&oacute;s as facas estarem cortando normalmente e os vincos com grava&ccedil;&atilde;o normal para dobra; verifica o esquadro e fechamento dos cantos, para que fiquem corretos. Estando o acerto pronto, regula o margeador autom&aacute;tico, acertando o esquadro e as chupetas de acordo com o formato do trabalho a ser executado. Coloca as varetas de fixa&ccedil;&atilde;o no conjunto de destaque, ajustando pela folha a ser vincada. Ajusta a t&aacute;bua vazada, regulando a mesma at&eacute; a queda parcial das aparas. Pode operar m&aacute;quina de corte e vinco e registrar em uma ficha ou na guia a produ&ccedil;&atilde;o e o tempo gasto, conforme as normas da empresa. Utiliza r&eacute;gua, esquadro, l&aacute;pis, forma, pin&ccedil;a, fibra, cola, chaves de fenda, lixa, alicate, tesoura e m&aacute;quina de corte e vinco manual. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica do primeiro grau. Experi&ecirc;ncia m&iacute;nima de 36 (trinta e seis) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">IMPRESSOR DE CORTE E VINCO:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7663-10 </strong>- (m&aacute;quinas autom&aacute;ticas) - Assim entendido aquele que coloca a forma de corte e vinco na m&aacute;quina, fixando-a adequadamente e passando tinta nos fios para fazer a folha prova (ajuste e registro da forma com a folha impressa). Troca o forro do padr&atilde;o, retirando o anterior, preparando novos e prendendo-os. Nivela as facas, fazendo m&aacute;scara com papel e usa tinta ou carbono nos fios, para que a mesma fique uma c&oacute;pia perfeita da forma de corte e vinco no forro de padr&atilde;o, fazendo-as canaletas de acordo com as especifica&ccedil;&otilde;es de gramatura do papel ou cart&atilde;o. Inicia o cal&ccedil;amento para nivelar a altura das facas com cal&ccedil;os de papel, conforme a altura vari&aacute;vel das laminas, nas posi&ccedil;&otilde;es adequadas. Ap&oacute;s as facas estarem cortando normalmente e os vincos com grava&ccedil;&atilde;o normal para dobra; verifica o esquadro e fechamento dos cantos, para que fiquem corretos. Estando o acerto pronto, regula o margeador autom&aacute;tico, acertando o esquadro e as chupetas de acordo com o formato do trabalho a ser executado. Coloca as varetas de fixa&ccedil;&atilde;o no conjunto de destaque, ajustando pela folha a ser vincada. Ajusta a t&aacute;bua vazada, regulando a mesma at&eacute; a queda parcial das aparas. Pode operar m&aacute;quina de corte e vinco e registrar em uma ficha ou na guia, a produ&ccedil;&atilde;o e o tempo gasto, conforme as normas da empresa. Utiliza r&eacute;gua, esquadro, l&aacute;pis, pin&ccedil;a, fibra, cola, chaves de fenda, lixa, alicate, tesoura e m&aacute;quina de corte e vinco autom&aacute;tica. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica do primeiro grau. Experi&ecirc;ncia m&iacute;nima de 48 (quarenta e oito) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">MONTADOR DE CORTE E VINCO:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7663-25 </strong>- Assim entendido aquele que faz tra&ccedil;ado na madeira, verificando as indica&ccedil;&otilde;es feitas na guia, providenciando o impresso ou filme e utilizando os instrumentos de desenho necess&aacute;rios. Serra madeira compensada, abrindo furos com a furadeira, colocando a serra tico-tico, acionando-a e manejando a madeira conforme o tra&ccedil;ado. Monta os fios de corte e vinco, cortando-os na medida exata, fazendo as curvas ou &acirc;ngulos e encaixando-os na madeira serrada. Pode montar as facas substituindo a madeira por material tipogr&aacute;fico. Pode tirar prova, colocando a chapa na m&aacute;quina tira-provas, colocando a cartolina sobre a mesma dando press&atilde;o. Pode idealizar os modelos de cartucho, fazendo o tra&ccedil;ado em cartolina ou outro papel. Utiliza compasso, esquadro, r&eacute;gua, l&aacute;pis, martelo, pin&ccedil;a, alicate, graminho, pun&ccedil;&atilde;o, lixa, tesoura, lima triangular, esmeril, serra tico-tico e circular, mesa ou bancada, cortador de l&acirc;mina e de fazer curva, morsa, furadeira e material tipogr&aacute;fico. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica do primeiro grau, conhecimentos espec&iacute;ficos em processos de corte e vinco e desenho. Experi&ecirc;ncia m&iacute;nima de 36 (trinta e seis) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">FOTOLITOGRAFO RETOCADOR:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7661-50 </strong>- Assim entendido aquele que retoca negativos ou m&aacute;scaras (ou ambos), verificando sua tonalidade, confrontando com os originais, refor&ccedil;ando ou rebaixando a tonalidade, conforme a necessidade. Retoca positivos, passando protetor com pincel ou tira- linhas, diminuindo os pontos com aux&iacute;lio de solu&ccedil;&atilde;o gravadora e verificando-os com o conta- fios (lente). Corrige os positivos reticulados, diminuindo ou eliminado o excesso, a fim de obter o equil&iacute;brio de cores, conforme original e escala de cores. Corrige a sele&ccedil;&atilde;o de cores, separando uma e eliminando as demais, cobrindo-as e fazendo contornos, a fim de conservar o fundo. Revisa as provas, examinando sua tonalidade e confrontando-as com os originais. Utiliza densit&ocirc;mentro, escala de cores, pinc&eacute;is, tira-linhas, banheiras, copos, asfalto, verniz, raspador, fita adesiva, solu&ccedil;&atilde;o gravadora, tesoura, estilete, algod&atilde;o, mesa e tanque para retoques. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica da 4&ordf; (quarta) s&eacute;rie do primeiro grau, conhecimentos espec&iacute;ficos em composi&ccedil;&atilde;o de cores; desenho art&iacute;stico; produtos qu&iacute;micos utilizados; instrumentos de controle; processo de impress&atilde;o e fotografia e montagem de filmes. Experi&ecirc;ncia m&iacute;nima de 48 (quarenta e oito) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">FOTOLIT&Oacute;GRAFO MONTADOR:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7661-25 </strong>- Assim entendido aquele que faz tra&ccedil;ados, calculando conforme o original, verificando dimens&otilde;es do papel, controlando dimens&otilde;es do filtro, utilizando tabelas de transforma&ccedil;&atilde;o de sistemas de medidas e prevendo folgas necess&aacute;rias. Monta os filmes conforme o tra&ccedil;ado, preparando suporte transparente, recortando os filmes de texto ou ilustra&ccedil;&atilde;o, colando sobre o suporte, segundo o esbo&ccedil;o ou arte-final, controlando dimens&otilde;es e registros (cruzes). Faz m&aacute;scaras, recortando papel preto, colocando-as sobre o filme ou cobrindo o suporte transparente. Controla filmes e elimina defeitos, passando tinta opaca ou nanquim, conforme o mesmo seja chapado ou reticulado, controlando cores com aplica&ccedil;&atilde;o de banday e ret&iacute;culas. Faz montagem para c&oacute;pia, preparando suporte transparente sobre a mesa de montagem, recortando e colando adequadamente os filmes. Prepara filmes para inser&ccedil;&atilde;o de imagem e pode retocar textos (em filme), raspando letras, observando com lente, consertando-as com tinta nanquim, colocando acentos, pontua&ccedil;&otilde;es, etc. Utiliza r&eacute;gua e r&eacute;gua de punche, compasso, transferidor, lente tesoura, resquete, pinc&eacute;is, tira-linhas, tintas, material transparente, fita adesiva e mesa de montagem. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica da 4&ordf; (quarta) s&eacute;rie do primeiro grau, com conhecimentos espec&iacute;ficos em m&aacute;quina repetidora, desenho, produtos qu&iacute;micos utilizados, fotografia, composi&ccedil;&atilde;o de cores e processo de impress&atilde;o. Experi&ecirc;ncia m&iacute;nima de 36 (trinta e seis) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">COPIADOR DE CHAPAS OFFSET</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7661-45 </strong>- Assim entendido aquele que controla os elementos necess&aacute;rios, verificando a umidade e temperatura ambientes, analisando o positivo, para saber o tempo de exposi&ccedil;&atilde;o e as solu&ccedil;&otilde;es gravadora e reveladora. Transporta a imagem para a chapa, colocando-a j&aacute; sensibilizada na prensa, acertando o filme, acionando a prensa, e dando a exposi&ccedil;&atilde;o adequada. Pode repetir o processo tantas vezes quantas forem necess&aacute;rias. Revela a chapa j&aacute; exposta, cobrindo a imagem copiadora com papel, queimando o excesso da chapa na prensa, dando uma exposi&ccedil;&atilde;o, retirando a chapa e passando a solu&ccedil;&atilde;o reveladora em sua superf&iacute;cie. Grava a chapa, limpando a solu&ccedil;&atilde;o reveladora com um rodo e passando a solu&ccedil;&atilde;o gravadora durante tempo adequado. Retoca a chapa, lavando-a, passando a solu&ccedil;&atilde;o retocadora nas imperfei&ccedil;&otilde;es, secando a superf&iacute;cie com algod&atilde;o. Protege a grava&ccedil;&atilde;o feita, secando-a e lavando-a novamente, cobrindo-a com asfalto ou tinta preta e goma. Utiliza escova, rodo, algod&atilde;o, esponja, proveta, balan&ccedil;a, r&eacute;gua, conta-o o, cron&ocirc;metro, pedra de retoque, pincel, fita adesiva, prensa de v&aacute;cuo, mesa de grava&ccedil;&atilde;o, de revela&ccedil;&atilde;o e secador. Utiliza, ainda, solu&ccedil;&otilde;es diversas, tais como: esmaltes, tintas, talco, reveladores, &aacute;lcool, gasolina, querosene, &aacute;gua r&aacute;s, &aacute;cidos fosf&oacute;rico, sulf&uacute;rico, muri&aacute;tico, ac&eacute;tico, clor&iacute;drico e n&iacute;trico, cloreto de c&aacute;lcio, precloreto de ferro, bicromato, amon&iacute;aco e thiner. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica da 6&ordf; (sexta) s&eacute;rie do primeiro grau, com conhecimentos espec&iacute;ficos em m&aacute;quinas e materiais usados; produtos qu&iacute;micos utilizados; fotografia, processos de impress&atilde;o offset e desenho. Experi&ecirc;ncia m&iacute;nima de 36 (trinta e seis) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">IMPRESSOR PROVISTA:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7662-50 </strong>- Assim entendido aquele que coloca a chapa na m&aacute;quina, verificando a cor e prendendo-a, apertando os parafusos. Prepara a tinta, misturando duas ou mais cores e solvente, quando necess&aacute;rio, para obter a tonalidade desejada, conforme a amostra ou original. Prepara a chapa retirando a goma com &aacute;gua e esponja e o asfalto ou tinta preta com gasolina e estopa. Carrega a tinta, passando &aacute;gua na chapa com esponja, distribuindo a tinta na pedra e no rolo manual e passando a tinta na chapa, manual ou mecanicamente, deslocando o rolo sobre a mesma. Tira a prova, colocando o papel na m&aacute;quina, acertando o registro, prendendo-o com pin&ccedil;a e dando press&atilde;o, deslocando o cilindro sobre o papel, manual ou mecanicamente. Pode lavar a m&aacute;quina, passando gasolina com estopa. Utiliza rolo manual, esp&aacute;tula, chaves da m&aacute;quina, esponja, algod&atilde;o, mesa, m&aacute;quina tira-provas ou autom&aacute;tica. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica da 4&ordf; (quarta) s&eacute;rie do primeiro grau, com conhecimentos espec&iacute;ficos em chapas e tintas utilizadas; composi&ccedil;&atilde;o de cores; regulagem da m&aacute;quina e papeis. Experi&ecirc;ncia m&iacute;nima de 60 (sessenta) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">ENCADERNADOR:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7687-05:</strong>&nbsp;Assim entendido aquele que confecciona livros em geral, fazendo guarda, costurando a M&atilde;o ou a m&aacute;quina, colocando as juntas, fazendo o corte na guilhotina simples ou trilateral, marmorizando ou pintando, arredondando o lombo (com martelo ou na m&aacute;quina), colocando cadar&ccedil;o, colando cabe&ccedil;alhos, forrando o livro, colando o pano na lombada, lixando se necess&aacute;rio. Colando guarda e capa, e numerando (quando necess&aacute;rio). Pode confeccionar pastas, cortando o papel&atilde;o, chanfrando-o, colocando as ferragens e forrando. Pode dourar capas de livros, confeccionando a chapa, preparando o clich&ecirc;, colocando a capa na m&aacute;quina e dando press&atilde;o, abaixando a alavanca. Pode forrar mapas, plantas, caixas, etc. Pode prensar os livros, colocando-os na prensa e dando press&atilde;o. Obs.: Nas confec&ccedil;&otilde;es de livros, as opera&ccedil;&otilde;es citadas poder&atilde;o ser feitas em s&eacute;rie, manual ou automaticamente. Utiliza r&eacute;gua, cola pincel, tecido, martelo, lixa, lima, m&aacute;quina de costura, m&aacute;quina de arredondar manual, chanfrador e prensa. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica da 4&ordf; (quarta) s&eacute;rie do primeiro grau, com conhecimentos espec&iacute;ficos em m&aacute;quina e materiais usados, desenho, tintas utilizadas, caracter&iacute;sticas de tipos e processos de impress&atilde;o. Experi&ecirc;ncia m&iacute;nima de 48 (quarenta e oito) meses;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">FOTOGRAFO EM PRETO E BRANCO</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7664-10: </strong>Assim entendido aquele que fotografa originais preto e branco, colocando-os na posi&ccedil;&atilde;o adequada, focalizando, ampliando-os ou reduzindo-os, acertando o diafragma e dando exposi&ccedil;&atilde;o conveniente, utilizando ret&iacute;culas diversas, conforme o caso. Faz o acabamento dos negativos, rebaixando-os ou refor&ccedil;ando-os, usando as solu&ccedil;&otilde;es correspondentes e verificando o resultado com lente. Pode preparar as chapas, sensibilizando-as, colocando-as nos chassis estes na m&aacute;quina. Pode revelar as chapas, retirando os chassis, lavando as chapas, utilizando solu&ccedil;&atilde;o reveladora e verificando com lente. Pode fixar as chapas, lavando-as, na solu&ccedil;&atilde;o fixadora durante um tempo determinado e lavando-as novamente. Utiliza r&eacute;gua, lente, cron&ocirc;metro, banheiras, ret&iacute;culas, solu&ccedil;&otilde;es diversas, m&aacute;quina fotogr&aacute;fica especial e c&acirc;mara escura. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica da 4&ordf; (quarta) s&eacute;rie do primeiro grau, com conhecimentos espec&iacute;ficos em materiais fotogr&aacute;ficos, produtos qu&iacute;micos utilizados, instrumentos de medi&ccedil;&atilde;o, processo de grava&ccedil;&atilde;o, processo de impress&atilde;o e pap&eacute;is. Experi&ecirc;ncia m&iacute;nima de 36 (trinta e seis);</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">IMPRESSOR DE M&Aacute;QUINA DE BATIDA</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7662-35: </strong>Assim entendido, aquele que opera m&aacute;quina autom&aacute;tica de impress&atilde;o de batida, produzindo etiquetas a uma ou mais cores, &agrave; tinta ou pel&iacute;cula. Recebe a ordem de servi&ccedil;o com os clich&ecirc;s e artes contendo as instru&ccedil;&otilde;es do tipo de material, formato, cores e quantidades; cola os clich&ecirc;s na base, observando as medidas da etiqueta; engrada os clich&ecirc;s e formas de corte na rama; regula a altura dos trilhos da rama para calibrar a tintagem; acerta a press&atilde;o de corte e impress&atilde;o; alimenta e regula o tinteiro; regula a puxada da etiqueta; regula a tens&atilde;o da bobina; regula a temperatura da m&aacute;quina quando da impress&atilde;o de pel&iacute;cula; lubrifica a m&aacute;quina manualmente; lava a m&aacute;quina manualmente para substitui&ccedil;&atilde;o de cor, conserva a m&aacute;quina limpa. Utiliza m&aacute;quina de batida, tintas, solventes, estopa, blanqueta, paqu&iacute;metro, tesoura, esp&aacute;tula, chave-de-fenda, chave allem, chave fixa, chaves de cunho, adesivos dupla face e cart&atilde;o timb&oacute;. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica de primeiro grau. Experi&ecirc;ncia m&iacute;nima: 06 (seis) meses.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h3 style="text-align: justify;"><span style="font-size: small;">IMPRESSOR DE M&Aacute;QUINA FLEXOGR&Aacute;FICA ROTATIVA (02, 03, 04, 05 cores)</span></h3>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7662-35: </strong>Assim entendido, aquele que opera m&aacute;quina autom&aacute;tica de impress&atilde;o flexografia rotativa, produzindo etiquetas a uma ou mais cores, &agrave; tinta. Recebe a ordem de servi&ccedil;o com os clich&ecirc;s apropriados e artes contendo as instru&ccedil;&otilde;es do tipo de material, formato, cores e quantidades; cola os clich&ecirc;s na base, observando as medidas da etiqueta; coloca as formas de corte, regula a altura do cilindro para calibrar a tintagem; acerta a press&atilde;o de corte e impress&atilde;o; alimenta e regula o tinteiro; regula a puxada da etiqueta; regula a tens&atilde;o da bobina; lubrifica a m&aacute;quina; limpa a m&aacute;quina manualmente para substitui&ccedil;&atilde;o de cor, conserva a m&aacute;quina limpa. Utiliza m&aacute;quina flexogr&aacute;fica rotativa, tintas, solventes, estopa, estopa, blanqueta, paqu&iacute;metro, tesoura, esp&aacute;tula, chave-de-fenda, chave allem, chave fixa, adesivos dupla face e cart&atilde;o timb&oacute;. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica de primeiro grau. Experi&ecirc;ncia m&iacute;nima: 24 (vinte e quatro) e 48 (quarenta e oito) meses.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h3 style="text-align: justify;"><span style="font-size: small;">REBOBINADOR (a) DE ETIQUETAS FLEXOGR&Aacute;FICAS</span></h3>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7663-05: </strong>Aquele que opera m&aacute;quina rebobinadora de etiquetas, rebobinando bobinas grandes, transformando-as em pequenas bobinas, recebe a ordem de servi&ccedil;o contendo o tamanho a ser rebobinado e quantidade, coloca a bobina grande no carretel da m&aacute;quina, alimenta a m&aacute;quina com um pequeno carretel, registra a quantidade a ser rebobinada no contador autom&aacute;tico da m&aacute;quina, puxa a ponta da bobina grande at&eacute; o carretel menor, aperta o bot&atilde;o repete o processo at&eacute; o final da bobina grande. Lubrifica a m&aacute;quina e conserva-a limpa. Utiliza m&aacute;quina rebobinadora, fita para colagem, chave de fenda, lubrificador. Deve possuir a instru&ccedil;&atilde;o b&aacute;sica de primeiro grau. Experi&ecirc;ncia m&iacute;nima: 06 (seis) meses.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">OPERADOR DE COLADEIRA, DOBRADEIRA (CARTONAGEM)</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>CBO 7663-05: </strong>Operam&aacute;quina autom&aacute;tica de colagem e fechamento de embalagens e caixas, em geral. Alimenta a m&aacute;quina com material impresso ou n&atilde;o, cortado e vincado, no formato da embalagem; regula o marginador, ajustando formato e press&atilde;o da agulha de acordo com a espessura do material; regula a press&atilde;o das correias transportadoras; regula os ganchos para dobra do fundo autom&aacute;tico - 1&deg; e 2&deg; est&aacute;gios, quando necess&aacute;rio; alimenta os reservat&oacute;rios de cola, superiores e inferiores; regula manualmente o fluxo e a press&atilde;o de aplica&ccedil;&atilde;o da cola; regula r&eacute;gua de direcionamento da colagem; regula tens&atilde;o e &acirc;ngulo das correias e roldanas para fechamento lateral; regula press&atilde;o da vincagem lateral na sa&iacute;da da m&aacute;quina, regula o sistema de ca&iacute;da do material para o secador; regula a fotoc&eacute;lula do sistema de colagem; regula press&atilde;o do sistema de secagem; mant&eacute;m rigorosa limpeza e lubrifica&ccedil;&atilde;o do equipamento; realiza manuten&ccedil;&atilde;o preventiva peri&oacute;dica do equipamento. Utiliza m&aacute;quina autom&aacute;tica de colagem; chaves: allen, de fenda, fixa e estrela. Deve possuir a instru&ccedil;&atilde;o completa do ensino fundamental. Experi&ecirc;ncia m&iacute;nima: 36 (trinta e seis) meses e 48 (quarenta e oito) meses.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">Aos novos ocupantes das fun&ccedil;&otilde;es classificadas e definidas no subitem b.1, primeira parte, desde que preencham as condi&ccedil;&otilde;es mencionadas, continuam sendo assegurados os sal&aacute;rios mensais m&iacute;nimos estabelecidos nas conven&ccedil;&otilde;es anteriores que, por for&ccedil;a da presente conven&ccedil;&atilde;o coletiva, a partir de 1&ordm; de abril de 2026. Passam a ser os seguintes:</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">TABELA M&Iacute;NIMA DE SAL&Aacute;RIOS 2026:</span></h2>
+<div align="center">&nbsp;</div>
+<div align="center">&nbsp;</div>
+<div align="center">
+<table style="width: 604px;" border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td style="text-align: center;" width="217">
+<p><strong>FUN&Ccedil;&Atilde;O</strong></p>
+</td>
+<td style="text-align: center;" width="165">
+<p><strong>EXPERI&Ecirc;NCIA</strong></p>
+</td>
+<td width="222">
+<p style="text-align: center;"><strong>01/04/2026 A 31/12/2026(4%)</strong></p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>BLOQUISTA/ACABAMENTO</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>12 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 1.803,37</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>BLOQUISTA/ACABAMENTO</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>24 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 2.074,29</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>BLOQUISTA/ACABAMENTO</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>36 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 2.405,88</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>CORTADOR</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>24 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.429,99</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>CORTADOR</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>36 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.734,12</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>COMPOSITOR MANUAL</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>48 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.505,78</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>COMPOSITOR MEC&Acirc;NICO</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>48 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.505,78</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>ARTE FINALISTA</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>12 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 2.221,67</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>ARTE FINALISTA</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>24 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.267,17</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSOR DE CORTE EVINCO MANUAL</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>36 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.248,10</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSOR DE CORTE EVINCO AUTOM&Aacute;TICO</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>48 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.536,19</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSOR TIP. MANUAL</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>36 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.232,49</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSOR TIP. MANUAL</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>48 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.640,06</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSOR TIP. AUTOM&Aacute;TICO</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>36 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.127,89</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSOR TIP. AUTOM&Aacute;TICO</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>48 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.578,31</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSOR OFFSET COM. F8</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>12 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.429,94</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSOR OFFSET COM. F8</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>48 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.772,82</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSOR OFFSET COM. F4</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>12 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.734,23</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSOR OFFSET COM. F4</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>48 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 4.102,85</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSOR OFFSET IND. F4</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>48 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 4.179,55</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSOR OFFSET IND. F2 &ndash; PLANA E ROT.</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>48 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 4.340,93</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSOR OFFSET IND. F1 &ndash; PLANA E ROT.</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>54 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 4.933,67</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSORFLEXOGR&Aacute;FICO 02 E 03 CORES</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>24 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 1.820,24</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSORFLEXOGR&Aacute;FICO 02 E 03 CORES</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>48 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 2.199,66</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSORFLEXOGR&Aacute;FICO 04 CORES</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>24 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 2.368,80</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSORFLEXOGR&Aacute;FICO 04 CORES</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>48 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 2.707,24</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSORFLEXOGR&Aacute;FICO 05 CORES</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>24 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 2.707,24</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>IMPRESSORFLEXOGR&Aacute;FICO 05 CORES</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>48 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 3.384,04</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>REBOBINADEIRA</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>06 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 1.799,19</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>M&Aacute;QUINA BATIDA</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>06 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 1.799,19</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>GARANTIA M&Iacute;NIMA DE SAL&Aacute;RIO</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>AT&Eacute; 06 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>SAL&Aacute;RIO-M&Iacute;NIMO NACIONAL VIGENTE</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>GARANTIA M&Iacute;NIMA DE SAL&Aacute;RIO</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>AP&Oacute;S 06 MESES</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 1.799,19</p>
+</td>
+</tr>
+<tr>
+<td style="text-align: center;" width="217">
+<p>VALE REFEI&Ccedil;&Atilde;O</p>
+</td>
+<td style="text-align: center;" width="165">
+<p>-</p>
+</td>
+<td style="text-align: center;" width="222">
+<p>R$ 506,00</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+</div>
+<p style="text-align: justify;"><span style="font-size: small; text-align: justify;">Observa-se que, na conceitua&ccedil;&atilde;o dos sal&aacute;rios profissionais mensais aqui referidos, n&atilde;o importa a modalidade de pagamento, neles se computando, quando for o caso, pr&ecirc;mio de produ&ccedil;&atilde;o e outras vantagens, bem como, evidentemente, o pr&oacute;prio descanso semanal remunerado; n&atilde;o se computa, todavia, o adicional de insalubridade, quando devido, o qual &eacute; pago em rubrica &agrave; parte.<br /><br /></span><span style="font-size: small; text-align: justify;">O exerc&iacute;cio da fun&ccedil;&atilde;o, para os fins previstos no subitem b.2, ser&aacute; comprovado pela anota&ccedil;&atilde;o constante da Carteira de Trabalho; na hip&oacute;tese de que o empregado haja conclu&iacute;do o curso de aprendizagem gr&aacute;fica no SENAI, este tempo ser&aacute; considerado para os mesmos fins, em apenas 1/3 (um ter&ccedil;o) da dura&ccedil;&atilde;o do respectivo curso;<br /><br /></span><span style="font-size: small; text-align: justify;">A aplica&ccedil;&atilde;o dos sal&aacute;rios previstos no subitem b.2 far-se-&aacute;, desde logo, aos empregados que em 01 de abril de 2025, tiverem completado os tempos m&iacute;nimos de experi&ecirc;ncia l&aacute; exigidos; e os empregados que vierem a alcan&ccedil;ar os tempos m&iacute;nimos de experi&ecirc;ncia no curso da vig&ecirc;ncia desta Conven&ccedil;&atilde;o, ter&atilde;o direito &agrave;queles sal&aacute;rios a partir do momento em que completarem os mencionados tempos m&iacute;nimos de experi&ecirc;ncia;<br /><br /></span><span style="font-size: small; text-align: justify;">As empresas, que possuem m&aacute;quinas impressoras MINERVA, autom&aacute;ticas ou manuais, e/ou m&aacute;quinas Offset, formato of&iacute;cio, inclusive duplicadora Offset, ser&aacute; obrigada a ter, para cada 2 (duas) m&aacute;quinas, ao menos 01 (um) empregado, dentre os classificados nestas fun&ccedil;&otilde;es;<br /><br /></span><strong style="font-size: small; text-align: justify;">I&nbsp; </strong><span style="font-size: small; text-align: justify;">- Os empregados, para fizerem jus aos benef&iacute;cios assegurados no subitem b.2, dever&atilde;o provar haver conclu&iacute;do o ex-curso prim&aacute;rio completo, ou seja, o equivalente at&eacute; o quarto ano do atual primeiro grau, ou provar haver efetuado matr&iacute;cula em tal curso na vig&ecirc;ncia desta Conven&ccedil;&atilde;o;<br /><br /></span><strong style="font-size: small; text-align: justify;">II</strong><span style="font-size: small; text-align: justify;"> - a aludida escolaridade n&atilde;o se aplica ao COMPOSITOR MANUAL E COMPOSITOR MEC&Acirc;NICO, para os quais a exig&ecirc;ncia e a instru&ccedil;&atilde;o b&aacute;sica de primeiro grau ou curso t&eacute;cnico do SENAI;<br /><br /></span><strong style="font-size: small; text-align: justify;">III&nbsp; </strong><span style="font-size: small; text-align: justify;">- outrossim, tal exig&ecirc;ncia n&atilde;o se aplica aos empregados constantes das demais classifica&ccedil;&otilde;es que, em 1&ordm; de maio de 1981, j&aacute; tiveram alcan&ccedil;ado os tempos m&iacute;nimos de experi&ecirc;ncia assinalados nesta cl&aacute;usula, ficando esclarecido que a referida data (1&ordm; de maio de 1981), para o fim aqui declinado, ser&aacute; mantida, em car&aacute;ter definitivo, nas Conven&ccedil;&otilde;es subsequentes a esta;<br /><br /></span><span style="font-size: small; text-align: justify;">Continuar&aacute; constitu&iacute;da e agilizada e dever&aacute; prosseguir em seus trabalhos, a comiss&atilde;o composta de 2 (dois) representantes do sindicato patronal, de 2 (dois) representantes das entidades dos trabalhadores (podendo estes ser da Federa&ccedil;&atilde;o dos Trabalhadores na Ind&uacute;strias do Estado do Paran&aacute;) e de 1 (um) representante de Servi&ccedil;o Nacional de Aprendizagem Industrial (SENAI), Departamento Regional do Paran&aacute;, com vistas a assessorar as entidades convenentes na aplica&ccedil;&atilde;o das disposi&ccedil;&otilde;es consignadas nesta letra "b" e seus subitens, acompanhando e examinado os resultados pr&aacute;ticos que foram atingidos e dirimindo d&uacute;vidas que porventura possam ser suscitadas entre as partes, relativamente &agrave; sua execu&ccedil;&atilde;o, bem como com vistas a apresentar os crit&eacute;rios de novas classifica&ccedil;&otilde;es funcionais, na hip&oacute;tese de se revelarem satisfat&oacute;rios os resultados alcan&ccedil;ados pela presente Conven&ccedil;&atilde;o;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">c)&nbsp;&nbsp;&nbsp;&nbsp; GARANTIA M&Iacute;NIMA DE SAL&Aacute;RIO 2026:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>&nbsp;</strong></span></p>
+<p style="text-align: justify;"><span style="font-size: small;">Aos empregados que desenvolvem atividades ligadas diretamente &agrave; produ&ccedil;&atilde;o, at&eacute; 06 (seis) meses de servi&ccedil;o &eacute; assegurado, a partir de abril de 2026, o sal&aacute;rio m&iacute;nimo nacional vigente.<br /><br /></span><span style="font-size: small;">Ap&oacute;s o per&iacute;odo de 6 (seis) meses ser&atilde;o praticados os valores previstos na tabela, sendo o m&iacute;nimo de R$ 1.799,19 (mil, setecentos e noventa e nove reais e dezenove centavos).</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">d)&nbsp;&nbsp;&nbsp; COMPENSA&Ccedil;&Atilde;O DE JORNADA DE TRABALHO:</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>&nbsp;</strong></span></p>
+<p style="text-align: justify;"><span style="font-size: small;">Tendo em conta o grande ac&uacute;mulo de trabalho das entidades da categoria profissional e das empresas integrantes da categoria econ&ocirc;mica, para fixa&ccedil;&atilde;o de acordos individuais referentes &agrave; compensa&ccedil;&atilde;o da jornada de trabalho, pela extin&ccedil;&atilde;o total ou parcial do expediente aos s&aacute;bados, acordam, ainda, os convenentes, em continuar oficializado tal regime de compensa&ccedil;&atilde;o, nas condi&ccedil;&otilde;es abaixo:<br /><br /></span><span style="font-size: small;">Para as empresas e seus respectivos empregados que optarem por este regime, o hor&aacute;rio de trabalho ser&aacute; o seguinte:<br /><br /></span><span style="font-size: small;">-&nbsp; Extin&ccedil;&atilde;o completa de trabalho aos s&aacute;bados: das 04 (quatro) horas de trabalho correspondentes aos s&aacute;bados ser&atilde;o compensadas no decurso da semana, de segunda a sexta-feira, com acr&eacute;scimo de at&eacute;, no m&aacute;ximo, 2 (duas) horas di&aacute;rias de maneira que nesses dias se completem as 44 (quarenta e quatro) horas semanais, respeitados os intervalos de lei;<br /><br /></span><span style="font-size: small;">-&nbsp; Extin&ccedil;&atilde;o parcial de trabalho aos s&aacute;bados: as horas correspondentes a redu&ccedil;&atilde;o do trabalho aos s&aacute;bados ser&atilde;o da mesma forma compensadas pela prorroga&ccedil;&atilde;o da jornada de trabalho de segunda a sexta-feira, observadas as coordenadas; b&aacute;sicas referidas na hip&oacute;tese anterior;<br /><br /></span><span style="font-size: small;">Competir&aacute; a cada empresa, em consenso com seus empregados, fixar a jornada de trabalho para efeito de compensa&ccedil;&atilde;o, objetivando a extin&ccedil;&atilde;o total ou parcial do expediente aos s&aacute;bados, dentro das normas b&aacute;sicas aqui tra&ccedil;adas. Nesta conson&acirc;ncia e para a devida formaliza&ccedil;&atilde;o dos pertinentes acordos de prorroga&ccedil;&atilde;o e compensa&ccedil;&atilde;o da jornada de trabalho com os empregados, e devido a grande extens&atilde;o da Base-Territorial, ficam as empresas dispensadas da homologa&ccedil;&atilde;o do Sindicato dos Trabalhadores, bastando apenas remeter c&oacute;pia do acordo de compensa&ccedil;&atilde;o.<br /><br /></span><span style="font-size: small;">Na ocorr&ecirc;ncia de feriado ou de fato considerado excepcional, no decurso da semana, a requerimento de, pelo menos, dois ter&ccedil;os (2/3) dos empregados dirigido as suas respectivas empresas, poder&atilde;o estas deferir, ou indeferir, solicita&ccedil;&otilde;es no sentido de que em um ou mais dias da semana n&atilde;o haja trabalho, mediante a compensa&ccedil;&atilde;o das horas assim n&atilde;o trabalhadas em outros dias da semana, de forma a se completarem as 44 (quarenta e quatro) horas semanais; ou, ainda, na mesma hip&oacute;tese e da mesma modalidade, deferir ou indeferir solicita&ccedil;&atilde;o no sentido de que em um ou mais dias da semana n&atilde;o haja trabalho, com a perda dos vencimentos correspondentes, assegurado, todavia, o pagamento do descanso semanal remunerado.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Pagamento de Salário – Formas e Prazos
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUARTA - DOS COMPROVANTES DE PAGAMENTO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Obrigatoriedade de fornecimento, pela empresa aos empregados, de envelope de pagamento ou contracheque, discriminando as import&acirc;ncias da remunera&ccedil;&atilde;o e os respectivos descontos efetuados, inclusive valores do FGTS</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUINTA - DA MULTA POR ATRASO NO PAGAMENTO DE SAL&#193;RIO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Fica estabelecida multa de 10% (dez por cento) sobre o saldo salarial na hip&oacute;tese de pagamento de sal&aacute;rio com atraso de at&eacute; 30 (trinta) dias, e de 20% (vinte por cento) quando o atraso for superior a trinta dias, al&eacute;m de corre&ccedil;&atilde;o monet&aacute;ria.</span></p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Gratificações, Adicionais, Auxílios e Outros
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        13º Salário
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA SEXTA - DO PAGAMENTO DO 13&#186; SAL&#193;RIO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">A empresa obriga-se a efetuar o pagamento do d&eacute;cimo terceiro sal&aacute;rio dentro dos prazos estabelecidos em lei. O descumprimento dos prazos lhes implicar&aacute; na obriga&ccedil;&atilde;o de realizar o pagamento dos valores correspondentes reajustados pela varia&ccedil;&atilde;o monet&aacute;ria.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Adicional de Hora-Extra
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA S&#201;TIMA - DAS HORAS EXTRAS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">O adicional de horas extras ser&aacute; de, pelo menos, 50% (cinquenta por cento) nas duas primeiras horas extraordin&aacute;rias trabalhadas no dia e, de 60% (sessenta por cento) para as horas seguintes do mesmo dia.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outros Adicionais
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA OITAVA - DO PAGAMENTO DE TRABALHO REALIZADO EM DOMINGOS E FERIADOS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">O trabalho realizado em domingos e feriados ser&aacute; pago em dobro, sem preju&iacute;zo da remunera&ccedil;&atilde;o do descanso semanal.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Auxílio Alimentação
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA NONA - DO BENEF&#205;CIO ALIMENTA&#199;&#195;O OU VALE REFEI&#199;&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Objetivando melhorar as condi&ccedil;&otilde;es nutricionais dos trabalhadores, prioritariamente os de baixa renda, os empregadores, sem que se constitua car&aacute;ter salarial, remunerat&oacute;rio ou contraprestativo nos termos da Lei n&ordm; 6.321/76, regulamentada pelo Decreto n&ordm; 5/91, atrav&eacute;s do PAT &ndash; Programa de Alimenta&ccedil;&atilde;o do Trabalhador conceder&atilde;o mensalmente a todos os seus trabalhadores, inclusive aos da administra&ccedil;&atilde;o, o benef&iacute;cio "alimenta&ccedil;&atilde;o-conv&ecirc;nio", tamb&eacute;m denominado "vale- refei&ccedil;&atilde;o", constitu&iacute;do de cupons ou cart&otilde;es magn&eacute;ticos para aquisi&ccedil;&atilde;o de g&ecirc;neros aliment&iacute;cios em estabelecimentos comerciais, conforme valores estabelecidos no &sect; 8&ordm; desta cl&aacute;usula.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO&nbsp;</strong><strong>PRIMEIRO: </strong>Do pagamento do benef&iacute;cio "alimenta&ccedil;&atilde;o-conv&ecirc;nio", tamb&eacute;m denominado "vale-refei&ccedil;&atilde;o" ao empregador &eacute; facultado o desconto no sal&aacute;rio do trabalhador de at&eacute; 20% (vinte por cento), do valor do vale-refei&ccedil;&atilde;o a t&iacute;tulo de participa&ccedil;&atilde;o do trabalhador nos termos do artigo 2&ordm;, par&aacute;grafo 1&ordm; do decreto n&ordm; 05, de 14 de janeiro de 1991, n&atilde;o perdendo o direito em raz&atilde;o de faltas ao trabalho.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO SEGUNDO: </strong>Excepcional e exclusivamente, o benef&iacute;cio "alimenta&ccedil;&atilde;o-conv&ecirc;nio", tamb&eacute;m denominado "vale-refei&ccedil;&atilde;o" ser&aacute; concedido para todos os trabalhadores, quando estiverem afastados e recebendo benef&iacute;cios de aux&iacute;lio- doen&ccedil;a e aux&iacute;lio-acidente de trabalho e licen&ccedil;a-maternidade limitados a 12 (doze) meses a partir da data do afastamento.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO TERCEIRO</strong>: O benef&iacute;cio "alimenta&ccedil;&atilde;o-conv&ecirc;nio", tamb&eacute;m denominado "vale-refei&ccedil;&atilde;o&rdquo; ser&aacute; entregue mediante recibo, aos trabalhadores, juntamente com o pagamento do sal&aacute;rio.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO QUARTO</strong>: Na forma da Lei n&ordm; 6.321/76 e Decreto n&ordm; 5/91, o benef&iacute;cio "alimenta&ccedil;&atilde;o-conv&ecirc;nio", tamb&eacute;m denominado "vale-refei&atilde;o", n&atilde;o &eacute; base de c&aacute;lculo de contribui&ccedil;&otilde;es ao INSS e de FGTS, n&atilde;o tendo qualquer natureza salarial ou contra-prestativo n&atilde;o se sujeitando a integra&ccedil;&atilde;o na remunera&ccedil;&atilde;o, sob qualquer pretexto ou alega&ccedil;&atilde;o, nem se configura como rendimento tribut&aacute;vel do trabalhador.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>&nbsp;</strong></span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO QUINTO</strong>: Na forma da Lei n&ordm; 6.321/76 e do Decreto n&ordm; 5/91, os empregadores efetuar&atilde;o obrigatoriamente as suas inscri&ccedil;&otilde;es no PAT, com o objetivo de obter os incentivos fiscais.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO SEXTO</strong>: As empresas poder&atilde;o optar por fornecer aos seus empregados servi&ccedil;os pr&oacute;prios ou terceirizados de refei&ccedil;&atilde;o desde que forne&ccedil;am aos mesmos no m&iacute;nimo uma refei&ccedil;&atilde;o principal por dia de trabalho e que esta refei&ccedil;&atilde;o contenha no m&iacute;nimo os valores nutricionais estabelecidos na Portaria Interministerial n&ordm; 66, de 25 de Agosto de 2006.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO S&Eacute;TIMO</strong>: O n&atilde;o cumprimento desta cl&aacute;usula acarretar&aacute; a incid&ecirc;ncia de multa de 80% (oitenta por cento) do valor do &ldquo;vale-refei&ccedil;&atilde;o&rdquo; ao empregador a ser convertida em favor do empregado.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO OITAVO</strong>:&nbsp;</span><span style="font-size: small;">A partir de 01&ordm; de abril de 2026, o valor do vale-refei&ccedil;&atilde;o passa a ser de R$ 506,00 (quinhentos e seis reais).</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Auxílio Transporte
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA - DO VALE TRANSPORTE
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">A empresa conceder&aacute; vale-transporte aos empregados que os utilizarem em valor mensal nunca superior ao oficialmente cobrado pelas empresas transportadoras, multiplicando pelo n&uacute;mero de dias &uacute;teis do m&ecirc;s. Em caso de labor em outros dias o vale-transporte cobrir&aacute; tamb&eacute;m a estes.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Auxílio Saúde
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA PRIMEIRA - DA COMPLEMENTA&#199;&#195;O DO AUX&#205;LIO DOEN&#199;A OU ACIDENTE
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">A empresa complementar&aacute; o valor do aux&iacute;lio-doen&ccedil;a ou acidente pago pela Previd&ecirc;ncia Social at&eacute; o limite da remunera&ccedil;&atilde;o que deveria estar sendo percebida, se em servi&ccedil;o estivesse o empregado.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO PRIMEIRO:</strong> A concess&atilde;o do benef&iacute;cio previsto nesta Cl&aacute;usula ser&aacute; devida pelo per&iacute;odo m&aacute;ximo de 12 (doze) meses, para cada licen&ccedil;a concedida.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO SEGUNDO:</strong> O valor da complementa&ccedil;&atilde;o paga pela empresa fica limitado ao valor do teto m&aacute;ximo pago pelo INSS.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Auxílio Morte/Funeral
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA SEGUNDA - DO AUX&#205;LIO FUNERAL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Na hip&oacute;tese de falecimento do empregado, ser&aacute; pago a sua fam&iacute;lia, a t&iacute;tulo de aux&iacute;lio funeral, a import&acirc;ncia equivalente a um sal&aacute;rio m&iacute;nimo.</span></p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Contrato de Trabalho – Admissão, Demissão, Modalidades
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Normas para Admissão/Contratação
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA TERCEIRA - DA ADMISS&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">O empregado admitido para a fun&ccedil;&atilde;o de outro, dispensado sem justa causa, perceber&aacute; sal&aacute;rio igual ou superior ao do empregado substitu&iacute;do.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA QUARTA - DA ANOTA&#199;&#195;O NA CARTEIRA DE TRABALHO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">A empresa anotar&aacute; nas carteiras de trabalho dos empregados os cargos que efetivamente desempenham.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA QUINTA - DO CONTRATO DE EXPERI&#202;NCIA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">O contrato de experi&ecirc;ncia somente ter&aacute; validade se expressamente celebrado, com data de in&iacute;cio datilografada e assinada pelo empregado sobre a referida data, devendo ser anotado em CTPS e entregue c&oacute;pia ao empregado, mediante recibo, tendo como prazo m&aacute;ximo de 60 (sessenta) dias.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Desligamento/Demissão
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA SEXTA - DA DECLARA&#199;&#195;O DE JUSTA CAUSA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Ao empregado dispensado por justa causa, o empregador dever&aacute; entregar declara&ccedil;&atilde;o do motivo determinante, sob pena de presun&ccedil;&atilde;o de injusta causa.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA S&#201;TIMA - DA QUITA&#199;&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Fica estabelecida a obrigatoriedade do empregador pagar as verbas rescis&oacute;rias e dar baixa em CTPS no prazo de Lei em caso de rescis&atilde;o contratual, sob pena do pagamento de sal&aacute;rios at&eacute; a data do efetivo acerto de contas, sendo computado tal prazo como tempo de servi&ccedil;o para todos os efeitos legais, al&eacute;m da multa prevista em Lei</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA OITAVA - DO PAGAMENTO DAS VERBAS RESCIS&#211;RIAS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Para pagamento das verbas rescis&oacute;rias, o sal&aacute;rio do empregado dever&aacute; ser corrigido pela aplica&ccedil;&atilde;o do INPC acumulado entre a &uacute;ltima data-base da categoria e o m&ecirc;s do desligamento.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Aviso Prévio
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA NONA - DO AVISO PR&#201;VIO - PREVIS&#195;O DE CONDI&#199;&#213;ES
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">No aviso pr&eacute;vio, dever&aacute; a empresa esclarecer se o empregado ir&aacute; ou n&atilde;o trabalhar no per&iacute;odo, cabendo por sua vez ao empregado deixar claro sua op&ccedil;&atilde;o, ou pela aus&ecirc;ncia em sete dias consecutivos ou pela redu&ccedil;&atilde;o da jornada em duas horas di&aacute;rias. Caber&aacute; a empresa especificar em todas as vias do aviso pr&eacute;vio o dia, a hora e o local para o pagamento das verbas rescis&oacute;rias. Tal procedimento aplica-se tamb&eacute;m nos casos de pedido de demiss&atilde;o. Outrossim, o aviso pr&eacute;vio n&atilde;o poder&aacute; ser concedido, nem pelo empregado, nem pelo empregador, nos trinta dias posteriores ao retorno das f&eacute;rias, a n&atilde;o ser nos casos de rescis&atilde;o contratual nas hip&oacute;teses ao art. 482 da CLT ou acordo entre as partes, homologado pelo sindicato profissional</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras normas referentes a admissão, demissão e modalidades de contratação
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA - DO TRABALHO AP&#211;S &#192;S 20:00 HORAS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Os empregados que laborarem ap&oacute;s &agrave;s 20:00 horas ter&atilde;o direito a lanche ou refei&ccedil;&atilde;o.</span></p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Relações de Trabalho – Condições de Trabalho, Normas de Pessoal e Estabilidades
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Estabilidade Mãe
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA PRIMEIRA - DA ESTABILIDADE DA GESTANTE
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">A mulher gestante goza de estabilidade provis&oacute;ria, n&atilde;o podendo ser demitida at&eacute; 60 (sessenta) dias ap&oacute;s seu retorno do per&iacute;odo legal de afastamento de natalidade, desde que comunique seu estado, no ato da dispensa e apresente, em 5 (cinco) dias, o teste laboratorial e o atestado comprobat&oacute;rio da gravidez.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO &Uacute;NICO:</strong> N&atilde;o se aplica o disposto nesta cl&aacute;usula nos seguintes casos: a) t&eacute;rmino do contrato de experi&ecirc;ncia; b) rescis&atilde;o contratual nas hip&oacute;teses do art. 482 da CLT; c) em decorr&ecirc;ncia de pedido de demiss&atilde;o pela empregada; d) acordo entre as partes, homologado pelo Sindicato Profissional.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Estabilidade Serviço Militar
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA SEGUNDA - DO SERVI&#199;O MILITAR
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Fica assegurado ao empregado em idade de convoca&ccedil;&atilde;o para presta&ccedil;&atilde;o de servi&ccedil;o militar, estabilidade no emprego desde o alistamento at&eacute; noventa dias ap&oacute;s a baixa ou desincorporar&atilde;o.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Estabilidade Aposentadoria
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA TERCEIRA - DA ESTABILIDADE PR&#201;-APOSENTADORIA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Gozar&atilde;o de estabilidade provis&oacute;ria no emprego, por 18 (dezoito) meses imediatamente anteriores &agrave; complementa&ccedil;&atilde;o de tempo para aposentadoria, pela Previd&ecirc;ncia Social, os que tiverem o m&iacute;nimo de 5 (cinco) anos de vincula&ccedil;&atilde;o empregat&iacute;cia com o mesmo empregador.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO PRIMEIRO:</strong> Quanto aos empregados na proximidade de aposentadoria, de que trata esta Cl&aacute;usula, deve observar-se que:</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">I - a estabilidade provis&oacute;ria somente ser&aacute; adquirida a partir do recebimento, pelo empregador, de comunica&ccedil;&atilde;o do empregado, por escrito, devidamente protocolada, sem efeito retroativo, contendo a afirma&ccedil;&atilde;o de que re&uacute;ne as condi&ccedil;&otilde;es previstas para a obten&ccedil;&atilde;o da aposentadoria, indicando as data em que completar&aacute; o tempo previsto para a concess&atilde;o da aposentadoria;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">II - a estabilidade se extinguir&aacute; automaticamente se o empregado n&atilde;o requerer a aposentadoria imediatamente ap&oacute;s completado o tempo m&iacute;nimo necess&aacute;rio &agrave; aquisi&ccedil;&atilde;o do direito a ela.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras normas referentes a condições para o exercício do trabalho
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA QUARTA - DO REFEIT&#211;RIO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">A empresa permitir&aacute; aos seus empregados, nos per&iacute;odos de refei&ccedil;&otilde;es e descanso, a perman&ecirc;ncia no recinto do estabelecimento, quando houver refeit&oacute;rio.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA QUINTA - DOS PRIMEIROS SOCORROS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">A empresa se obriga a estar equipada com material necess&aacute;rio a presta&ccedil;&atilde;o de primeiros socorros m&eacute;dicos.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA SEXTA - DOS UNIFORMES
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Quando exigido, haver&aacute; concess&atilde;o gratuita de uniforme pela empresa, em n&uacute;mero compat&iacute;vel com a fun&ccedil;&atilde;o exercida, a crit&eacute;rio destas.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA S&#201;TIMA - DO FUNDO DE GARANTIA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">No ato de homologa&ccedil;&atilde;o ou de quita&ccedil;&atilde;o de contrato de trabalho, a empresa dever&aacute; fornecer ao empregado o extrato da conta do FGTS constando a situa&ccedil;&atilde;o dos dep&oacute;sitos e rendimentos do trimestre imediatamente anterior ao desligamento do empregado;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO &Uacute;NICO: </strong>A empresa dever&aacute; trazer no ato de homologa&ccedil;&atilde;o de rescis&atilde;o contratual, os comprovantes de pagamento de sal&aacute;rios e recolhimento de FGTS dos &uacute;ltimos doze meses de trabalho.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA OITAVA - DO SEGURO DE VIDA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">As empresas contratar&atilde;o, para todos os seus empregados, uma ap&oacute;lice de seguro de vida em grupo, com previs&atilde;o de indeniza&ccedil;&atilde;o m&iacute;nima de R$&nbsp;15.874,17 (quinze mil, oitocentos e setenta e quatro reais e dezessete centavos) para o caso de morte natural, e de R$&nbsp;26.456,64 (vinte e seis mil, quatrocentos e cinquenta e seis reais e sessenta e quatro centavos) em caso de morte acidental.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO PRIMEIRO:</strong> O custo do pr&ecirc;mio ser&aacute; dividido na propor&ccedil;&atilde;o de 50% para a empresa e 50% para o empregado.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO SEGUNDO:</strong> Fica autorizado o desconto, em folha de pagamento, da parte do pr&ecirc;mio que couber ao empregado.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO TERCEIRO:</strong> Se a empresa n&atilde;o providenciar o seguro de vida, em caso de sinistro ela fica respons&aacute;vel pelo pagamento da indeniza&ccedil;&atilde;o que o empregado receberia da seguradora se estivesse segurado.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<p style="text-align: justify;"><span style="font-size: small;"><strong>PAR&Aacute;GRAFO QUARTO:</strong> Os empregados que forem admitidos durante a vig&ecirc;ncia desta conven&ccedil;&atilde;o aderir&atilde;o automaticamente ao contrato de seguro.</span></p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Jornada de Trabalho – Duração, Distribuição, Controle, Faltas
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Jornadas Especiais (mulheres, menores, estudantes)
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA NONA - DA PRORROGA&#199;&#195;O DO ESTUDANTE
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">&Eacute; vedada a prorroga&ccedil;&atilde;o de hor&aacute;rio de trabalho aos empregados estudantes que comprovem a sua situa&ccedil;&atilde;o escolar, ficando a seu crit&eacute;rio a op&ccedil;&atilde;o pela citada prorroga&ccedil;&atilde;o, de comum acordo de prorroga&ccedil;&atilde;o de hor&aacute;rio.</span></p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Férias e Licenças
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Duração e Concessão de Férias
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA - DO IN&#205;CIO DO PER&#205;ODO DE GOZO DAS F&#201;RIAS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">O in&iacute;cio de gozo de f&eacute;rias n&atilde;o poder&aacute; coincidir com s&aacute;bados, domingos e feriados, sob pena de ser devido em dobro o pagamento correspondente a esses dias, conforme par&aacute;grafo 3&ordm;, do artigo 134 da CLT.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Licença Remunerada
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA PRIMEIRA - DA LICEN&#199;A DE DIRIGENTE SINDICAL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">A empresa se compromete a conceder licen&ccedil;a remunerada aos dirigentes sindicais efetivos e suplentes quando participarem de encontros, reuni&otilde;es, confer&ecirc;ncias, congressos, cursos, simp&oacute;sios, etc., representando e no interesse da categoria profissional, licen&ccedil;a que ser&aacute; solicitada com a devida anteced&ecirc;ncia e n&atilde;o superior a oito dias no ano e 02 (dois) dias consecutivos no mesmo m&ecirc;s.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras disposições sobre férias e licenças
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA SEGUNDA - DAS F&#201;RIAS PROPORCIONAIS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">O empregado com menos de 01 (um) ano de servi&ccedil;o que rescindir espontaneamente seu contrato de trabalho far&aacute; jus a f&eacute;rias proporcionais de 1/12 (um doze avos) para cada m&ecirc;s completo de efetivo servi&ccedil;o.</span></p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Relações Sindicais
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Sindicalização (campanhas e contratação de sindicalizados)
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA TERCEIRA - DO RECOLHIMENTO DAS MENSALIDADES
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">&Agrave; luz de listas fornecidas pela entidade sindical dos trabalhadores, as empresas devem promover o desconto, em folha de pagamento das mensalidades de seus associados, recolhendo-as ap&oacute;s, at&eacute; o dia 10 (dez) do m&ecirc;s subsequente &agrave;quele sobre o qual incide o desconto, em favor da respectiva entidade benefici&aacute;ria.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">Fica esclarecido que se o recolhimento n&atilde;o se efetiva dentro do prazo assinalado, a empresa fica sujeita &agrave; multa de dois por cento ao m&ecirc;s, calculada sobre o total das mensalidades que foram assim efetivamente descontadas. Em rela&ccedil;&atilde;o aos empregados sindicalizados, esclarece-se desde logo que as suas mensalidades, descontadas em folha, em favor do Sindicato Laboral, devem ser recolhidas pelas empresas mediante apresenta&ccedil;&atilde;o de recibo por parte do Sindicato.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Acesso do Sindicato ao Local de Trabalho
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA QUARTA - DA RECOMENDA&#199;&#195;O NA DIVULGA&#199;&#195;O DE AVISOS E ENTREGA DE BOLETINS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">A empresa favorecer&aacute; os dirigentes sindicais na divulga&ccedil;&atilde;o de avisos e entrega de boletins. Recomenda-se, outrossim, que seja concedido espa&ccedil;o, em local de f&aacute;cil acesso, para fixa&ccedil;&atilde;o de avisos da entidade profissional, na forma dos entendimentos que neste sentido mantiverem com seus dirigentes.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Acesso a Informações da Empresa
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA QUINTA - DA GPS, GEFIP E RAIS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">As empresas se obrigam a encaminhar a entidade sindical dos trabalhadores mensalmente c&oacute;pias devidamente quitadas da <strong>GPS</strong>, nos termos da Lei n&ordm; 8.870/94 e da <strong>GEFIP; e </strong>uma via de sua <strong>RAIS, </strong>na mesma ocasi&atilde;o em que fizerem a entrega aos &oacute;rg&atilde;os oficiais.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Contribuições Sindicais
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA SEXTA - DA CONTRIBUI&#199;&#195;O CONFEDERATIVA PATRONAL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">A Taxa de Contribui&ccedil;&atilde;o Confederativa destinada ao Sindicato Patronal; consoante o fixado nas respectivas Assembleias Gerais dever&aacute; ser quitada mediante guia a ser encaminhada pelo sindicato patronal.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA S&#201;TIMA - DA CONTRIBUI&#199;&#195;O ASSISTENCIAL DOS TRABALHADORES
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Dentro do esp&iacute;rito de valoriza&ccedil;&atilde;o do trabalho e de sua entidade sindical representativa e para propiciar a melhoria do n&iacute;vel de assist&ecirc;ncia e aquisi&ccedil;&atilde;o de sede pr&oacute;pria, fica estabelecida a seguinte contribui&ccedil;&atilde;o dos empregados:</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">&nbsp;</span></p>
+<h2 style="text-align: justify;"><span style="font-size: small;">TAXA DE REVERS&Atilde;O</span></h2>
+<p style="text-align: justify;"><span style="font-size: small;">Os empregados associados e n&atilde;o associados contribuem com taxa negocial destinada aos Sindicatos Profissionais, consoante deliberado na respectiva Assembleia Geral, sendo que ser&atilde;o <strong><em>duas parcelas de R$ 30,00 (trinta reais), a primeira descontada do sal&aacute;rio de junho de 2026 devendo ser recolhida at&eacute; o dia 10/07/2026 e a segunda descontada do sal&aacute;rio do m&ecirc;s de setembro de 2026, devendo ser recolhida at&eacute; o dia 10/10/2026</em></strong>, para o que o mencionado sindicato remete as guias e instru&ccedil;&otilde;es pertinentes. Fica assegurado o direito de oposi&ccedil;&atilde;o dos trabalhadores n&atilde;o associados ao sindicato obreiro. Para tanto, observar-se-&aacute; o seguinte procedimento definido judicialmente perante o Minist&eacute;rio P&uacute;blico do Trabalho:<br /><br /></span><span style="font-size: small;">As empresas empregadoras fornecer&atilde;o ao sindicato obreiro, <strong>em at&eacute; vinte dias ap&oacute;s a assinatura da Conven&ccedil;&atilde;o</strong>, a rela&ccedil;&atilde;o completa de todos os trabalhadores integrantes da categoria profissional, bem como os seus respectivos endere&ccedil;os residenciais completos; endere&ccedil;o eletronico pessoal do trabalhador; telefone pessoal do trabalhador com acesso ao Whatsapp.<br /><br /></span><span style="font-size: small;">A partir de ent&atilde;o, o sindicato obreiro, tamb&eacute;m no prazo </span><strong style="font-size: small;">de vinte dias, providenciar&aacute; a ci&ecirc;ncia pessoal e direta a cada trabalhador n&atilde;o associado, da fixa&ccedil;&atilde;o da contribui&ccedil;&atilde;o assistencial e do direito de oposi&ccedil;&atilde;o ao desconto por parte do trabalhador</strong><span style="font-size: small;">, alertando-lhe que eventual desautoriza&ccedil;&atilde;o ao desconto dever&aacute; ser manifestada ao sindicato, no prazo de dez dias, contados da data da efetiva ci&ecirc;ncia;<br /><br /></span><span style="font-size: small;">A ci&ecirc;ncia ao trabalhador n&atilde;o associado dever&aacute; ser feita mediante correspond&ecirc;ncia pessoal a ele dirigida por meio de correio (com AR), no seu endere&ccedil;o residencial,endere&ccedil;os eletr&ocirc;nicos(e-mail e/ou whatsapp) ou mediante entrega direta de correspond&ecirc;ncia ao obreiro, com formaliza&ccedil;&atilde;o do correspondente recibo;<br /><br /></span><span style="font-size: small;">Qualquer outra forma de AUTORIZA&Ccedil;&Atilde;O EXPRESSA da realiza&ccedil;&atilde;o do desconto pelo trabalhador n&atilde;o associado ao sindicato obreiro ser&aacute; plenamente v&aacute;lida;<br /><br /></span><span style="font-size: small;">N&atilde;o havendo oposi&ccedil;&atilde;o ao desconto no prazo fixado no item &ldquo;b&rdquo;, retro, considerar-se-&aacute; autorizada pelo trabalhador n&atilde;o associado a realiza&ccedil;&atilde;o do desconto;<br /><br /></span><span style="font-size: small;">O desconto s&oacute; poder&aacute; ser efetuado ap&oacute;s a n&atilde;o oposi&ccedil;&atilde;o ou a autoriza&ccedil;&atilde;o da sua realiza&ccedil;&atilde;o pelo empregado;<br /><br /></span><span style="font-size: small;"><strong>Obs.:</strong> A oposi&ccedil;&atilde;o poder&aacute; ser escrita de pr&oacute;prio punho, assinada pelo interessado, e entregue pelo mesmo na entidade sindical profissional atrav&eacute;s de e-mail pessoal ou carta individual.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras disposições sobre representação e organização
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA OITAVA - DO PROCESSO DE PRORROGA&#199;&#195;O E REVIS&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Os entendimentos com vistas &agrave; celebra&ccedil;&atilde;o de nova Conven&ccedil;&atilde;o Coletiva de Trabalho, para o pr&oacute;ximo per&iacute;odo, dever&atilde;o ter in&iacute;cio 60 (sessenta) dias antes do t&eacute;rmino da vig&ecirc;ncia desta Conven&ccedil;&atilde;o.</span></p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Disposições Gerais
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Regras para a Negociação
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA NONA - DA COMISS&#195;O DE ESTUDO COM VISTA &#192;S FUTURAS CONVEN&#199;&#213;ES COLETIVAS DE TRABALHO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Al&eacute;m da comiss&atilde;o a que se refere a cl&aacute;usula quarta, no subitem b.7, outra desde logo ser&aacute; formada, composta de 2 (dois) representantes do Sindicato das Ind&uacute;strias Gr&aacute;ficas do Oeste do Estado do Paran&aacute; (sendo-lhe facultado que um destes representantes possa ser escolhido dentre os diretores ou advogados da Federa&ccedil;&atilde;o das Ind&uacute;strias do Estado do Paran&aacute;, obviamente desde que haja anu&ecirc;ncia de tal entidade neste sentido), e de 2 (dois) representantes das entidades sindicais convenentes, da categoria profissional. A comiss&atilde;o, de que ora se trata, proceder&aacute; a estudos e apresentar&aacute; sugest&otilde;es, a serem debatidas e analisadas no ensejo das futuras conven&ccedil;&otilde;es coletivas de trabalho a serem firmadas objetivando um crescente aprimoramento das mesmas. A comiss&atilde;o em tela dever&aacute; abordar problemas relacionados com dirigentes sindicais e de associa&ccedil;&otilde;es profissionais, licenciamento e libera&ccedil;&atilde;o dos mesmos dirigentes, delegados e representantes sindicais, rotatividade da m&atilde;o-de-obra, insalubridade e outros assuntos que digam respeito ao setor.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Mecanismos de Solução de Conflitos
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUADRAG&#201;SIMA - DO FORO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">O foro competente para apreciar quaisquer das cl&aacute;usulas oriunda da presente conven&ccedil;&atilde;o coletiva de trabalho, ser&aacute; o da Justi&ccedil;a do Trabalho da jurisdi&ccedil;&atilde;o em que se situar a empresa onde o obreiro prestar os servi&ccedil;os ou a jurisdi&ccedil;&atilde;o da justi&ccedil;a do trabalho da sede das entidades convenentes.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Aplicação do Instrumento Coletivo
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUADRAG&#201;SIMA PRIMEIRA - DA FISCALIZA&#199;&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Al&eacute;m da fiscaliza&ccedil;&atilde;o direta que ser&aacute; exercida pela entidade sindical acordante objetivando o rigoroso cumprimento de todas as cl&aacute;usulas deste Acordo Coletivo de Trabalho, os signat&aacute;rios, em conjunto ou isoladamente, poder&atilde;o solicitar, com a mesma finalidade, a colabora&ccedil;&atilde;o da Delegacia Regional do Trabalho no Estado do Paran&aacute;.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Descumprimento do Instrumento Coletivo
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUADRAG&#201;SIMA SEGUNDA - DAS PENALIDADES
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Pelo descumprimento de quaisquer das obriga&ccedil;&otilde;es estabelecidas nesta conven&ccedil;&atilde;o coletiva de trabalho, estabelece-se como penalidade prevista no artigo 613 al&iacute;nea inciso VIII da CLT, em favor da parte prejudicada, o valor equivalente a 15% &nbsp;(quinze por cento) da garantia m&iacute;nima de sal&aacute;rio, estabelecida na cl&aacute;usula terceira, item &ldquo;C&rdquo; desta CCT; por cada descumprimento.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras Disposições
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUADRAG&#201;SIMA TERCEIRA - DA EXTENS&#195;O DA PRESENTE CONVEN&#199;&#195;O A TODA ATIVIDADE GR&#193;FICA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">A presente Conven&ccedil;&atilde;o Coletiva de Trabalho abrange a(s) categoria(s) empresarial e profissional das atividades gr&aacute;fica e editorial, estabelecidas na base-territorial onde os sindicatos convenentes s&atilde;o representantes em id&ecirc;ntica base-territorial. Submetem-se ainda a esta conven&ccedil;&atilde;o coletiva de trabalho, aquelas atividades exercidas por empresas, entidades ou &oacute;rg&atilde;os p&uacute;blicos ou n&atilde;o, que mantenham setor de trabalhos gr&aacute;ficos pr&oacute;prios ou mesmo para terceiros, bem como por empresas que se dedicam &agrave; fabrica&ccedil;&atilde;o e venda de formul&aacute;rios cont&iacute;nuos; &agrave; digita&ccedil;&atilde;o, composi&ccedil;&atilde;o gr&aacute;fica e editora&ccedil;&atilde;o computadorizada; Empresas Editoras; Copiadoras; Encadernadoras; fabrica&ccedil;&atilde;o de Etiquetas; Serigrafia; Fabrica&ccedil;&atilde;o de Embalagens e Empresas ou prestadores de servi&ccedil;os que realizam servi&ccedil;os terceirizados por empresas gr&aacute;ficas. Para a consecu&ccedil;&atilde;o deste objetivo, os Sindicatos profissional e patronal devem tomar as medidas adequadas, at&eacute; mesmo em ju&iacute;zo, em conjunto ou separadamente, sempre somando esfor&ccedil;os.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">A presente conven&ccedil;&atilde;o coletiva de trabalho abrange as seguintes atividades econ&ocirc;micas e profissionais: impress&atilde;o em off set em geral, off set plana, rotativa fria, quente e seco, tipogr&aacute;fica, litogr&aacute;fica, rotooffset, plotter, serigr&aacute;fica, tampogr&aacute;fica, hologr&aacute;fica, letterpress, digital e outras t&eacute;cnicas de impress&atilde;o sobre qualquer tipo de suporte; ind&uacute;strias da gravura e de acabamento gr&aacute;fico, entre elas as que se dedicam &agrave; encaderna&ccedil;&atilde;o, corte e vinco manual ou mecanizado, confec&ccedil;&otilde;es de montagem de facas, envernizamento em geral, calandra, plastifica&ccedil;&atilde;o, lamina&ccedil;&atilde;o, coladoras, rebobina&ccedil;&atilde;o, corte, dobra, capa dura e flex&iacute;vel, vincagem, gofragem, relevo, hot-stamping, hot-melt, pva, pur, brochura, costura, lombada quadrada, grampea&ccedil;&atilde;o, endere&ccedil;amento, acabamento mec&acirc;nico e manual, envelopagem, intercala&ccedil;&atilde;o, seladoras, serras, serrilhadoras, picotadeiras, shrink e outras opera&ccedil;&otilde;es de convers&atilde;o de materiais impressos; ind&uacute;strias de carimbos e clicherias em geral compreendendo os processos &agrave; zinco, borracha, nylon-print, e outros tipos de materiais para a confec&ccedil;&atilde;o de carimbos comerciais e industriais nos processos de impress&atilde;o, flexogr&aacute;fica, anilina, e etc; das empresas de servi&ccedil;o de pr&eacute;-impress&atilde;o, tais como: clicheria, linotipo, fotolitos convencionais, eletr&ocirc;nicos, bureau, matrizes, plotter, prova de prelo, prova fotomec&acirc;nica, prova digital, arte- final (lay-out), past up, scanner, diagrama&ccedil;&atilde;o em terminal de v&iacute;deo, composi&ccedil;&atilde;o, tratamento de imagem, editora&ccedil;&atilde;o eletr&ocirc;nica e outros processos computadorizados relacionados &agrave;s artes gr&aacute;ficas; ind&uacute;strias de formul&aacute;rios cont&iacute;nuos compreendendo: todos os tipos de formul&aacute;rios cont&iacute;nuos e get mailer com ou sem impress&atilde;o, alceadeiras, etc; ind&uacute;strias de produtos gr&aacute;fico editoriais, tais como: livros did&aacute;ticos, paradid&aacute;ticos, livros t&eacute;cnicos e de literatura, livros de artes e ilustrados, livros infantis, Atlas, enciclop&eacute;dias, guias, anu&aacute;rios, almanaques e listas telef&ocirc;nicas; ind&uacute;strias de produtos gr&aacute;ficos para acondicionamento (embalagens impressas em geral) compreendendo: embalagens em papel fantasia, embalagens cartogr&aacute;ficas (cart&otilde;es em geral e cartuchos) &ndash; r&iacute;gidas e semi-r&iacute;gidas, pr&eacute;- montadas com ou sem acoplamento de micro-ondulados; embalagens flex&iacute;veis; embalagens em laminados pl&aacute;sticos por qualquer processo, incluindo-se o setor de extrus&atilde;o, pol&iacute;meros, r&oacute;tulos pl&aacute;sticos encolh&iacute;veis, laminados, sacos e sacolas; embalagens em processo litogr&aacute;fico &ndash; (metal-gr&aacute;fica) e todos os tipos de embalagens impressas por processo de serigrafia em rotulagens em geral; ind&uacute;strias de etiquetas adesivas impressas por qualquer processo; ind&uacute;strias de impress&atilde;o digitalizada, laser, ink-jet, jato de tinta, jato de cera, plotter, reprodu&ccedil;&atilde;o xerogr&aacute;fica, heliogr&aacute;fica, plotagem, tampografia e letterpress (gr&aacute;ficas r&aacute;pidas); empresas de servi&ccedil;os gr&aacute;ficos em brindes promocionais e em empresas de produtos gr&aacute;ficos e comerciais e promocionais como: impressos padronizados, cart&otilde;es de visita, convites em geral, cadernos, agendas, envelopes, cartelas, loterias, notas fiscais, carbonados, impressos de seguran&ccedil;a, cheque, vales, cart&otilde;es de cr&eacute;ditos ou telef&ocirc;nicos, diplomas, cart&otilde;es postais ou de mensagens, banners, pastas, folhetos, cat&aacute;logos promocionais, impressos em geral, timbrados e padronizados, calend&aacute;rios, displays, baralhos, jogos impressos, puzzles, quebracabe&ccedil;as, &aacute;lbuns, encartes, suplementos, outdoors, posters, cartazes, card&aacute;pios, mapas, bulas, &aacute;udio-visual, multim&iacute;dia, sinaliza&ccedil;&atilde;o, impressos escolares, produtos para festas, toda a atividade gr&aacute;fica, inclusive &agrave;s empresas, entidades ou &oacute;rg&atilde;os que mantenham setor de trabalhos gr&aacute;ficos pr&oacute;prios ou mesmo para terceiros e demais atividades constantes dos pareceres t&eacute;cnicos exarados nos processos SP066/03 e SP075/03, da ABTG &ndash; Associa&ccedil;&atilde;o Brasileira de Tecnologia Gr&aacute;fica.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUADRAG&#201;SIMA QUARTA - DOS PAGAMENTO RETROATIVOS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">Tendo em vista que o acordo da presente conven&ccedil;&atilde;o coletiva de trabalho foi celebrado final de abril de 2026, as diferen&ccedil;as retroativas a partir de abril de 2026 dever&atilde;o ser pagas juntas com o sal&aacute;rio de maio de 2026.</span></p>
+                                                </label>
+                                                <br />
+                                    }
+                                    <br />
+                                    <table border="0" cellpadding="0" cellspacing="0" align="center">
+                                        <tr>
+                                            <td align="center">
+                                                    <br />
+    <br />
+    <label class="textonome">
+        SUSANA BEATRIS GUTHNER ARRUA
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SINDICATO DOS TRAB NAS INDS GRAF DO EST DO PARANA
+        <br />
+        <br />
+    </label>
+
+    <br />
+    <br />
+    <label class="textonome">
+        VIRGILIO MOREIRA FILHO
+        <br style="height: 5px" />
+        Vice-Presidente
+        <br style="height: 5px" />
+        FEDERACAO DAS INDUSTRIAS DO ESTADO DO PARANA
+        <br />
+        <br />
+    </label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                        <br />
+                                        <center>
+                                            <label class="textogrupo">
+                                                <b>ANEXOS </b>
+                                            </label>
+                                        </center>
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO I - ATA DE CONCLUS&#195;O NEGOCIAL
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR023093_20262026_05_18T14_12_12.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                        <!--****************************************** FIM - Anexos ******************************************-->
+                                            <label class="texto">
+                                                &#160;&#160;&#160;&#160;A autenticidade deste documento poderá ser confirmada na
+                                                página do Ministerio do Trabalho e Emprego na Internet, no endereço http://www.mte.gov.br.
+                                            </label>
+                                            <br />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </div>
+</body>
+<script>
+    setTimeout(function () {
+        window.history.replaceState({}, '', window.location.pathname);
+    }, 0);
+</script>
+</html>

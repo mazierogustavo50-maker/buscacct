@@ -1,0 +1,563 @@
+
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <title>
+        Mediador - Extrato Termo Aditivo de Acordo Coletivo
+    </title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+    <script src="https://www.google.com/recaptcha/api.js?render=6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G"></script>
+
+    <script src='/sistemas/mediador/WebResource.axd?d=ls-JK0luimixBX3RtKP4OuM6Nbr55f1ikjLAMnxPrvPWRxDuzHsg65FphFc0YmwGvPuaSOvOnFNL4Mq2J7O55VkuvR-JNDegUEHaozvuG4GfYZuef32jriBr06lvlGac5F6-tkLMmrZoMutKUlmTDs6EfByvhBlqjoPaLqkzgWOQbhBdGIEvithrw3-5H5qk0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=Px3s_uYn4d177Bapr6UItVAG4ySRRwV1FTF9REvDumgGERVSCp8kyUryq_3KpZpUTfDe5TqxyIZGZxX5ozdMPUJbZ6hLNkyZcQs3Jq49Tq4elUn1XVD0J1HZdSLCj4u7lSEusPaT52P-dmmUW16Zx-F1DukKY3vEPHf0rDfBa2Ek1wHWv_TRP5IVvEToeq9-7oWzL-s-gnso82iAY4IHaA2&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=CjtT-uoLDoJdb4jgIJsBSRfL44ke78nKZN-T9Xh3VSuD7RX_5Bbo7zl2hrjZ0swKv3_WHboUwa3CrIc3r4fFnDK9--SThodGc3omd1KRkx-JcDZI56y8-pa3_jBuZ_Ja8EMw_zpGdh3c9iwxA6DgF6ADJueXAYnVerg4cx6Bv0PIW6hB8qDQX-29PZKYY9GD0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=hlEAjtYEwmyXvO53WOf3q1zm2M7vuEdUVyDiqXVCgKr5riw1ELy1ZRVj03iNlJYxSTquNrQZHsvSiEbqGSmz3MMcWp23BUlw4alWlNPe5NP81SNNQVIF6kR2DGagvrRoBfqFTWglcSdlZQtbZxa5nSJXuFFkjU7ovmwG9osuidcErpqwHbUr6Ngxm-jvdKpU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=NCcLU-zMz9clvVmV2ucp3Ot41YxhAEEnw1oODrj8U91mAFxGPkAkQeWXV5fcdwyy0mrLKva6KKMcHAaFm2jnwiusIA32tvo4e5f3N2JCWpIcY6qf8KJPLTTSkEYlrbyi5wATnAAhBkhIGD7thl1Lbyo0K8SYohjMh-git_nbtJv05RRshlEMjUi_DzdFBcqU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=1io6R1AjpcUezik5_qSigmQJFRbaB2L40L4rOH4MFKicVZMDTRO2C05XLVrubr29MfmMtziY_kIcjW_ZmQGmx7YNmW57PfPG1GkmCEILrEoNQLwRbo25stWZt8KVTCCGiLf2PdSQiW2RglNOyI0M__DHWfTq1HvMHualKSNfkpcafH4w3IeATgirTQJMa3Ry0&t=639106604800000000' type='text/javascript'></script>
+
+
+<script type="text/javascript">
+        var recaptchaSiteKey = '6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G';
+        var pageLoadToken = '';
+        var isPageValidated = false;
+
+        function onRecaptchaLoad() {
+            console.log('reCAPTCHA carregado, validando página...');
+            executePageLoadRecaptcha();
+        }
+
+        function executePageLoadRecaptcha() {
+            if (typeof grecaptcha === 'undefined') {
+                console.error('reCAPTCHA não carregado');
+                return;
+            }
+
+            grecaptcha.ready(function() {
+                grecaptcha.execute(recaptchaSiteKey, {
+                    action: 'page_load_resumo'
+                }).then(function(token) {
+                    console.log('Token de página gerado');
+                    pageLoadToken = token;
+
+                    // Enviar o token para o servidor
+                    validatePageLoadToken(token);
+                }).catch(function(error) {
+                    console.error('Erro no reCAPTCHA de página:', error);
+                    // Em desenvolvimento, permitir continuar
+                });
+            });
+        }
+
+        function validatePageLoadToken(token) {
+            var currentUrl = window.location.href;
+            var queryString = window.location.search;
+            var nrSolicitacao = 'MR030725/2026';
+
+            $.ajax({
+                url: '/sistemas/mediador/Resumo/ValidateResumoPageLoad',
+                type: 'POST',
+                data: {
+                    recaptchaToken: token,
+                    currentUrl: currentUrl,
+                    queryString: queryString,
+                    nrSolicitacao: nrSolicitacao
+                },
+                success: function(response) {
+                    if (response.success) {
+                        console.log('Página validada com sucesso');
+                        isPageValidated = true;
+                        showPageContent();
+                    } else {
+                        console.warn('Validação de página falhou:', response.message);
+                        handleValidationFailed(response);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao validar página:', error);
+                    handleValidationFailed({ message: 'Erro de comunicação com o servidor' });
+                }
+            });
+        }
+
+        function showPageContent() {
+            // Remover overlay de loading se existir
+            $('#recaptcha-loading').remove();
+            console.log('Conteúdo da página liberado');
+        }
+
+        function handleValidationFailed(response) {
+            // Mostrar mensagem de erro
+            var errorHtml = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                    <div style="text-align: center; padding: 20px;">
+                        <h2 style="color: #d32f2f;">Validação de Segurança</h2>
+                        <p style="font-size: 16px; margin: 20px 0;">${response.message || 'Falha na validação de segurança.'}</p>
+                        <button onclick="window.location.reload()" style="padding: 10px 20px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Tentar Novamente
+                        </button>
+                        <br><br>
+                        <button onclick="window.location.href='/sistemas/mediador/'" style="padding: 8px 16px; background: #757575; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Voltar para Página Inicial
+                        </button>
+                    </div>
+                </div>
+            `;
+            $('body').prepend(errorHtml);
+        }
+
+        $(document).ready(function() {
+            console.log('Página carregada - ambiente de produção');
+
+            // Pular validação reCAPTCHA em produção
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.log('Produção - validando sem reCAPTCHA');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 1000);
+
+            // Timeout de segurança reduzido
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.warn('Timeout na validação - liberando conteúdo');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 5000); // Reduzido para 5 segundos
+        });
+
+        function Imprimir() {
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "none";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "none";
+            window.print();
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "";
+            return true;
+        }
+        $(function () {
+            var marcaDaguaHtml = $('.MarcaDagua').html();
+            var width = $('body').width();
+            var marcaW = $('.MarcaDagua').width();
+
+            var qtdNescessarios = Math.round((width / marcaW) + 0.4);
+            if (qtdNescessarios > 0)
+                for (var incrementador = 0; incrementador < qtdNescessarios; incrementador++) {
+                    $('.MarcaDagua').append("<br />");
+                    $('.MarcaDagua').append(marcaDaguaHtml);
+                }
+        });
+
+
+</script>
+    <style type="text/css">
+        .titulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .Subtitulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 13px;
+        }
+        .texto
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .tituloClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .descricaoClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .textogrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+        .textosubgrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        .textonome
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .textofuncao
+        {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .pagebreak
+        {
+            page-break-after: always;
+        }
+        table.titulo
+        {
+            text-align: left;
+        }
+        @page Section2 {size:21cm 29.7cm ;mso-page-orientation:portrait;margin-top:2cm; margin-rigth:2cm; mso-paper-source:0;}
+        div.Section2 {page:Section2;}
+        pre
+        {
+            white-space: pre-wrap; /* css-3 */
+            white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+            white-space: -pre-wrap; /* Opera 4-6 */
+            white-space: -o-pre-wrap; /* Opera 7 */
+            word-wrap: break-word; /* Internet Explorer 5.5+ */
+            white-space: normal;
+        }
+    </style>
+    <!--[if gte mso 9]>
+    <xml>
+    <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+    </xml>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="Section2">
+
+        <center>
+            <table border="0" style="width: 18cm;" id="tblConteudo">
+                <tr>
+                    <td>
+                        <table style="width: 100%;" cellpadding="0" cellspacing="0">
+
+                                                            <tr>
+                                    <td align="center" class="titulo" style="text-transform: uppercase;">
+                                        <b>
+                                            Termo Aditivo a Acordo Coletivo De Trabalho 2026/2027
+                                        </b>
+                                        <br />
+                                        <br />
+                                    </td>
+                                </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: left;">
+                                        <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <td>
+                                                        <b>NÚMERO DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        PR001231/2026
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        29/05/2026
+                                                    </td>
+                                                </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>NÚMERO DA SOLICITAÇÃO:</b>
+                                                </td>
+                                                <td style="width: 10px">
+                                                </td>
+                                                <td>
+                                                    MR030725/2026
+                                                </td>
+                                            </tr>
+                                                                                            <tr>
+                                                    <td>
+                                                        <b>NÚMERO DO PROCESSO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        13068.203692/2026-51
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DO PROTOCOLO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+28/05/2026                                                    </td>
+                                                </tr>
+                                        </table>
+                                        <br />
+
+                                                    <br />
+                                                    <br />
+                                                    <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                        <tr>
+                                                            <td>
+                                                                <b>
+                                                                    N&#218;MERO DO PROCESSO  DO ACORDO COLETIVO PRINCIPAL:
+                                                                </b>
+                                                            </td>
+                                                            <td style="width: 10px">
+                                                            </td>
+                                                            <td>
+                                                                13068.200930/2026-76
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <b>
+                                                                    DATA DE REGISTRO  DO ACORDO COLETIVO PRINCIPAL:
+                                                                </b>
+                                                            </td>
+                                                            <td style="width: 10px">
+                                                            </td>
+                                                            <td>
+13/02/2026                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                        <p>
+                                                            <label class="texto">
+                                                                <b>
+                                                                    Confira a autenticidade no endereço http://www3.mte.gov.br/sistemas/mediador/.
+                                                                </b>
+                                                            </label>
+                                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" class="texto">
+                                    <p align="justify">
+SINDICATO DOS EMPREGADOS EM EMPRESAS DE ASSEIO E CONSERVACAO, LIMPEZA URBANA, LIMPEZA PUBLICA E EM GERAL, AMBIENTAL, AREAS VERDES, ZELADORIA E SERVICO, CNPJ n. 04.160.954/0001-12, neste ato representado(a) por seu 
+
+Presidente, Sr(a). JUSSARA BRITTO DE SEIXAS GONCALVES;
+    <br />
+&nbsp;
+    <br />
+                                        <label>
+                                            E
+                                        </label>
+                                        <br />
+                                        <br />
+JM SERVICOS DE CARREGAMENTO LTDA, CNPJ n. 11.206.645/0001-00, neste ato representado(a) por seu 
+
+Sócio, Sr(a). JOEL MEURER;
+    <br />
+&nbsp;
+    <br />
+                                                                                    celebram
+                                                                                    o
+                                         presente TERMO ADITIVO DE ACORDO COLETIVO DE TRABALHO,
+ estipulando as condi&#231;&#245;es de trabalho previstas nas cl&#225;usulas seguintes:                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA PRIMEIRA - VIG&#202;NCIA E DATA-BASE
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    As partes fixam a vigência do presente Termo Aditivo de Acordo Coletivo de Trabalho no período de 01º de fevereiro de 2026 a 31 de janeiro de 2027 e a data-base da categoria em 01º de fevereiro.
+                                                </label>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA SEGUNDA - ABRANG&#202;NCIA
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    O presente Termo Aditivo de Acordo Coletivo de Trabalho, aplicável no âmbito da(s) empresa(s) acordante(s), abrangerá a(s) categoria(s) <b>DOS EMPREGADOS EM EMPRESAS DE ASSEIO E CONSERVAÇÃO, LIMPEZA URBANA,LIMPEZA PUBLICA E EM GERAL, AMBIENTAL, ÁREAS VERDES, ZELADORIA E SERVIÇOS TERCEIRIZADOS</b>, com abrangência territorial em <b>Ampére/PR, Barracão/PR, Bela Vista da Caroba/PR, Boa Esperança do Iguaçu/PR, Boa Vista da Aparecida/PR, Bom Jesus do Sul/PR, Bom Sucesso do Sul/PR, Campina do Simão/PR, Candói/PR, Capanema/PR, Capitão Leônidas Marques/PR, Chopinzinho/PR, Clevelândia/PR, Coronel Domingos Soares/PR, Coronel Vivida/PR, Cruzeiro do Iguaçu/PR, Diamante do Sul/PR, Dois Vizinhos/PR, Enéas Marques/PR, Foz do Jordão/PR, Francisco Beltrão/PR, Honório Serpa/PR, Iretama/PR, Itapejara d'Oeste/PR, Mamborê/PR, Manfrinópolis/PR, Mangueirinha/PR, Mariópolis/PR, Marmeleiro/PR, Nova Esperança do Sudoeste/PR, Nova Prata do Iguaçu/PR, Palmas/PR, Palmital/PR, Pato Branco/PR, Pérola d'Oeste/PR, Pinhal de São Bento/PR, Planalto/PR, Porto Barreiro/PR, Pranchita/PR, Realeza/PR, Renascença/PR, Rio Bonito do Iguaçu/PR, Salgado Filho/PR, Salto do Lontra/PR, Santa Izabel do Oeste/PR, Santo Antônio do Sudoeste/PR, São João/PR, São Jorge d'Oeste/PR, Saudade do Iguaçu/PR, Sulina/PR, Verê/PR e Vitorino/PR</b>.
+                                                </label>
+                                                <br />
+                                    </p>
+
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Gratificações, Adicionais, Auxílios e Outros
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras Gratificações
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TERCEIRA - PR&#202;MIO ASSIDUIDADE
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p><span style="font-family: arial, helvetica, sans-serif; font-size: small;">Aos trabalhadores dos itens 1, 2 e 3 da Cl&aacute;usula terceira, que n&atilde;o tiverem cometido falta&nbsp;injustificada ou falta justificada no servi&ccedil;o, ser&aacute; pago um pr&ecirc;mio assiduidade, de forma gradativa, nos seguintes termos:</span></p>
+<p><span style="font-family: arial, helvetica, sans-serif; font-size: small;">a) R$ 100,00 (cem reais) aos trabalhadores que tiverem o primeiro m&ecirc;s completo de servi&ccedil;o, e que n&atilde;o tiverem cometido falta injustificada ou falta justificada;</span><br /><span style="font-family: arial, helvetica, sans-serif; font-size: small;">b) R$ 200,00 (duzentos reais) aos trabalhadores que tiverem dois meses completos de servi&ccedil;o, e que n&atilde;o tiverem cometido falta injustificada ou falta justificada no respectivo m&ecirc;s de refer&ecirc;ncia;</span><br /><span style="font-family: arial, helvetica, sans-serif; font-size: small;">c) R$ 300,00 (trezentos reais) aos trabalhadores que tiverem tr&ecirc;s meses completos de servi&ccedil;o, e que n&atilde;o tiverem cometido falta injustificada ou falta justificada no respectivo m&ecirc;s de refer&ecirc;ncia;</span><br /><span style="font-family: arial, helvetica, sans-serif; font-size: small;">d) R$ 400,00 (quatrocentos reais) aos trabalhadores que tiverem quatro meses completos de servi&ccedil;o, e que n&atilde;o tiverem cometido falta injustificada ou falta justificada no respectivo m&ecirc;s de refer&ecirc;ncia;</span></p>
+<p><span style="font-family: arial, helvetica, sans-serif; font-size: small;">Cl&aacute;usula Primeira- Ap&oacute;s o quarto m&ecirc;s de servi&ccedil;o, sempre que o funcion&aacute;rio n&atilde;o tiver nenhuma falta injustificada ou justificada, e tiver o m&ecirc;s completo de servi&ccedil;o, ter&aacute; direito a essa verba, no valor de R$ 400 (quatrocentos reais).</span></p>
+<p><span style="font-family: arial, helvetica, sans-serif; font-size: small;">Cl&aacute;usula Segunda- Essa verba n&atilde;o tem natureza salarial e n&atilde;o se integra ao sal&aacute;rio do trabalhador, para nenhum fim, e fica o valor insento do desconto do PAT.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Seguro de Vida
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUARTA - SEGURO DE VIDA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p><span style="font-family: arial, helvetica, sans-serif; font-size: small;">O EMPREGADOR manter&aacute; seguro de vida em favor de seus empregados abrangidos pelo presente Acordo Coletivo de Trabalho, observadas as condi&ccedil;&otilde;es estabelecidas nesta cl&aacute;usula.</span></p>
+<p><span style="font-family: arial, helvetica, sans-serif; font-size: small;">Par&aacute;grafo Primeiro. A manuten&ccedil;&atilde;o do benef&iacute;cio ocorrer&aacute; mediante coparticipa&ccedil;&atilde;o entre EMPREGADOR e EMPREGADO, na propor&ccedil;&atilde;o de 50% (cinquenta por cento) para cada parte.</span></p>
+<p><span style="font-family: arial, helvetica, sans-serif; font-size: small;">Par&aacute;grafo Segundo. A participa&ccedil;&atilde;o financeira do EMPREGADO ficar&aacute; limitada ao valor mensal de R$ 12,47 (doze reais com quarenta e sete centavos), mediante desconto em folha de pagamento, condicionado &agrave; pr&eacute;via e expressa autoriza&ccedil;&atilde;o individual e formal do trabalhador, nos termos do artigo 462 da Consolida&ccedil;&atilde;o das Leis do Trabalho &ndash; CLT.</span></p>
+<p><span style="font-family: arial, helvetica, sans-serif; font-size: small;">Par&aacute;grafo Terceiro. O EMPREGADOR arcar&aacute; integralmente com todos os demais custos relacionados &agrave; contrata&ccedil;&atilde;o, administra&ccedil;&atilde;o, manuten&ccedil;&atilde;o e eventuais encargos do seguro de vida n&atilde;o abrangidos pela coparticipa&ccedil;&atilde;o prevista no par&aacute;grafo anterior.</span></p>
+<p><span style="font-family: arial, helvetica, sans-serif; font-size: small;">Par&aacute;grafo Quarto. A ades&atilde;o do empregado ao seguro de vida previsto nesta cl&aacute;usula ser&aacute; facultativa, dependendo de manifesta&ccedil;&atilde;o expressa de concord&acirc;ncia.</span></p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Disposições Gerais
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras Disposições
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUINTA - RATIFICA&#199;&#195;O DAS DEMAIS CL&#193;USULAS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p><span style="font-family: arial, helvetica, sans-serif; font-size: small;">Permanecem inalteradas, ratificadas e em pleno vigor todas as demais cl&aacute;usulas e condi&ccedil;&otilde;es estabelecidas no Acordo Coletivo de Trabalho anteriormente firmado entre as partes, que n&atilde;o tenham sido expressamente modificadas pelo presente Termo Aditivo.</span></p>
+                                                </label>
+                                                <br />
+                                    }
+                                    <br />
+                                    <table border="0" cellpadding="0" cellspacing="0" align="center">
+                                        <tr>
+                                            <td align="center">
+                                                    <br />
+    <br />
+    <label class="textonome">
+        JUSSARA BRITTO DE SEIXAS GONCALVES
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SINDICATO DOS EMPREGADOS EM EMPRESAS DE ASSEIO E CONSERVACAO, LIMPEZA URBANA, LIMPEZA PUBLICA E EM GERAL, AMBIENTAL, AREAS VERDES, ZELADORIA E SERVICO
+        <br />
+        <br />
+    </label>
+
+    <br />
+    <br />
+    <label class="textonome">
+        JOEL MEURER
+        <br style="height: 5px" />
+        S&#243;cio
+        <br style="height: 5px" />
+        JM SERVICOS DE CARREGAMENTO LTDA
+        <br />
+        <br />
+    </label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                        <br />
+                                        <center>
+                                            <label class="textogrupo">
+                                                <b>ANEXOS </b>
+                                            </label>
+                                        </center>
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO I - ATA DE ASSEMBLEIA GERAL EXTRAORDIN&#193;RIA
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR030725_20262026_05_28T09_37_48.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                        <!--****************************************** FIM - Anexos ******************************************-->
+                                            <label class="texto">
+                                                &#160;&#160;&#160;&#160;A autenticidade deste documento poderá ser confirmada na
+                                                página do Ministerio do Trabalho e Emprego na Internet, no endereço http://www.mte.gov.br.
+                                            </label>
+                                            <br />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </div>
+</body>
+<script>
+    setTimeout(function () {
+        window.history.replaceState({}, '', window.location.pathname);
+    }, 0);
+</script>
+</html>

@@ -1,0 +1,27 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.env
+.venv
+venv/
+ENV/
+env/
+.git/
+.gitignore
+*.md
+docker-compose.yml
+Dockerfile
+.dockerignore
+staticfiles/
+media/
+*.sqlite3
+*.xlsx
+*.pdf
+*.doc
+*.docx
+busca CCT.txt
+temp_dl/
+*.crdownload
+*.tmp

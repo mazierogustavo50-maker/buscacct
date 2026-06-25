@@ -1,0 +1,1375 @@
+
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <title>
+        Mediador - Extrato Termo Aditivo de Acordo Coletivo
+    </title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+    <script src="https://www.google.com/recaptcha/api.js?render=6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G"></script>
+
+    <script src='/sistemas/mediador/WebResource.axd?d=ls-JK0luimixBX3RtKP4OuM6Nbr55f1ikjLAMnxPrvPWRxDuzHsg65FphFc0YmwGvPuaSOvOnFNL4Mq2J7O55VkuvR-JNDegUEHaozvuG4GfYZuef32jriBr06lvlGac5F6-tkLMmrZoMutKUlmTDs6EfByvhBlqjoPaLqkzgWOQbhBdGIEvithrw3-5H5qk0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=Px3s_uYn4d177Bapr6UItVAG4ySRRwV1FTF9REvDumgGERVSCp8kyUryq_3KpZpUTfDe5TqxyIZGZxX5ozdMPUJbZ6hLNkyZcQs3Jq49Tq4elUn1XVD0J1HZdSLCj4u7lSEusPaT52P-dmmUW16Zx-F1DukKY3vEPHf0rDfBa2Ek1wHWv_TRP5IVvEToeq9-7oWzL-s-gnso82iAY4IHaA2&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=CjtT-uoLDoJdb4jgIJsBSRfL44ke78nKZN-T9Xh3VSuD7RX_5Bbo7zl2hrjZ0swKv3_WHboUwa3CrIc3r4fFnDK9--SThodGc3omd1KRkx-JcDZI56y8-pa3_jBuZ_Ja8EMw_zpGdh3c9iwxA6DgF6ADJueXAYnVerg4cx6Bv0PIW6hB8qDQX-29PZKYY9GD0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=hlEAjtYEwmyXvO53WOf3q1zm2M7vuEdUVyDiqXVCgKr5riw1ELy1ZRVj03iNlJYxSTquNrQZHsvSiEbqGSmz3MMcWp23BUlw4alWlNPe5NP81SNNQVIF6kR2DGagvrRoBfqFTWglcSdlZQtbZxa5nSJXuFFkjU7ovmwG9osuidcErpqwHbUr6Ngxm-jvdKpU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=NCcLU-zMz9clvVmV2ucp3Ot41YxhAEEnw1oODrj8U91mAFxGPkAkQeWXV5fcdwyy0mrLKva6KKMcHAaFm2jnwiusIA32tvo4e5f3N2JCWpIcY6qf8KJPLTTSkEYlrbyi5wATnAAhBkhIGD7thl1Lbyo0K8SYohjMh-git_nbtJv05RRshlEMjUi_DzdFBcqU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=1io6R1AjpcUezik5_qSigmQJFRbaB2L40L4rOH4MFKicVZMDTRO2C05XLVrubr29MfmMtziY_kIcjW_ZmQGmx7YNmW57PfPG1GkmCEILrEoNQLwRbo25stWZt8KVTCCGiLf2PdSQiW2RglNOyI0M__DHWfTq1HvMHualKSNfkpcafH4w3IeATgirTQJMa3Ry0&t=639106604800000000' type='text/javascript'></script>
+
+
+<script type="text/javascript">
+        var recaptchaSiteKey = '6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G';
+        var pageLoadToken = '';
+        var isPageValidated = false;
+
+        function onRecaptchaLoad() {
+            console.log('reCAPTCHA carregado, validando página...');
+            executePageLoadRecaptcha();
+        }
+
+        function executePageLoadRecaptcha() {
+            if (typeof grecaptcha === 'undefined') {
+                console.error('reCAPTCHA não carregado');
+                return;
+            }
+
+            grecaptcha.ready(function() {
+                grecaptcha.execute(recaptchaSiteKey, {
+                    action: 'page_load_resumo'
+                }).then(function(token) {
+                    console.log('Token de página gerado');
+                    pageLoadToken = token;
+
+                    // Enviar o token para o servidor
+                    validatePageLoadToken(token);
+                }).catch(function(error) {
+                    console.error('Erro no reCAPTCHA de página:', error);
+                    // Em desenvolvimento, permitir continuar
+                });
+            });
+        }
+
+        function validatePageLoadToken(token) {
+            var currentUrl = window.location.href;
+            var queryString = window.location.search;
+            var nrSolicitacao = 'MR016479/2026';
+
+            $.ajax({
+                url: '/sistemas/mediador/Resumo/ValidateResumoPageLoad',
+                type: 'POST',
+                data: {
+                    recaptchaToken: token,
+                    currentUrl: currentUrl,
+                    queryString: queryString,
+                    nrSolicitacao: nrSolicitacao
+                },
+                success: function(response) {
+                    if (response.success) {
+                        console.log('Página validada com sucesso');
+                        isPageValidated = true;
+                        showPageContent();
+                    } else {
+                        console.warn('Validação de página falhou:', response.message);
+                        handleValidationFailed(response);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao validar página:', error);
+                    handleValidationFailed({ message: 'Erro de comunicação com o servidor' });
+                }
+            });
+        }
+
+        function showPageContent() {
+            // Remover overlay de loading se existir
+            $('#recaptcha-loading').remove();
+            console.log('Conteúdo da página liberado');
+        }
+
+        function handleValidationFailed(response) {
+            // Mostrar mensagem de erro
+            var errorHtml = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                    <div style="text-align: center; padding: 20px;">
+                        <h2 style="color: #d32f2f;">Validação de Segurança</h2>
+                        <p style="font-size: 16px; margin: 20px 0;">${response.message || 'Falha na validação de segurança.'}</p>
+                        <button onclick="window.location.reload()" style="padding: 10px 20px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Tentar Novamente
+                        </button>
+                        <br><br>
+                        <button onclick="window.location.href='/sistemas/mediador/'" style="padding: 8px 16px; background: #757575; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Voltar para Página Inicial
+                        </button>
+                    </div>
+                </div>
+            `;
+            $('body').prepend(errorHtml);
+        }
+
+        $(document).ready(function() {
+            console.log('Página carregada - ambiente de produção');
+
+            // Pular validação reCAPTCHA em produção
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.log('Produção - validando sem reCAPTCHA');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 1000);
+
+            // Timeout de segurança reduzido
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.warn('Timeout na validação - liberando conteúdo');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 5000); // Reduzido para 5 segundos
+        });
+
+        function Imprimir() {
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "none";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "none";
+            window.print();
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "";
+            return true;
+        }
+        $(function () {
+            var marcaDaguaHtml = $('.MarcaDagua').html();
+            var width = $('body').width();
+            var marcaW = $('.MarcaDagua').width();
+
+            var qtdNescessarios = Math.round((width / marcaW) + 0.4);
+            if (qtdNescessarios > 0)
+                for (var incrementador = 0; incrementador < qtdNescessarios; incrementador++) {
+                    $('.MarcaDagua').append("<br />");
+                    $('.MarcaDagua').append(marcaDaguaHtml);
+                }
+        });
+
+
+</script>
+    <style type="text/css">
+        .titulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .Subtitulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 13px;
+        }
+        .texto
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .tituloClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .descricaoClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .textogrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+        .textosubgrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        .textonome
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .textofuncao
+        {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .pagebreak
+        {
+            page-break-after: always;
+        }
+        table.titulo
+        {
+            text-align: left;
+        }
+        @page Section2 {size:21cm 29.7cm ;mso-page-orientation:portrait;margin-top:2cm; margin-rigth:2cm; mso-paper-source:0;}
+        div.Section2 {page:Section2;}
+        pre
+        {
+            white-space: pre-wrap; /* css-3 */
+            white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+            white-space: -pre-wrap; /* Opera 4-6 */
+            white-space: -o-pre-wrap; /* Opera 7 */
+            word-wrap: break-word; /* Internet Explorer 5.5+ */
+            white-space: normal;
+        }
+    </style>
+    <!--[if gte mso 9]>
+    <xml>
+    <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+    </xml>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="Section2">
+
+        <center>
+            <table border="0" style="width: 18cm;" id="tblConteudo">
+                <tr>
+                    <td>
+                        <table style="width: 100%;" cellpadding="0" cellspacing="0">
+
+                                                            <tr>
+                                    <td align="center" class="titulo" style="text-transform: uppercase;">
+                                        <b>
+                                            Termo Aditivo a Acordo Coletivo De Trabalho 2026/2026
+                                        </b>
+                                        <br />
+                                        <br />
+                                    </td>
+                                </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: left;">
+                                        <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <td>
+                                                        <b>NÚMERO DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        PR001071/2026
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        13/05/2026
+                                                    </td>
+                                                </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>NÚMERO DA SOLICITAÇÃO:</b>
+                                                </td>
+                                                <td style="width: 10px">
+                                                </td>
+                                                <td>
+                                                    MR016479/2026
+                                                </td>
+                                            </tr>
+                                                                                            <tr>
+                                                    <td>
+                                                        <b>NÚMERO DO PROCESSO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        47979.262378/2026-59
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DO PROTOCOLO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+11/05/2026                                                    </td>
+                                                </tr>
+                                        </table>
+                                        <br />
+
+                                                    <br />
+                                                    <br />
+                                                    <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                        <tr>
+                                                            <td>
+                                                                <b>
+                                                                    N&#218;MERO DO PROCESSO  DO ACORDO COLETIVO PRINCIPAL:
+                                                                </b>
+                                                            </td>
+                                                            <td style="width: 10px">
+                                                            </td>
+                                                            <td>
+                                                                47997.246598/2025-36
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <b>
+                                                                    DATA DE REGISTRO  DO ACORDO COLETIVO PRINCIPAL:
+                                                                </b>
+                                                            </td>
+                                                            <td style="width: 10px">
+                                                            </td>
+                                                            <td>
+10/04/2025                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                        <p>
+                                                            <label class="texto">
+                                                                <b>
+                                                                    Confira a autenticidade no endereço http://www3.mte.gov.br/sistemas/mediador/.
+                                                                </b>
+                                                            </label>
+                                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" class="texto">
+                                    <p align="justify">
+SIND DOS EMP EM TURISMO EHOSPITALIDADE DE FCO BELTRAO, CNPJ n. 78.686.946/0001-40, neste ato representado(a) por seu 
+
+Presidente, Sr(a). REGIANE CORTESE DILL;
+    <br />
+&nbsp;
+    <br />
+                                        <label>
+                                            E
+                                        </label>
+                                        <br />
+                                        <br />
+MITRA DIOCESANA DE PALMAS, CNPJ n. 75.661.264/0001-95, neste ato representado(a) por seu 
+
+Administrador, Sr(a). SERGIO ALGERI FILHO;
+    <br />
+&nbsp;
+    <br />
+                                                                                    celebram
+                                                                                    o
+                                         presente TERMO ADITIVO DE ACORDO COLETIVO DE TRABALHO,
+ estipulando as condi&#231;&#245;es de trabalho previstas nas cl&#225;usulas seguintes:                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA PRIMEIRA - VIG&#202;NCIA E DATA-BASE
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    As partes fixam a vigência do presente Termo Aditivo de Acordo Coletivo de Trabalho no período de 01º de janeiro de 2026 a 31 de dezembro de 2026 e a data-base da categoria em 01º de janeiro.
+                                                </label>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA SEGUNDA - ABRANG&#202;NCIA
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    O presente Termo Aditivo de Acordo Coletivo de Trabalho, aplicável no âmbito da(s) empresa(s) acordante(s), abrangerá a(s) categoria(s) <b>Empregados em Hotelaria , Bares e Restaurantes, Vigias de Edifícios, Empregados em casas de Diversões, Oficiais Barbeiros e Similares, Empregados em Institutos de Beleza para homens e mulheres, empregados em instituições Beneficentes, Religiosas, Filantrópicas e Sindicais. EXCETO a Categoria dos Empregados em Hotéis, Restaurantes, Bares, Apart-hotel, Hotel fazenda, Flats, Motéis, Hospedarias, Casas de Cômodos, Churrascarias, Lanchonetes, Café, Sorveterias, Casas de Chá, Buffet, Pizzarias, Instituto de Beleza e Cabeleireiros de Senhoras, Boates, Casas de Diversões, Oficiais Barbeiros (inclusive Ajudantes, Manicures e Empregados em Salões de Cabeleireiros para Homens), Lustradores de Calçados, Instituições Beneficentes, Religiosas e Filantrópicas (Creches, Orfanatos, Casas de Menores), nos municípios de Pato Branco, Clevelândia, Coronel Vivida, Itapejara D'oeste, Mangueirinha, Marinópolis, São João, São Jorge D'oeste, Verê e Vitorino, do Estado do Paraná</b>, com abrangência territorial em <b>Ampére/PR, Barracão/PR, Capanema/PR, Dois Vizinhos/PR, Francisco Beltrão/PR, Marmeleiro/PR, Nova Prata do Iguaçu/PR, Pérola d'Oeste/PR, Planalto/PR, Pranchita/PR, Realeza/PR, Renascença/PR, Salgado Filho/PR, Salto do Lontra/PR, Santa Izabel do Oeste/PR e Santo Antônio do Sudoeste/PR</b>.
+                                                </label>
+                                                <br />
+                                    </p>
+
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Salários, Reajustes e Pagamento
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Piso Salarial
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TERCEIRA - PISO SALARIAL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Assegura-se, a partir de 1&ordm; de janeiro de 2026, como garantia m&iacute;nima aos integrantes da categoria profissional o valor de R$ 2.258,05 (dois mil e duzentos e cinquenta e oito reais e cinco centavos), para uma jornada de 220 horas mensais.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Reajustes/Correções Salariais
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUARTA - REAJUSTE SALARIAL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>Os sal&aacute;rios fixos, ou a parte fixa dos sal&aacute;rios dos integrantes da categoria, ser&atilde;o reajustados a partir de 1&ordm; de janeiro de 2026 em 7% (sete por cento).</p>
+<p><br /><strong>PAR&Aacute;GRAFO PRIMEIRO -</strong>&nbsp;Aos empregados admitidos ap&oacute;s janeiro de 2026 e que n&atilde;o recebam at&eacute; a data do registro do presente ACT o piso salarial descrito no&nbsp;caput,&nbsp;assegura-se o reajuste desta cl&aacute;usula proporcionalmente aos meses contados a partir da data da sua admiss&atilde;o.</p>
+<p><br /><strong>PAR&Aacute;GRAFO SEGUNDO</strong> &ndash;&nbsp;Ficam compensados todas as antecipa&ccedil;&otilde;es salariais espont&acirc;neas ocorridas no per&iacute;odo.</p>
+<p><br /><strong>PAR&Aacute;GRAFO TERCEIRO</strong> -&nbsp;&nbsp;Os reajustes concedidos para sal&aacute;rios e pisos salariais frutos de livre negocia&ccedil;&atilde;o,quitam integralmente quaisquer diferen&ccedil;as que porventura tenham existido no per&iacute;odo anterior at&eacute; a assinaturado presente ACT.</p>
+<p><br /><strong>PAR&Aacute;GRAFO QUARTO</strong>:&nbsp;As diferen&ccedil;as salariais dever&atilde;o ser pagas com o sal&aacute;rio correspondente ao m&ecirc;s subsequente do registro do presente ACT, at&eacute; o 5&ordm; dia &uacute;til.<br /><br /></p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Gratificações, Adicionais, Auxílios e Outros
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Gratificação de Função
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUINTA - CART&#195;O MULTIBENEF&#205;CIOS PARA O SETOR ADMINISTRATIVO E PASTORAL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">A empresa fornecer&aacute; cart&atilde;o multibenef&iacute;cios exclusivamente para os(as) empregados(as)que ocupam os cargos administrativos e pastorais em raz&atilde;o da natureza espec&iacute;fica desuas fun&ccedil;&otilde;es, nas seguintes condi&ccedil;&otilde;es:</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO PRIMEIRO &ndash; VALOR DO BENEF&Iacute;CIO</strong>: O valor do cart&atilde;o multibenef&iacute;cios ser&aacute; de at&eacute; R$ 227,00(duzentos e vinte e sete reais) mensais para jornada de trabalho de 44 (quarenta e quatro) horas semanais, a seremaplicados proporcionalmente em rela&ccedil;&atilde;o &agrave; jornada de trabalho de cada trabalhador.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO SEGUNDO &ndash; C&Aacute;LCULO DO BENEF&Iacute;CIO:</strong> O valor mensal m&aacute;ximo do cart&atilde;o multibenef&iacute;cios ser&aacute;dividido pelo n&uacute;mero de dias &uacute;teis do m&ecirc;s, para se obter o valor di&aacute;rio do benef&iacute;cio. Este valor di&aacute;rio ser&aacute;multiplicado pelo n&uacute;mero de dias efetivamente trabalhados pelo empregado no m&ecirc;s.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO TERCEIRO &ndash; NATUREZA DO BENEF&Iacute;CIO</strong>: O valor referente ao cart&atilde;o multibenef&iacute;cios n&atilde;oconfigura acr&eacute;scimo patrimonial para o empregado, portanto, n&atilde;o haver&aacute; incid&ecirc;ncia da Contribui&ccedil;&atilde;oPrevidenci&aacute;ria, FGTS e nas Verbas Rescis&oacute;rias, logo n&atilde;o constituir&aacute; Sal&aacute;rio In Natura.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO QUARTO &ndash; FORMA DE PAGAMENTO</strong>: Esse benef&iacute;cio ser&aacute; fornecido por meio de cart&atilde;omagn&eacute;tico ou meio similar de pagamento, de acordo com a legisla&ccedil;&atilde;o vigente.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO QUINTO &ndash; DATA DE FORNECIMENTO</strong>: O valor referente que cont&eacute;m no cart&atilde;o multibenef&iacute;ciosser&aacute; disponibilizado aos empregados at&eacute; o 5&ordm; (quinto) dia &uacute;til de cada m&ecirc;s, contando a partir da data deassinatura deste acordo.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO SEXTO &ndash; ADMISS&Atilde;O E DEMISS&Atilde;O</strong>: Os empregados admitidos ou demitidos no curso do m&ecirc;sfar&atilde;o jus ao valor desse benef&iacute;cio proporcional aos dias efetivamente trabalhados.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO S&Eacute;TIMO &ndash; AUS&Ecirc;NCIAS E AFASTAMENTOS</strong>: N&atilde;o haver&aacute; pagamento desse benef&iacute;cio nos diasn&atilde;o trabalhados, independentemente do motivo da aus&ecirc;ncia ou afastamento.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO OITAVO &ndash; REAJUSTE:</strong> Em&nbsp; 2027, o valor do cart&atilde;o multibenef&iacute;cio ser&aacute; reajustado anualmente por ocasi&atilde;o da data-base da categoria.<br /><br /></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Auxílio Alimentação
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA SEXTA - VALE ALIMENTA&#199;&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">A empresa fornecer&aacute; mensalmente a todos os seus empregados vale alimenta&ccedil;&atilde;o, proporcional &agrave; jornada detrabalho, conforme disposto nos par&aacute;grafos desta cl&aacute;usula:</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO PRIMEIRO &ndash; VALOR DO BENEF&Iacute;CIO</strong>: O valor m&aacute;ximo do vale-alimenta&ccedil;&atilde;o, para jornada de trabalho de 44 (quarenta e quatro) horas semanais, ser&aacute; de:</p>
+<p style="text-align: justify;">a)R$ 432,00 (quatrocentos e trinta&nbsp; e dois reais) mensais para os empregados que trabalham nos munic&iacute;pios de Francisco Beltr&atilde;o e Dois Vizinhos;<br />b)R$ 324,00 (trezentos e vinte e quatro reais) mensais para os empregados que trabalham nos demais munic&iacute;pios abrangidos por este ACT.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO SEGUNDO &ndash; NATUREZA DO BENEF&Iacute;CIO</strong>: O vale-alimenta&ccedil;&atilde;o tem car&aacute;ter indenizat&oacute;rio e n&atilde;ointegrar&aacute; o sal&aacute;rio para quaisquer efeitos legais.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO TERCEIRO &ndash; FORMA DE PAGAMENTO</strong>: O vale-alimenta&ccedil;&atilde;o ser&aacute; fornecido por meio de cart&atilde;omagn&eacute;tico ou meio similar de pagamento, de acordo com a legisla&ccedil;&atilde;o vigente.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO QUARTO &ndash; DATA DE FORNECIMENTO</strong>: O vale-alimenta&ccedil;&atilde;o ser&aacute; disponibilizado aosempregados at&eacute; o 5&ordm; (quinto) dia &uacute;til de cada m&ecirc;s.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO QUINTO &ndash; CRIT&Eacute;RIO DE DIFERENCIA&Ccedil;&Atilde;O:</strong> A diferencia&ccedil;&atilde;o dos valores entre os munic&iacute;piosjustifica-se pelas distintas realidades econ&ocirc;micas e custos de vida de cada localidade, visando atender de formamais adequada &agrave;s necessidades dos empregados em cada regi&atilde;o.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO SEXTO &ndash; MANUTEN&Ccedil;&Atilde;O DO BENEF&Iacute;CIO</strong>: O vale-alimenta&ccedil;&atilde;o ser&aacute; mantido nas situa&ccedil;&otilde;es deafastamento por aux&iacute;lio-doen&ccedil;a ou acidente de trabalho pelo per&iacute;odo de at&eacute; 60 (sessenta) dias, bem como durante o per&iacute;odo de f&eacute;rias e licen&ccedil;a maternidade, considerando-se o valor proporcional &agrave; jornada do empregado antes do afastamento.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO S&Eacute;TIMO &ndash; ADMISS&Atilde;O E DEMISS&Atilde;O</strong>: Os empregados admitidos ou demitidos no curso do m&ecirc;sfar&atilde;o jus ao vale-alimenta&ccedil;&atilde;o proporcional aos dias trabalhados e &agrave; sua jornada.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO OITAVO &ndash; REAJUSTE:</strong> A partir do 01 de janeiro de 2027, os valores do vale-alimenta&ccedil;&atilde;o ser&atilde;o reajustados anualmente, por ocasi&atilde;o da data-base da categoria.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO NONO &ndash; ADES&Atilde;O AO PAT</strong>: A empresa se compromete a realizar a inscri&ccedil;&atilde;o no Programa deAlimenta&ccedil;&atilde;o do Trabalhador - PAT, do Minist&eacute;rio do Trabalho e Emprego, para que possam usufruir dosbenef&iacute;cios previstos no mesmo</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Seguro de Vida
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA S&#201;TIMA - SEGURO DE VIDA COLETIVO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Fica estabelecida a obrigatoriedade do presente seguro de vida, para cumprimentoe pagamento integral pelo empregador, no valor mensal de R$ 13,91 (treze reais e noventa e um centavos) conforme a seguinte tabela de coberturas</p>
+<table style="width: 387px;" border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top" width="292">
+<p><strong>MORTE SECURIT&Aacute;RIA</strong></p>
+</td>
+<td valign="top" width="94">
+<p><strong>VALOR</strong></p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>&nbsp;Morte qualquer causa</p>
+</td>
+<td valign="top" width="94">
+<p>R$ 20.000,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>&nbsp;Morte acidental</p>
+</td>
+<td valign="top" width="94">
+<p>R$ 40.000,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>&nbsp;Invalidez total ou parcial por acidente</p>
+</td>
+<td valign="top" width="94">
+<p>R$ 20.000,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>&nbsp;Morte C&ocirc;njuge</p>
+</td>
+<td valign="top" width="94">
+<p>R$ 10.000,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>&nbsp;Morte acidental c&ocirc;njuge</p>
+</td>
+<td valign="top" width="94">
+<p>R$ 10.000,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>&nbsp;Invalidez total ou parcial por acidente do c&ocirc;njuge</p>
+</td>
+<td valign="top" width="94">
+<p>R$ 10.000,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>Morte filhos</p>
+</td>
+<td valign="top" width="94">
+<p>R$ 5.000,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>Assist&ecirc;ncia funeral familiar</p>
+</td>
+<td valign="top" width="94">
+<p>R$ 5.000,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>Aux&iacute;lio alimenta&ccedil;&atilde;o por &oacute;bito do titular</p>
+</td>
+<td valign="top" width="94">
+<p>R$ 600,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>Kit cesta natalidade</p>
+</td>
+<td valign="top" width="94">
+<p>Kit beb&ecirc;</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>Filhos p&oacute;stumos</p>
+</td>
+<td valign="top" width="94">
+<p>R$ 10.000,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>Adapta&ccedil;&atilde;o ve&iacute;culo/residencial por invalidez acidental</p>
+</td>
+<td valign="top" width="94">
+<p>R$ 2.000,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>Diagn&oacute;stico de doen&ccedil;as graves</p>
+</td>
+<td valign="top" width="94">
+<p>R$ 17.000,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="292">
+<p>Sorteio loteria federal</p>
+</td>
+<td valign="top" width="94">
+<p>R$ 3.000,00</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO &Uacute;NICO</strong> - As condi&ccedil;&otilde;es gerais do contrato de seguro ser&atilde;o estabelecidas pela operadora &ldquo;Prudential do Brasil vida em Grupo&rdquo; atrav&eacute;s da &ldquo;Beniblue Solu&ccedil;&otilde;es em Benef&iacute;cios&rdquo;, estando estabelecidas em instrumento anexo a este acordo e que poder&aacute; ser solicitados qualquer momento pelos trabalhadores.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outros Auxílios
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA OITAVA - BEM ESTAR SOCIAL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Visando garantir melhores condi&ccedil;&otilde;es &agrave; categoria, proporcionando seguran&ccedil;a evantagens aos trabalhadores, cujo benef&iacute;cio dever&aacute; observar as seguintes coberturas eassist&ecirc;ncias:</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO PRIMEIRO:</strong> Fica estabelecida a obrigatoriedade do presente seguro, para cumprimento peloempregador em cada unidade, no valor mensal de R$ 27,50 (vinte e sete reais e cinquenta centavos) por empregado, n&atilde;o efetuando&nbsp;qualquer desconto do mesmo, estando asseguradas as seguintes coberturas e assist&ecirc;ncias:</p>
+<table class="TableNormal" style="width: 671px; border-width: 1px; border-style: solid;" border="1" rules="all" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td colspan="4" valign="top" width="671">
+<p class="TableParagraph"><strong>ASSIST&Ecirc;NCIAS PARA OS TRABALHADORES</strong></p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="191">
+<p class="TableParagraph"><strong>BENEF&Iacute;CIOS</strong></p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph"><strong>VALOR</strong></p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph"><strong>PARCELAS</strong></p>
+</td>
+<td valign="top" width="293">
+<p class="TableParagraph"><strong>DESCRI&Ccedil;&Atilde;O</strong></p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="191">
+<p class="TableParagraph">KIT NATALIDADE</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">R$ 540,00</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">-</p>
+</td>
+<td valign="top" width="293">
+<p class="TableParagraph">Nascimento de filho(a) da empregada titular.</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="191">
+<p class="TableParagraph">CESTA B&Aacute;SICA</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">R$ 594,00</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">1</p>
+</td>
+<td valign="top" width="293">
+<p class="TableParagraph">Afastamento por doen&ccedil;a por per&iacute;odo de 60 dias ou superior</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="191">
+<p class="TableParagraph">COMPLEMENTO DE REMUNERA&Ccedil;&Atilde;O POR AFASTAMENTO</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">&nbsp;</p>
+<p class="TableParagraph">R$ 1.188,00</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">&nbsp;</p>
+<p class="TableParagraph">1</p>
+</td>
+<td valign="top" width="293">
+<p class="TableParagraph">Afastamento por doen&ccedil;a por per&iacute;odo de 90 dias ou superior.</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="191">
+<p class="TableParagraph">REEMBOLSO CRECHE</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">R$ 756,00</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">1</p>
+</td>
+<td valign="top" width="293">
+<p class="TableParagraph">Matr&iacute;cula do(a) filho(a) em creche particular.</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="191">
+<p class="TableParagraph">CASAMENTO</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">R$ 1.080,00</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">1</p>
+</td>
+<td valign="top" width="293">
+<p class="TableParagraph">Em caso de casamento do titular.</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="191">
+<p class="TableParagraph">APOSENTADORIA</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">R$ 2.160,00</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">1</p>
+</td>
+<td valign="top" width="293">
+<p class="TableParagraph">Aposentadoria do titular.</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="191">
+<p class="TableParagraph">REEMBOLSO MATERIAL ESCOLAR</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">&nbsp;</p>
+<p class="TableParagraph">At&eacute; R$ 540,00</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">&nbsp;</p>
+<p class="TableParagraph">1</p>
+</td>
+<td valign="top" width="293">
+<p class="TableParagraph">Aquisi&ccedil;&atilde;o de material escolar de filho(s) matriculado(s) em escola particular no ensino fundamental I (do 1&ordm; ao 5&ordm; ano).</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="191">
+<p class="TableParagraph">2 SORTEIOS MENSAIS*</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">R$ 540,00</p>
+</td>
+<td valign="top" width="94">
+<p class="TableParagraph">2</p>
+</td>
+<td valign="top" width="293">
+<p class="TableParagraph">Valores l&iacute;quidos de Imposto de Renda, repassados diretamente ao colaborador</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><em>Os sorteios ser&atilde;o realizados at&eacute; o dia 15&ordm; dia de cada m&ecirc;s em sistema online e demonstrado no grupo de whatsApp de trabalhadores, informando mensalmente ao sindicato os contemplados.</em></p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO SEGUNDO - </strong>Em&nbsp;caso de inadimplemento com o consequente descumprimento desta cl&aacute;usula, o empregador fica obrigado ao pagamento das garantias aqui estabelecidas, assumindo todo o &ocirc;nus previsto neste acordo pelo indevido descumprimento desta cl&aacute;usula.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO TERCEIRO</strong> - A MITRA estabelecer&aacute; o regulamento do benef&iacute;cio do Bem Estar Social atrav&eacute;s de um "Estatuto do Bem estar Social", a ser validado pelo Sindicato, em especial referente ao custeio, administra&ccedil;&atilde;o, conta destinat&aacute;ria, forma de pagamento, etc, ficando rescindida qualquer ap&oacute;lice anterior com seguradora contratada para o Programa Bem Estar.</p>
+<p style="text-align: justify;">&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3>&nbsp;</h3>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA NONA - PLANO DE SA&#218;DE
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Sendo a MITRA associada &agrave; &ldquo;Associa&ccedil;&atilde;o Empresarial de Francisco Beltr&atilde;o &ndash; ACEFB&rdquo;, ser&aacute; ofertada a possibilidade de ades&atilde;o individual a cada colaborador aos seguintes planos de sa&uacute;de:</p>
+<p style="text-align: justify;">a) Plano de Sa&uacute;de UNIMED / ACEFB &ndash; Francisco Beltr&atilde;o, na modalidade Coletivo Empresarial com abrang&ecirc;ncia grupo de Estados (PR, SC e RS) com coparticipa&ccedil;&atilde;o (Segmenta&ccedil;&atilde;o: Ambulatorial + Hospitalar + Obstetr&iacute;cia);</p>
+<p style="text-align: justify;">b) Plano de Sa&uacute;de POLISA&Uacute;DE-Pato Branco, na modalidade Coletivo Empresarial com abrang&ecirc;ncia grupo de Estados (PR, SC e RS) com coparticipa&ccedil;&atilde;o (Segmenta&ccedil;&atilde;o: Ambulatorial + Hospitalar + Obstetr&iacute;cia).</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO PRIMEIRO - ADES&Atilde;O OPCIONAL</strong>: A ades&atilde;o aos planos de sa&uacute;de oferecidos ser&aacute; facultativa, ficando a crit&eacute;rio do empregado optar ou n&atilde;o pela sua inclus&atilde;o, devendo o mesmo possuir margem para desconto em folha.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO SEGUNDO - DEPENDENTES</strong>: O empregado poder&aacute; incluir seus dependentes legais no plano de sa&uacute;de escolhido, de acordo com as regras estabelecidas pela operadora.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO TERCEIRO - CUSTEIO</strong>: A op&ccedil;&atilde;o ser&aacute; por livre ades&atilde;o de cada empregado, o qual dever&aacute; suportar integralmente os custos de mensalidade e utiliza&ccedil;&atilde;o (coparticipa&ccedil;&atilde;o) &agrave;s suas expensas, de acordo com as normativas da UNIMED/ACEFB &ndash; Francisco Beltr&atilde;o ou da Poli Sa&uacute;de -Pato Branco, conforme tabela vigente a seguir:</p>
+<p style="text-align: justify;">&nbsp;</p>
+<p style="text-align: justify;"><strong>UNIMED ENFERMARIA</strong></p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top" width="123">
+<p>FAIXA ET&Aacute;RIA</p>
+</td>
+<td valign="top" width="132">
+<p>&nbsp;MENSALIDADE</p>
+</td>
+<td valign="top" width="132">
+<p>%VARIA&Ccedil;&Atilde;O POR FAIXA ET&Aacute;RIA</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="123">
+<p>0-43</p>
+</td>
+<td valign="top" width="132">
+<p>R$ 247,72</p>
+</td>
+<td valign="top" width="132">
+<p>0,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="123">
+<p>44-48</p>
+</td>
+<td valign="top" width="132">
+<p>R$ 463,15</p>
+</td>
+<td valign="top" width="132">
+<p>86,97</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="123">
+<p>49-53</p>
+</td>
+<td valign="top" width="132">
+<p>R$ 555,50</p>
+</td>
+<td valign="top" width="132">
+<p>19,94</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="123">
+<p>54-58</p>
+</td>
+<td valign="top" width="132">
+<p>R$ 738,43</p>
+</td>
+<td valign="top" width="132">
+<p>32,93</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="123">
+<p>&gt;59</p>
+</td>
+<td valign="top" width="132">
+<p>R$ 861,38</p>
+</td>
+<td valign="top" width="132">
+<p>16,65</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>N&ordm; de Registro ANS: 465.033/11-6</p>
+<p><strong>UNIMED APARTAMENTO</strong></p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top" width="123">
+<p>FAIXA ET&Aacute;RIA</p>
+</td>
+<td valign="top" width="132">
+<p>&nbsp;MENSALIDADE</p>
+</td>
+<td valign="top" width="132">
+<p>%VARIA&Ccedil;&Atilde;O POR FAIXA ET&Aacute;RIA</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="123">
+<p>0-43</p>
+</td>
+<td valign="top" width="132">
+<p>R$ 344,22</p>
+</td>
+<td valign="top" width="132">
+<p>0,00</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="123">
+<p>44-48</p>
+</td>
+<td valign="top" width="132">
+<p>R$ 641,37</p>
+</td>
+<td valign="top" width="132">
+<p>86,33</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="123">
+<p>49-53</p>
+</td>
+<td valign="top" width="132">
+<p>R$ 765,67</p>
+</td>
+<td valign="top" width="132">
+<p>19,38</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="123">
+<p>54-58</p>
+</td>
+<td valign="top" width="132">
+<p>R$ 1.087,72</p>
+</td>
+<td valign="top" width="132">
+<p>42,06</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="123">
+<p>&gt;59</p>
+</td>
+<td valign="top" width="132">
+<p>R$ 1.188,43</p>
+</td>
+<td valign="top" width="132">
+<p>9,26</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>N&ordm; de Registro ANS: 465.034/11-4</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO QUARTO - DESCONTO EM FOLHA</strong>: Os valores referentes &agrave; mensalidade e coparticipa&ccedil;&atilde;o ser&atilde;o descontados diretamente na folha de pagamento do empregado, o que fica desde j&aacute; autorizado. Em caso de afastamento das atividades nos termos do par&aacute;grafo sexto, dever&aacute; entregar os valores a MITRA para que possa fazer o repasse, sob pena de cancelamento do plano, sem preju&iacute;zo do empregado ter que arcar com os valores em aberto, que fica desde j&aacute; autorizado a descontar de seus eventuais e futuros direitos que teria que receber.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO QUINTO &ndash; CAR&Ecirc;NCIA E CONDI&Ccedil;&Otilde;ES</strong>: Os per&iacute;odos de car&ecirc;ncia e as demais condi&ccedil;&otilde;es ser&atilde;o aqueles estabelecidos pela operadora do plano de sa&uacute;de escolhido, em conformidade com a legisla&ccedil;&atilde;o vigente.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO SEXTO - MANUTEN&Ccedil;&Atilde;O DO PLANO</strong>: Em caso de afastamento por doen&ccedil;a ou acidente de trabalho, o empregado poder&aacute; manter sua ades&atilde;o ao plano, desde que continue arcando com os custos integrais.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO S&Eacute;TIMO - CANCELAMENTO</strong>: O empregado poder&aacute; solicitar o cancelamento de sua ades&atilde;o ao plano de sa&uacute;de a qualquer momento, respeitando as regras estabelecidas pela operadora.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO OITAVO - ALTERA&Ccedil;&Atilde;O DE PLANO:</strong> A empresa poder&aacute;, a qualquer tempo, alterar as op&ccedil;&otilde;es de planos de sa&uacute;de oferecidos, desde que mantenha condi&ccedil;&otilde;es iguais ou superiores &agrave;s aqui estabelecidas e comunique aos empregados com anteced&ecirc;ncia m&iacute;nima de 30 (trinta) dias.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO NONO - ISEN&Ccedil;&Atilde;O DO SEGURO DE PROTE&Ccedil;&Atilde;O &Agrave; SA&Uacute;DE</strong>: Os empregados que aderirem a um dos planos de sa&uacute;de oferecidos ficar&atilde;o isentos da contribui&ccedil;&atilde;o para o seguro de prote&ccedil;&atilde;o &agrave; sa&uacute;de previsto na cl&aacute;usula s&eacute;tima da Conven&ccedil;&atilde;o Coletiva de Trabalho.</p>
+<p style="text-align: justify;">&nbsp;</p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA - PLANO DE BENIF&#205;CIOS “BENIVIDA – BENEF&#205;CIO PARA PROTE&#199;&#195;O EAMPARO EM VIDA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><strong>PAR&Aacute;GRAFO PRIMEIRO</strong> &ndash;&nbsp;Fica estabelecida a obrigatoriedade do benef&iacute;cio BENIVIDA - BENIVIDA &ndash;BENEF&Iacute;CIO PARA PROTE&Ccedil;&Atilde;O E AMPARO EM VIDA&rdquo;, para cumprimento do e pagamento integral peloempregador no valor de R$ 26,00 (vinte e seis reais), garantindo melhores condi&ccedil;&otilde;es &agrave; categoria econcedendo vantagens e seguran&ccedil;a aos empregados e empregadores, devendo ser cumprida nas condi&ccedil;&otilde;esm&iacute;nimas a seguir:</p>
+<table style="width: 624px;" border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top" width="189">
+<p align="center"><strong>BENEFICIO</strong></p>
+</td>
+<td valign="top" width="151">
+<p align="center"><strong>EVENTO</strong></p>
+</td>
+<td valign="top" width="284">
+<p align="center"><strong>DESCRI&Ccedil;&Atilde;O</strong></p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Telemedicina Familiar</p>
+</td>
+<td valign="top" width="151">
+<p align="center">24HS por dia 7 dias da semana</p>
+</td>
+<td valign="top" width="284">
+<p>Telemedicina com mais de 30 especialidades para titular e mais 3 dependentes</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Despesas m&eacute;dicas hospitalares e odontol&oacute;gicas por acidente</p>
+</td>
+<td valign="top" width="151">
+<p align="center">At&eacute; R$ 5.000,00</p>
+</td>
+<td valign="top" width="284">
+<p>Reembolso de Despesas M&eacute;dicas por causas acidentais at&eacute; o limite contratado</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Di&aacute;ria de interna&ccedil;&atilde;o hospitalar por acidente</p>
+</td>
+<td valign="top" width="151">
+<p align="center">R$ 100,00 por dia Limitado a 30 di&aacute;rias</p>
+</td>
+<td valign="top" width="284">
+<p>Pagamento das di&aacute;rias em caso de internamento por causas acidentais.</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Assist&ecirc;ncia Check up M&eacute;dico</p>
+</td>
+<td valign="top" width="151">
+<p align="center">1x na vig&ecirc;ncia</p>
+</td>
+<td valign="top" width="284">
+<p>Atendimento por clinico geral com solicita&ccedil;&atilde;o de exames m&eacute;dicos para o titular.</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Sorteio Mensal</p>
+</td>
+<td valign="top" width="151">
+<p align="center">R$ 7.500,00</p>
+</td>
+<td valign="top" width="284">
+<p>Sorteio mensal pela loteria federal no valor L&iacute;quido de R$ 7.500,00</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>&nbsp;</strong></p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO SEGUNDO</strong> -As entidades signat&aacute;rias deste instrumento, estabeleceram parceria com a&ldquo;Beniblue solu&ccedil;&otilde;es em benef&iacute;cios&rdquo;, que ser&aacute; respons&aacute;vel por toda a gest&atilde;o e viabiliza&ccedil;&atilde;o das ap&oacute;lices deseguro emitidas por interm&eacute;dio das Empresas Seguradoras, que garantir&atilde;o &agrave; toda categoria o &ldquo;BENIVIDA -BENEFICIO PARA PROTE&Ccedil;&Atilde;O E AMPARO EM VIDA&rdquo;.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO TERCEIRO</strong> -O presente benef&iacute;cio ter&aacute; in&iacute;cio de vig&ecirc;ncia conforme assinatura na proposta deades&atilde;o. Ap&oacute;s recepcionados os arquivos, a empresa receber&aacute; o kit de boas-vindas com manual de orienta&ccedil;&otilde;es,v&iacute;deos explicativos e material para divulga&ccedil;&atilde;o do benef&iacute;cio aos seus trabalhadores. Toda movimenta&ccedil;&atilde;o deempregados, kit faturamento e demais informa&ccedil;&otilde;es ser&aacute; feita diretamente peloe-mail<a href="mailto:beniblue@beniblue.com.br">beniblue@beniblue.com.br</a>.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO&nbsp;QUARTO</strong> -Para garantia das coberturas e assist&ecirc;ncias contratadas, o empregador deve arcarintegralmente com o custo deste programa efetuando o pagamento do valor mensalmente e atendendo &agrave;sdemais condi&ccedil;&otilde;es da presente cl&aacute;usula, n&atilde;o podendo o mesmo efetuar quaisquer tipos de descontos dosempregados.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO QUINTO</strong>- O presente benef&iacute;cio aplica-se &agrave; todos os empregados em qualquer modalidade decontrato de trabalho, sendo elas: contrato de trabalho por tempo indeterminado, por prazo determinado, porper&iacute;odo de experi&ecirc;ncia, estagi&aacute;rios, prestadores de servi&ccedil;o com contrato de exclusividade e entre outrasmodalidades com previs&atilde;o na Consolida&ccedil;&atilde;o das Leis do Trabalho, ou aceitas pela jurisprud&ecirc;ncia.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO QUINTO</strong> &ndash;O empregador n&atilde;o ser&aacute; responsabilizado, sob qualquer forma, solid&aacute;ria ousubsidiariamente, na eventualidade da empresa contratada para gest&atilde;o dos benef&iacute;cios relacionados n&atilde;ocumprir com as condi&ccedil;&otilde;es m&iacute;nimas aqui estabelecidas, salvo quando houver prova de culpa ou dolo.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO QUINTO</strong> -O n&atilde;o cumprimento aos dispositivos do presente instrumento, implicar&aacute; emresponsabilidade do empregador para com o pagamento das coberturas, sob pena de aplica&ccedil;&atilde;o da multaprevisto no par&aacute;grafo &uacute;nico da cl&aacute;usula. Em caso de preju&iacute;zo ao empregado por inadimpl&ecirc;ncia e/oudescumprimento pelo empregador, o empregador configurar-se-&aacute; inteiramente como respons&aacute;vel pelopagamento das garantias estabelecidas nesta cl&aacute;usula, quando da ocorr&ecirc;ncia de tais eventos, bem como,permanece regularmente respons&aacute;vel pelo descumprimento do presente Acordo Coletivo de Trabalho,assumindo todo &ocirc;nus pelo indevido descumprimento.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO SEXTO</strong> -Na hip&oacute;tese de n&atilde;o aceita&ccedil;&atilde;o do trabalhador pela seguradora pelos motivos deaposentadoria por invalidez, afastamento por doen&ccedil;a ou afastamento por acidente, ou ainda na impossibilidadedo pagamento da indeniza&ccedil;&atilde;o pelos riscos exclu&iacute;dos, a empresa ficar&aacute; desobrigada do cumprimento dessacl&aacute;usula em rela&ccedil;&atilde;o a esse trabalhador. Ap&oacute;s o retorno do trabalhador &agrave;s suas atividades laborativas, o mesmodever&aacute; ser inclu&iacute;do imediatamente. Quando ocorrer o afastamento do empregado por doen&ccedil;a ou acidentedurante a vig&ecirc;ncia do benef&iacute;cio, neste caso a empresa n&atilde;o ficar&aacute; desobrigada do cumprimento desta cl&aacute;usula.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO OITAVO</strong> -&nbsp;A empresa fica obrigada entregar ao empregado o manual de orienta&ccedil;&otilde;es no prazom&aacute;ximo de 60 dias ap&oacute;s a data da admiss&atilde;o do mesmo.</p>
+<p style="text-align: justify;"><br /><strong>PAR&Aacute;GRAFO NONO</strong> &ndash;&nbsp;No &ldquo;Telemedicina&rdquo; ser&atilde;o inclusos o titular e mais 3 dependentes (&agrave; escolha), sendo queos dependentes escolhidos precisam ser os mesmos por 12 meses, a partir da data de inclus&atilde;o. Ficamasseguradas, atrav&eacute;s do &ldquo;Telemedicina&rdquo; as seguintes coberturas e assist&ecirc;ncias:<br /><br /></p>
+<table style="width: 595px;" border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top" width="189">
+<p>Alergia</p>
+</td>
+<td valign="top" width="189">
+<p>Endocrinologia</p>
+</td>
+<td valign="top" width="218">
+<p>Dermatologia pedi&aacute;trica</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Cardiologia</p>
+</td>
+<td valign="top" width="189">
+<p>Gastroenterologia</p>
+</td>
+<td valign="top" width="218">
+<p>Gastroenterologia pedi&aacute;trica</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Cirurgia geral</p>
+</td>
+<td valign="top" width="189">
+<p>Geriatria</p>
+</td>
+<td valign="top" width="218">
+<p>Hematologia Pedi&aacute;trica</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Cirurgia</p>
+</td>
+<td valign="top" width="189">
+<p>Ginecologia</p>
+</td>
+<td valign="top" width="218">
+<p>Homeopatia Pedi&aacute;trica</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Vascular</p>
+</td>
+<td valign="top" width="189">
+<p>Hematologia</p>
+</td>
+<td valign="top" width="218">
+<p>Imunologia Pedi&aacute;trica</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Cl&iacute;nica geral</p>
+</td>
+<td valign="top" width="189">
+<p>Hemoterapia</p>
+</td>
+<td valign="top" width="218">
+<p>Infectologia Pedi&aacute;trica</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Coloproctologia</p>
+</td>
+<td valign="top" width="189">
+<p>Hepatologia</p>
+</td>
+<td valign="top" width="218">
+<p>Oftalmologia Pedi&aacute;trica</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Dermatologia</p>
+</td>
+<td valign="top" width="189">
+<p>Imunologia</p>
+</td>
+<td valign="top" width="218">
+<p>Pneumologia Pedi&aacute;trica</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Metabologia</p>
+</td>
+<td valign="top" width="189">
+<p>Infectologia</p>
+</td>
+<td valign="top" width="218">
+<p>Pediatria</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Nefrologia</p>
+</td>
+<td valign="top" width="189">
+<p>Mastologia</p>
+</td>
+<td valign="top" width="218">
+<p>Urologia</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Obstetr&iacute;cia</p>
+</td>
+<td valign="top" width="189">
+<p>Oftalmologia</p>
+</td>
+<td valign="top" width="218">
+<p>&nbsp;</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Otorrinolaringologia</p>
+</td>
+<td valign="top" width="189">
+<p>Pneumologia</p>
+</td>
+<td valign="top" width="218">
+<p>&nbsp;</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="189">
+<p>Psiquiatria</p>
+</td>
+<td valign="top" width="189">
+<p>Reumatologia</p>
+</td>
+<td valign="top" width="218">
+<p>&nbsp;</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Relações Sindicais
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras disposições sobre representação e organização
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA PRIMEIRA - APLICA&#199;&#195;O DO ACORDO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">O presente Acordo Coletivo de Trabalho (ACT) se aplica &agrave; todas as unidades existentes da MITRA, na &aacute;rea da abrang&ecirc;ncia do SINDICATO, com os seguintes CNPJs:&nbsp;75.661.264/0022-10, 75.661.264/0042-63, 75.661.264/0050-73, 75.661.264/0039-68, 75.661.264/0020-58, 75.661.264/0040-00, 75.661.264/0029-96, 75.661.264/0031-00, 75.661.264/0034-53, 75.661.264/0028-05, 75.661.264/0036-15, 75.661.264/0025-62, 75.661.264/0032-91, 75.661.264/0052-35, 75.661.264/0018-33, 75.661.264/0030-20, 75.661.264/0033-72, 75.661.264/0019-14, 75.661.264/0004-38, 75.661.264/0035-34, 75.661.264/0037-04,75.661.264/0055-88, 75.661.264/0057-40, 75.661.264/0056-69, 75.661.264/0059-01, 75.661.264/0054-05.</p>
+                                                </label>
+                                                <br />
+                                    }
+                                    <br />
+                                    <table border="0" cellpadding="0" cellspacing="0" align="center">
+                                        <tr>
+                                            <td align="center">
+                                                    <br />
+    <br />
+    <label class="textonome">
+        REGIANE CORTESE DILL
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SIND DOS EMP EM TURISMO EHOSPITALIDADE DE FCO BELTRAO
+        <br />
+        <br />
+    </label>
+
+    <br />
+    <br />
+    <label class="textonome">
+        SERGIO ALGERI FILHO
+        <br style="height: 5px" />
+        Administrador
+        <br style="height: 5px" />
+        MITRA DIOCESANA DE PALMAS
+        <br />
+        <br />
+    </label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                        <br />
+                                        <center>
+                                            <label class="textogrupo">
+                                                <b>ANEXOS </b>
+                                            </label>
+                                        </center>
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO I - ATA PRIMEIRA RODADA NEGOCIA&#199;&#195;O
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR016479_20262026_03_31T16_40_36.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO II - ATA FECHAMENTO DA NEGOCIA&#199;&#195;O
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR016479_20262026_03_31T16_41_54.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                        <!--****************************************** FIM - Anexos ******************************************-->
+                                            <label class="texto">
+                                                &#160;&#160;&#160;&#160;A autenticidade deste documento poderá ser confirmada na
+                                                página do Ministerio do Trabalho e Emprego na Internet, no endereço http://www.mte.gov.br.
+                                            </label>
+                                            <br />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </div>
+</body>
+<script>
+    setTimeout(function () {
+        window.history.replaceState({}, '', window.location.pathname);
+    }, 0);
+</script>
+</html>

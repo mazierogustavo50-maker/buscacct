@@ -1,0 +1,679 @@
+
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <title>
+        Mediador - Extrato Termo Aditivo de Acordo Coletivo
+    </title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+    <script src="https://www.google.com/recaptcha/api.js?render=6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G"></script>
+
+    <script src='/sistemas/mediador/WebResource.axd?d=ls-JK0luimixBX3RtKP4OuM6Nbr55f1ikjLAMnxPrvPWRxDuzHsg65FphFc0YmwGvPuaSOvOnFNL4Mq2J7O55VkuvR-JNDegUEHaozvuG4GfYZuef32jriBr06lvlGac5F6-tkLMmrZoMutKUlmTDs6EfByvhBlqjoPaLqkzgWOQbhBdGIEvithrw3-5H5qk0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=Px3s_uYn4d177Bapr6UItVAG4ySRRwV1FTF9REvDumgGERVSCp8kyUryq_3KpZpUTfDe5TqxyIZGZxX5ozdMPUJbZ6hLNkyZcQs3Jq49Tq4elUn1XVD0J1HZdSLCj4u7lSEusPaT52P-dmmUW16Zx-F1DukKY3vEPHf0rDfBa2Ek1wHWv_TRP5IVvEToeq9-7oWzL-s-gnso82iAY4IHaA2&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=CjtT-uoLDoJdb4jgIJsBSRfL44ke78nKZN-T9Xh3VSuD7RX_5Bbo7zl2hrjZ0swKv3_WHboUwa3CrIc3r4fFnDK9--SThodGc3omd1KRkx-JcDZI56y8-pa3_jBuZ_Ja8EMw_zpGdh3c9iwxA6DgF6ADJueXAYnVerg4cx6Bv0PIW6hB8qDQX-29PZKYY9GD0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=hlEAjtYEwmyXvO53WOf3q1zm2M7vuEdUVyDiqXVCgKr5riw1ELy1ZRVj03iNlJYxSTquNrQZHsvSiEbqGSmz3MMcWp23BUlw4alWlNPe5NP81SNNQVIF6kR2DGagvrRoBfqFTWglcSdlZQtbZxa5nSJXuFFkjU7ovmwG9osuidcErpqwHbUr6Ngxm-jvdKpU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=NCcLU-zMz9clvVmV2ucp3Ot41YxhAEEnw1oODrj8U91mAFxGPkAkQeWXV5fcdwyy0mrLKva6KKMcHAaFm2jnwiusIA32tvo4e5f3N2JCWpIcY6qf8KJPLTTSkEYlrbyi5wATnAAhBkhIGD7thl1Lbyo0K8SYohjMh-git_nbtJv05RRshlEMjUi_DzdFBcqU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=1io6R1AjpcUezik5_qSigmQJFRbaB2L40L4rOH4MFKicVZMDTRO2C05XLVrubr29MfmMtziY_kIcjW_ZmQGmx7YNmW57PfPG1GkmCEILrEoNQLwRbo25stWZt8KVTCCGiLf2PdSQiW2RglNOyI0M__DHWfTq1HvMHualKSNfkpcafH4w3IeATgirTQJMa3Ry0&t=639106604800000000' type='text/javascript'></script>
+
+
+<script type="text/javascript">
+        var recaptchaSiteKey = '6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G';
+        var pageLoadToken = '';
+        var isPageValidated = false;
+
+        function onRecaptchaLoad() {
+            console.log('reCAPTCHA carregado, validando página...');
+            executePageLoadRecaptcha();
+        }
+
+        function executePageLoadRecaptcha() {
+            if (typeof grecaptcha === 'undefined') {
+                console.error('reCAPTCHA não carregado');
+                return;
+            }
+
+            grecaptcha.ready(function() {
+                grecaptcha.execute(recaptchaSiteKey, {
+                    action: 'page_load_resumo'
+                }).then(function(token) {
+                    console.log('Token de página gerado');
+                    pageLoadToken = token;
+
+                    // Enviar o token para o servidor
+                    validatePageLoadToken(token);
+                }).catch(function(error) {
+                    console.error('Erro no reCAPTCHA de página:', error);
+                    // Em desenvolvimento, permitir continuar
+                });
+            });
+        }
+
+        function validatePageLoadToken(token) {
+            var currentUrl = window.location.href;
+            var queryString = window.location.search;
+            var nrSolicitacao = 'MR011690/2026';
+
+            $.ajax({
+                url: '/sistemas/mediador/Resumo/ValidateResumoPageLoad',
+                type: 'POST',
+                data: {
+                    recaptchaToken: token,
+                    currentUrl: currentUrl,
+                    queryString: queryString,
+                    nrSolicitacao: nrSolicitacao
+                },
+                success: function(response) {
+                    if (response.success) {
+                        console.log('Página validada com sucesso');
+                        isPageValidated = true;
+                        showPageContent();
+                    } else {
+                        console.warn('Validação de página falhou:', response.message);
+                        handleValidationFailed(response);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao validar página:', error);
+                    handleValidationFailed({ message: 'Erro de comunicação com o servidor' });
+                }
+            });
+        }
+
+        function showPageContent() {
+            // Remover overlay de loading se existir
+            $('#recaptcha-loading').remove();
+            console.log('Conteúdo da página liberado');
+        }
+
+        function handleValidationFailed(response) {
+            // Mostrar mensagem de erro
+            var errorHtml = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                    <div style="text-align: center; padding: 20px;">
+                        <h2 style="color: #d32f2f;">Validação de Segurança</h2>
+                        <p style="font-size: 16px; margin: 20px 0;">${response.message || 'Falha na validação de segurança.'}</p>
+                        <button onclick="window.location.reload()" style="padding: 10px 20px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Tentar Novamente
+                        </button>
+                        <br><br>
+                        <button onclick="window.location.href='/sistemas/mediador/'" style="padding: 8px 16px; background: #757575; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Voltar para Página Inicial
+                        </button>
+                    </div>
+                </div>
+            `;
+            $('body').prepend(errorHtml);
+        }
+
+        $(document).ready(function() {
+            console.log('Página carregada - ambiente de produção');
+
+            // Pular validação reCAPTCHA em produção
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.log('Produção - validando sem reCAPTCHA');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 1000);
+
+            // Timeout de segurança reduzido
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.warn('Timeout na validação - liberando conteúdo');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 5000); // Reduzido para 5 segundos
+        });
+
+        function Imprimir() {
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "none";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "none";
+            window.print();
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "";
+            return true;
+        }
+        $(function () {
+            var marcaDaguaHtml = $('.MarcaDagua').html();
+            var width = $('body').width();
+            var marcaW = $('.MarcaDagua').width();
+
+            var qtdNescessarios = Math.round((width / marcaW) + 0.4);
+            if (qtdNescessarios > 0)
+                for (var incrementador = 0; incrementador < qtdNescessarios; incrementador++) {
+                    $('.MarcaDagua').append("<br />");
+                    $('.MarcaDagua').append(marcaDaguaHtml);
+                }
+        });
+
+
+</script>
+    <style type="text/css">
+        .titulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .Subtitulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 13px;
+        }
+        .texto
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .tituloClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .descricaoClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .textogrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+        .textosubgrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        .textonome
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .textofuncao
+        {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .pagebreak
+        {
+            page-break-after: always;
+        }
+        table.titulo
+        {
+            text-align: left;
+        }
+        @page Section2 {size:21cm 29.7cm ;mso-page-orientation:portrait;margin-top:2cm; margin-rigth:2cm; mso-paper-source:0;}
+        div.Section2 {page:Section2;}
+        pre
+        {
+            white-space: pre-wrap; /* css-3 */
+            white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+            white-space: -pre-wrap; /* Opera 4-6 */
+            white-space: -o-pre-wrap; /* Opera 7 */
+            word-wrap: break-word; /* Internet Explorer 5.5+ */
+            white-space: normal;
+        }
+    </style>
+    <!--[if gte mso 9]>
+    <xml>
+    <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+    </xml>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="Section2">
+
+        <center>
+            <table border="0" style="width: 18cm;" id="tblConteudo">
+                <tr>
+                    <td>
+                        <table style="width: 100%;" cellpadding="0" cellspacing="0">
+
+                                                            <tr>
+                                    <td align="center" class="titulo" style="text-transform: uppercase;">
+                                        <b>
+                                            Termo Aditivo a Acordo Coletivo De Trabalho 2026/2027
+                                        </b>
+                                        <br />
+                                        <br />
+                                    </td>
+                                </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: left;">
+                                        <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <td>
+                                                        <b>NÚMERO DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        PR000426/2026
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        06/03/2026
+                                                    </td>
+                                                </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>NÚMERO DA SOLICITAÇÃO:</b>
+                                                </td>
+                                                <td style="width: 10px">
+                                                </td>
+                                                <td>
+                                                    MR011690/2026
+                                                </td>
+                                            </tr>
+                                                                                            <tr>
+                                                    <td>
+                                                        <b>NÚMERO DO PROCESSO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        13068.201461/2026-11
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DO PROTOCOLO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+05/03/2026                                                    </td>
+                                                </tr>
+                                        </table>
+                                        <br />
+
+                                                    <br />
+                                                    <br />
+                                                    <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                        <tr>
+                                                            <td>
+                                                                <b>
+                                                                    N&#218;MERO DO PROCESSO  DO ACORDO COLETIVO PRINCIPAL:
+                                                                </b>
+                                                            </td>
+                                                            <td style="width: 10px">
+                                                            </td>
+                                                            <td>
+                                                                13068.200069/2026-46
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <b>
+                                                                    DATA DE REGISTRO  DO ACORDO COLETIVO PRINCIPAL:
+                                                                </b>
+                                                            </td>
+                                                            <td style="width: 10px">
+                                                            </td>
+                                                            <td>
+09/01/2026                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                        <p>
+                                                            <label class="texto">
+                                                                <b>
+                                                                    Confira a autenticidade no endereço http://www3.mte.gov.br/sistemas/mediador/.
+                                                                </b>
+                                                            </label>
+                                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" class="texto">
+                                    <p align="justify">
+SIND TRAB EMP SERV CONT ASS PER INF PESQ EMP PREST SERV, CNPJ n. 79.583.241/0001-60, neste ato representado(a) por seu 
+
+Membro de Diretoria Colegiada, Sr(a). MURILO ZANELLO MILLEO e por seu Membro de Diretoria Colegiada, Sr(a). IVO PETRY SOBRINHO;
+    <br />
+&nbsp;
+    <br />
+                                        <label>
+                                            E
+                                        </label>
+                                        <br />
+                                        <br />
+INSTITUTO DE BIOLOGIA MOLECULAR DO PARANA - IBMP, CNPJ n. 03.585.986/0001-05, neste ato representado(a) por seu 
+
+Diretor, Sr(a). PEDRO RIBEIRO BARBOSA;
+    <br />
+&nbsp;
+    <br />
+                                                                                    celebram
+                                                                                    o
+                                         presente TERMO ADITIVO DE ACORDO COLETIVO DE TRABALHO,
+ estipulando as condi&#231;&#245;es de trabalho previstas nas cl&#225;usulas seguintes:                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA PRIMEIRA - VIG&#202;NCIA E DATA-BASE
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    As partes fixam a vigência do presente Termo Aditivo de Acordo Coletivo de Trabalho no período de 21 de janeiro de 2026 a 20 de janeiro de 2027 e a data-base da categoria em 01º de junho.
+                                                </label>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA SEGUNDA - ABRANG&#202;NCIA
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    O presente Termo Aditivo de Acordo Coletivo de Trabalho, aplicável no âmbito da(s) empresa(s) acordante(s), abrangerá a(s) categoria(s) <b>Profissional dos Empregados em Empresas de Serviços Contábeis, Assessoramento, Perícias, Informações e Pesquisas, integrantes do 2º Grupo ? Empregados de Agentes Autônomos do Comércio, do Plano da CNTC                                       </b>, com abrangência territorial em <b>Curitiba/PR</b>.
+                                                </label>
+                                                <br />
+                                    </p>
+
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Salários, Reajustes e Pagamento
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Reajustes/Correções Salariais
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TERCEIRA - DA N&#195;O INCID&#202;NCIA DE REAJUSTE NA DATA-BASE SUBSEQUENTE
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">&nbsp;</p>
+<p class="wordsection1" style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;">Em raz&atilde;o do reajuste antecipado promovido pelo presente Termo Aditivo, as partes acordam expressamente que, na pr&oacute;xima data-base da categoria, fixada em 1.&ordm; de junho de 2026, n&atilde;o incidir&aacute; qualquer reajuste sobre os benef&iacute;cios alterados pelas Cl&aacute;usulas Quarta, Quinta, Sexta e S&eacute;tima deste instrumento, por j&aacute; terem sido antecipadamente recompostos.</span></p>
+<p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;">&nbsp;</span></p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Gratificações, Adicionais, Auxílios e Outros
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Auxílio Alimentação
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUARTA - DO REAJUSTE DO VALE REFEI&#199;&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;">Fica alterado o valor do benef&iacute;cio <strong>Vale-Refei&ccedil;&atilde;o</strong>, previsto na <strong>Cl&aacute;usula Quarta</strong> do Acordo Coletivo de Trabalho vigente (PR000019/2026), passando do valor de <strong>R$ 32,00 (trinta e dois reais)</strong> por dia de efetivo trabalho para <strong>R$ 33,25 (trinta e tr&ecirc;s reais e vinte e cinco centavos)</strong> por dia de efetivo trabalho.</span></p>
+<p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;"><strong>Par&aacute;grafo Primeiro.&nbsp;</strong>A corre&ccedil;&atilde;o ser&aacute; a partir da folha de fevereiro/2026 com pagamento at&eacute; o quinto dia &uacute;til de mar&ccedil;o/2026.</span></p>
+<p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;"><strong>Par&aacute;grafo Segundo.</strong> Permanecem inalteradas todas as demais disposi&ccedil;&otilde;es da referida cl&aacute;usula, incluindo as regras relativas ao desconto, &agrave; natureza indenizat&oacute;ria do benef&iacute;cio e &agrave;s hip&oacute;teses de suspens&atilde;o do pagamento.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUINTA - DO REAJUSTE DO  VALE ALIMENTA&#199;&#195;O - MENSAL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;">Fica alterado o valor do benef&iacute;cio <strong>Vale-Alimenta&ccedil;&atilde;o</strong>, previsto na <strong>Cl&aacute;usula Quinta</strong> do Acordo Coletivo de Trabalho vigente (PR000019/2026), passando do valor de <strong>R$ 735,00 (setecentos e trinta e cinco reais)</strong> mensais para <strong>R$ 765,00 (setecentos e sessenta e cinco reais)</strong> mensais.</span></p>
+<p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;"><strong>Par&aacute;grafo Primeiro.&nbsp;</strong>A corre&ccedil;&atilde;o ser&aacute; a partir da folha de fevereiro/2026 com pagamento at&eacute; o quinto dia &uacute;til de mar&ccedil;o/2026.</span></p>
+<p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;"><strong>Par&aacute;grafo Segundo.</strong> Permanecem inalteradas todas as demais disposi&ccedil;&otilde;es da referida cl&aacute;usula, incluindo as regras relativas ao desconto, &agrave; natureza indenizat&oacute;ria do benef&iacute;cio e &agrave;s hip&oacute;teses de manuten&ccedil;&atilde;o do pagamento durante afastamentos.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Auxílio Transporte
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA SEXTA - DO REAJUSTE DO AUX&#205;LIO COMBUST&#205;VEL/AJUDA DE CUSTO VE&#205;CULO PR&#211;PRIO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;">Fica alterado o valor da <strong>Ajuda de Custo &ndash; Ve&iacute;culo Pr&oacute;prio</strong> (Aux&iacute;lio Combust&iacute;vel), previsto na <strong>Cl&aacute;usula Nona</strong> do Acordo Coletivo de Trabalho vigente (PR000019/2026), passando do valor de <strong>R$ 0,90 (noventa centavos)</strong> por quil&ocirc;metro rodado para <strong>R$ 0,94 (noventa e quatro centavos)</strong> por quil&ocirc;metro rodado.</span></p>
+<p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;"><strong>Par&aacute;grafo Primeiro.&nbsp;</strong><span>A corre&ccedil;&atilde;o ser&aacute; a partir da folha de fevereiro/2026 com pagamento at&eacute; o quinto dia &uacute;til de mar&ccedil;o/2026.</span></span></p>
+<p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;"><strong>Par&aacute;grafo Segundo.</strong> Permanecem inalteradas todas as demais disposi&ccedil;&otilde;es da referida cl&aacute;usula, incluindo os crit&eacute;rios de elegibilidade por cargo, a metodologia de c&aacute;lculo da dist&acirc;ncia pelo Google Maps e a natureza indenizat&oacute;ria do benef&iacute;cio.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Auxílio Creche
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA S&#201;TIMA - DO REAJUSTE DO AUX&#205;LIO CRECHE/AUX&#205;LIO BAB&#193;
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;">Fica alterado o valor m&aacute;ximo mensal do benef&iacute;cio <strong>Aux&iacute;lio Creche/Aux&iacute;lio Bab&aacute;</strong>, previsto na <strong>Cl&aacute;usula D&eacute;cima Primeira</strong> do Acordo Coletivo de Trabalho vigente (PR000019/2026), passando do valor de <strong>R$ 420,00 (quatrocentos e vinte reais)</strong> mensais, por filho, para <strong>R$ 436,40 (quatrocentos e trinta e seis reais e quarenta centavos)</strong> mensais, por filho.</span></p>
+<p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;"><strong>Par&aacute;grafo Primeiro.&nbsp;</strong>A corre&ccedil;&atilde;o ser&aacute; a partir da folha de fevereiro/2026 com pagamento at&eacute; o quinto dia &uacute;til de mar&ccedil;o/2026.</span></p>
+<p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;"><strong>Par&aacute;grafo Segundo.</strong> Permanecem inalteradas todas as demais disposi&ccedil;&otilde;es da referida cl&aacute;usula, incluindo os requisitos de elegibilidade, os crit&eacute;rios de concess&atilde;o, o limite de idade da crian&ccedil;a, a veda&ccedil;&atilde;o &agrave; cumulatividade entre as modalidades, bem como a natureza n&atilde;o salarial e n&atilde;o remunerat&oacute;ria do benef&iacute;cio.</span></p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Disposições Gerais
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Regras para a Negociação
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA OITAVA - TERMOS DE AJUSTES
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;">As partes acima qualificadas, com fundamento na autonomia coletiva das partes prevista no <strong>art. 7.&ordm;, inciso XXVI, da Constitui&ccedil;&atilde;o Federal</strong>, no <strong>art. 611-A da Consolida&ccedil;&atilde;o das Leis do Trabalho &ndash; CLT</strong>, e nos demais dispositivos que regem a negocia&ccedil;&atilde;o coletiva de trabalho, e tendo em vista:</span></p>
+<p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;">(i) o Acordo Coletivo de Trabalho com vig&ecirc;ncia de 21 de janeiro de 2026 a 20 de janeiro de 2027, registrado no Minist&eacute;rio do Trabalho e Emprego sob o n.&ordm; <strong>PR000019/2026</strong>, em 09 de janeiro de 2026, N&uacute;mero do Processo <strong>13068.200069/2026-46</strong>;</span></p>
+<p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;">(ii) a necessidade de promover reajuste antecipado de benef&iacute;cios espec&iacute;ficos, previamente &agrave; data-base da categoria, fixada em <strong>1.&ordm; de junho</strong>, com vig&ecirc;ncia a partir de <strong>1.&ordm; de fevereiro de 2026</strong>;</span></p>
+<p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;">(iii) o reconhecimento de que os novos valores ora pactuados j&aacute; contemplam a recomposi&ccedil;&atilde;o que seria devida na pr&oacute;xima data-base, tornando indevida a aplica&ccedil;&atilde;o de qualquer reajuste adicional sobre os benef&iacute;cios ora alterados na oportunidade da renova&ccedil;&atilde;o do instrumento coletivo;</span></p>
+<p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;">resolvem celebrar o presente <strong>TERMO ADITIVO AO ACORDO COLETIVO DE TRABALHO</strong>, mediante as cl&aacute;usulas e condi&ccedil;&otilde;es estabelecidas.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA NONA - DA AUTONOMIA NEGOCIAL E DO RECONHECIMENTO M&#218;TUO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;">O presente Termo Aditivo &eacute; fruto da autonomia negocial das partes, que pactuaram com responsabilidade e em conformidade com o disposto no <strong>art. 7.&ordm;, inciso XXVI, da Constitui&ccedil;&atilde;o Federal</strong>, no <strong>art. 8.&ordm;, &sect; 3.&ordm; da CLT</strong> e no <strong>art. 620 da CLT</strong>, devendo o ajuste ser respeitado em todos os seus termos.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Aplicação do Instrumento Coletivo
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA - DA RATIFICA&#199;&#195;O DAS DEMAIS DISPOSI&#199;&#213;ES DO ACT
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small; font-family: arial, helvetica, sans-serif;">Permanecem em pleno vigor e sem qualquer altera&ccedil;&atilde;o todas as demais cl&aacute;usulas e disposi&ccedil;&otilde;es do Acordo Coletivo de Trabalho n.&ordm; PR000019/2026, que n&atilde;o tenham sido expressamente modificadas pelo presente Termo Aditivo, as quais s&atilde;o por este ato integralmente ratificadas e confirmadas pelas partes.</span></p>
+                                                </label>
+                                                <br />
+                                    }
+                                    <br />
+                                    <table border="0" cellpadding="0" cellspacing="0" align="center">
+                                        <tr>
+                                            <td align="center">
+                                                    <br />
+    <br />
+    <label class="textonome">
+        MURILO ZANELLO MILLEO
+        <br style="height: 5px" />
+        Membro de Diretoria Colegiada
+        <br style="height: 5px" />
+        SIND TRAB EMP SERV CONT ASS PER INF PESQ EMP PREST SERV
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        IVO PETRY SOBRINHO
+        <br style="height: 5px" />
+        Membro de Diretoria Colegiada
+        <br style="height: 5px" />
+        SIND TRAB EMP SERV CONT ASS PER INF PESQ EMP PREST SERV
+        <br />
+        <br />
+    </label>
+
+    <br />
+    <br />
+    <label class="textonome">
+        PEDRO RIBEIRO BARBOSA
+        <br style="height: 5px" />
+        Diretor
+        <br style="height: 5px" />
+        INSTITUTO DE BIOLOGIA MOLECULAR DO PARANA - IBMP
+        <br />
+        <br />
+    </label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                        <br />
+                                        <center>
+                                            <label class="textogrupo">
+                                                <b>ANEXOS </b>
+                                            </label>
+                                        </center>
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO I - ATA
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR000627_20262026_01_08T07_40_49.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                        <!--****************************************** FIM - Anexos ******************************************-->
+                                            <label class="texto">
+                                                &#160;&#160;&#160;&#160;A autenticidade deste documento poderá ser confirmada na
+                                                página do Ministerio do Trabalho e Emprego na Internet, no endereço http://www.mte.gov.br.
+                                            </label>
+                                            <br />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </div>
+</body>
+<script>
+    setTimeout(function () {
+        window.history.replaceState({}, '', window.location.pathname);
+    }, 0);
+</script>
+</html>

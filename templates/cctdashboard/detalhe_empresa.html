@@ -1,0 +1,76 @@
+{% extends "cctdashboard/base.html" %}
+{% block title %}{{ empresa.nome }} - Empresa{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:lista_empresas' %}">Empresas</a></li>
+        <li class="breadcrumb-item active">{{ empresa.codigo }}</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="bi bi-info-circle-fill me-2"></i>Detalhes da Empresa
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Código</dt>
+                    <dd class="col-sm-7">{{ empresa.codigo }}</dd>
+                    <dt class="col-sm-5">Nome</dt>
+                    <dd class="col-sm-7">{{ empresa.nome }}</dd>
+                    <dt class="col-sm-5">Sindicatos</dt>
+                    <dd class="col-sm-7">{{ sindicatos|length }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-people-fill me-2 text-primary"></i>Sindicatos Vinculados</span>
+                <span class="badge bg-secondary">{{ sindicatos|length }}</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Código</th>
+                                <th>Nome</th>
+                                <th>CNPJ</th>
+                                <th class="text-end">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sindicato in sindicatos %}
+                            <tr>
+                                <td>{{ sindicato.codigo }}</td>
+                                <td>{{ sindicato.nome }}</td>
+                                <td>{{ sindicato.cnpj|default:"-" }}</td>
+                                <td class="text-end">
+                                    <a href="{% url 'cctdashboard:detalhe_sindicato' sindicato.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye me-1"></i>Ver
+                                    </a>
+                                    <a href="{% url 'cctdashboard:lista_documentos' %}?sindicato={{ sindicato.pk }}" class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-files me-1"></i>Documentos
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">Nenhum sindicato vinculado.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

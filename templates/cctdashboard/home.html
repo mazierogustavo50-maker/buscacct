@@ -1,0 +1,181 @@
+{% extends "cctdashboard/base.html" %}
+{% block title %}Dashboard - Mediador CCT{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-white bg-primary h-100 shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="card-title">Sindicatos</h6>
+                    <h2 class="mb-0">{{ total_sindicatos }}</h2>
+                </div>
+                <i class="bi bi-people-fill fs-1 opacity-50"></i>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{% url 'cctdashboard:lista_sindicatos' %}" class="text-white text-decoration-none small">Ver todos <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-white bg-success h-100 shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="card-title">Empresas</h6>
+                    <h2 class="mb-0">{{ total_empresas }}</h2>
+                </div>
+                <i class="bi bi-building fs-1 opacity-50"></i>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{% url 'cctdashboard:lista_empresas' %}" class="text-white text-decoration-none small">Ver todas <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-white bg-info h-100 shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="card-title">Documentos CCT</h6>
+                    <h2 class="mb-0">{{ total_documentos }}</h2>
+                </div>
+                <i class="bi bi-files fs-1 opacity-50"></i>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{% url 'cctdashboard:lista_documentos' %}" class="text-white text-decoration-none small">Ver todos <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-white bg-warning h-100 shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="card-title">Termos Aditivos</h6>
+                    <h2 class="mb-0">{{ total_ta_cct }}</h2>
+                </div>
+                <i class="bi bi-file-earmark-plus fs-1 opacity-50"></i>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{% url 'cctdashboard:lista_documentos' %}?tipo=TA-CCT" class="text-white text-decoration-none small">Ver todos <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-bold">
+                <i class="bi bi-pie-chart-fill me-2 text-primary"></i>Distribuição por Tipo
+            </div>
+            <div class="card-body">
+                <canvas id="chartTipo"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-bold">
+                <i class="bi bi-bar-chart-fill me-2 text-success"></i>Top 10 Sindicatos por Documentos
+            </div>
+            <div class="card-body">
+                <canvas id="chartSindicato"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-robot me-2 text-warning"></i>Últimas Execuções do Scraper</span>
+                <a href="{% url 'cctdashboard:execucoes_scraper' %}" class="btn btn-sm btn-outline-primary">Ver todas</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Data Início</th>
+                                <th>Status</th>
+                                <th>Baixados</th>
+                                <th>Já Existentes</th>
+                                <th>Não Encontrados</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for exec in execucoes_recentes %}
+                            <tr>
+                                <td>#{{ exec.id }}</td>
+                                <td>{{ exec.data_inicio|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    {% if exec.status == "CONCLUIDO" %}
+                                        <span class="badge bg-success">Concluído</span>
+                                    {% elif exec.status == "ERRO" %}
+                                        <span class="badge bg-danger">Erro</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Em andamento</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ exec.total_baixados }}</td>
+                                <td>{{ exec.total_ja_existentes }}</td>
+                                <td>{{ exec.total_nao_encontrados }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-3">Nenhuma execução encontrada.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    new Chart(document.getElementById('chartTipo'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ documentos_por_tipo.labels|safe }},
+            datasets: [{
+                data: {{ documentos_por_tipo.data|safe }},
+                backgroundColor: ['#0d6efd', '#ffc107'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('chartSindicato'), {
+        type: 'bar',
+        data: {
+            labels: {{ sindicato_labels|safe }},
+            datasets: [{
+                label: 'Documentos',
+                data: {{ sindicato_data|safe }},
+                backgroundColor: '#198754',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 } }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,1045 @@
+
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <title>
+        Mediador - Extrato Termo Aditivo de Conven&#231;&#227;o Coletiva
+    </title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+    <script src="https://www.google.com/recaptcha/api.js?render=6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G"></script>
+
+    <script src='/sistemas/mediador/WebResource.axd?d=ls-JK0luimixBX3RtKP4OuM6Nbr55f1ikjLAMnxPrvPWRxDuzHsg65FphFc0YmwGvPuaSOvOnFNL4Mq2J7O55VkuvR-JNDegUEHaozvuG4GfYZuef32jriBr06lvlGac5F6-tkLMmrZoMutKUlmTDs6EfByvhBlqjoPaLqkzgWOQbhBdGIEvithrw3-5H5qk0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=Px3s_uYn4d177Bapr6UItVAG4ySRRwV1FTF9REvDumgGERVSCp8kyUryq_3KpZpUTfDe5TqxyIZGZxX5ozdMPUJbZ6hLNkyZcQs3Jq49Tq4elUn1XVD0J1HZdSLCj4u7lSEusPaT52P-dmmUW16Zx-F1DukKY3vEPHf0rDfBa2Ek1wHWv_TRP5IVvEToeq9-7oWzL-s-gnso82iAY4IHaA2&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=CjtT-uoLDoJdb4jgIJsBSRfL44ke78nKZN-T9Xh3VSuD7RX_5Bbo7zl2hrjZ0swKv3_WHboUwa3CrIc3r4fFnDK9--SThodGc3omd1KRkx-JcDZI56y8-pa3_jBuZ_Ja8EMw_zpGdh3c9iwxA6DgF6ADJueXAYnVerg4cx6Bv0PIW6hB8qDQX-29PZKYY9GD0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=hlEAjtYEwmyXvO53WOf3q1zm2M7vuEdUVyDiqXVCgKr5riw1ELy1ZRVj03iNlJYxSTquNrQZHsvSiEbqGSmz3MMcWp23BUlw4alWlNPe5NP81SNNQVIF6kR2DGagvrRoBfqFTWglcSdlZQtbZxa5nSJXuFFkjU7ovmwG9osuidcErpqwHbUr6Ngxm-jvdKpU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=NCcLU-zMz9clvVmV2ucp3Ot41YxhAEEnw1oODrj8U91mAFxGPkAkQeWXV5fcdwyy0mrLKva6KKMcHAaFm2jnwiusIA32tvo4e5f3N2JCWpIcY6qf8KJPLTTSkEYlrbyi5wATnAAhBkhIGD7thl1Lbyo0K8SYohjMh-git_nbtJv05RRshlEMjUi_DzdFBcqU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=1io6R1AjpcUezik5_qSigmQJFRbaB2L40L4rOH4MFKicVZMDTRO2C05XLVrubr29MfmMtziY_kIcjW_ZmQGmx7YNmW57PfPG1GkmCEILrEoNQLwRbo25stWZt8KVTCCGiLf2PdSQiW2RglNOyI0M__DHWfTq1HvMHualKSNfkpcafH4w3IeATgirTQJMa3Ry0&t=639106604800000000' type='text/javascript'></script>
+
+
+<script type="text/javascript">
+        var recaptchaSiteKey = '6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G';
+        var pageLoadToken = '';
+        var isPageValidated = false;
+
+        function onRecaptchaLoad() {
+            console.log('reCAPTCHA carregado, validando página...');
+            executePageLoadRecaptcha();
+        }
+
+        function executePageLoadRecaptcha() {
+            if (typeof grecaptcha === 'undefined') {
+                console.error('reCAPTCHA não carregado');
+                return;
+            }
+
+            grecaptcha.ready(function() {
+                grecaptcha.execute(recaptchaSiteKey, {
+                    action: 'page_load_resumo'
+                }).then(function(token) {
+                    console.log('Token de página gerado');
+                    pageLoadToken = token;
+
+                    // Enviar o token para o servidor
+                    validatePageLoadToken(token);
+                }).catch(function(error) {
+                    console.error('Erro no reCAPTCHA de página:', error);
+                    // Em desenvolvimento, permitir continuar
+                });
+            });
+        }
+
+        function validatePageLoadToken(token) {
+            var currentUrl = window.location.href;
+            var queryString = window.location.search;
+            var nrSolicitacao = 'MR070340/2025';
+
+            $.ajax({
+                url: '/sistemas/mediador/Resumo/ValidateResumoPageLoad',
+                type: 'POST',
+                data: {
+                    recaptchaToken: token,
+                    currentUrl: currentUrl,
+                    queryString: queryString,
+                    nrSolicitacao: nrSolicitacao
+                },
+                success: function(response) {
+                    if (response.success) {
+                        console.log('Página validada com sucesso');
+                        isPageValidated = true;
+                        showPageContent();
+                    } else {
+                        console.warn('Validação de página falhou:', response.message);
+                        handleValidationFailed(response);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao validar página:', error);
+                    handleValidationFailed({ message: 'Erro de comunicação com o servidor' });
+                }
+            });
+        }
+
+        function showPageContent() {
+            // Remover overlay de loading se existir
+            $('#recaptcha-loading').remove();
+            console.log('Conteúdo da página liberado');
+        }
+
+        function handleValidationFailed(response) {
+            // Mostrar mensagem de erro
+            var errorHtml = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                    <div style="text-align: center; padding: 20px;">
+                        <h2 style="color: #d32f2f;">Validação de Segurança</h2>
+                        <p style="font-size: 16px; margin: 20px 0;">${response.message || 'Falha na validação de segurança.'}</p>
+                        <button onclick="window.location.reload()" style="padding: 10px 20px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Tentar Novamente
+                        </button>
+                        <br><br>
+                        <button onclick="window.location.href='/sistemas/mediador/'" style="padding: 8px 16px; background: #757575; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Voltar para Página Inicial
+                        </button>
+                    </div>
+                </div>
+            `;
+            $('body').prepend(errorHtml);
+        }
+
+        $(document).ready(function() {
+            console.log('Página carregada - ambiente de produção');
+
+            // Pular validação reCAPTCHA em produção
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.log('Produção - validando sem reCAPTCHA');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 1000);
+
+            // Timeout de segurança reduzido
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.warn('Timeout na validação - liberando conteúdo');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 5000); // Reduzido para 5 segundos
+        });
+
+        function Imprimir() {
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "none";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "none";
+            window.print();
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "";
+            return true;
+        }
+        $(function () {
+            var marcaDaguaHtml = $('.MarcaDagua').html();
+            var width = $('body').width();
+            var marcaW = $('.MarcaDagua').width();
+
+            var qtdNescessarios = Math.round((width / marcaW) + 0.4);
+            if (qtdNescessarios > 0)
+                for (var incrementador = 0; incrementador < qtdNescessarios; incrementador++) {
+                    $('.MarcaDagua').append("<br />");
+                    $('.MarcaDagua').append(marcaDaguaHtml);
+                }
+        });
+
+
+</script>
+    <style type="text/css">
+        .titulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .Subtitulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 13px;
+        }
+        .texto
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .tituloClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .descricaoClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .textogrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+        .textosubgrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        .textonome
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .textofuncao
+        {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .pagebreak
+        {
+            page-break-after: always;
+        }
+        table.titulo
+        {
+            text-align: left;
+        }
+        @page Section2 {size:21cm 29.7cm ;mso-page-orientation:portrait;margin-top:2cm; margin-rigth:2cm; mso-paper-source:0;}
+        div.Section2 {page:Section2;}
+        pre
+        {
+            white-space: pre-wrap; /* css-3 */
+            white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+            white-space: -pre-wrap; /* Opera 4-6 */
+            white-space: -o-pre-wrap; /* Opera 7 */
+            word-wrap: break-word; /* Internet Explorer 5.5+ */
+            white-space: normal;
+        }
+    </style>
+    <!--[if gte mso 9]>
+    <xml>
+    <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+    </xml>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="Section2">
+
+        <center>
+            <table border="0" style="width: 18cm;" id="tblConteudo">
+                <tr>
+                    <td>
+                        <table style="width: 100%;" cellpadding="0" cellspacing="0">
+
+                                                            <tr>
+                                    <td align="center" class="titulo" style="text-transform: uppercase;">
+                                        <b>
+                                            Termo Aditivo a Conven&#231;&#227;o Coletiva De Trabalho 2025/2027
+                                        </b>
+                                        <br />
+                                        <br />
+                                    </td>
+                                </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: left;">
+                                        <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <td>
+                                                        <b>NÚMERO DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        PR003955/2025
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        16/12/2025
+                                                    </td>
+                                                </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>NÚMERO DA SOLICITAÇÃO:</b>
+                                                </td>
+                                                <td style="width: 10px">
+                                                </td>
+                                                <td>
+                                                    MR070340/2025
+                                                </td>
+                                            </tr>
+                                                                                            <tr>
+                                                    <td>
+                                                        <b>NÚMERO DO PROCESSO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        13068.209525/2025-32
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DO PROTOCOLO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+16/12/2025                                                    </td>
+                                                </tr>
+                                        </table>
+                                        <br />
+
+                                                    <br />
+                                                    <br />
+                                                    <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                        <tr>
+                                                            <td>
+                                                                <b>
+                                                                    N&#218;MERO DO PROCESSO  DA CONVEN&#199;&#195;O COLETIVA PRINCIPAL:
+                                                                </b>
+                                                            </td>
+                                                            <td style="width: 10px">
+                                                            </td>
+                                                            <td>
+                                                                13068.205929/2025-57
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <b>
+                                                                    DATA DE REGISTRO  DA CONVEN&#199;&#195;O COLETIVA PRINCIPAL:
+                                                                </b>
+                                                            </td>
+                                                            <td style="width: 10px">
+                                                            </td>
+                                                            <td>
+13/08/2025                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                        <p>
+                                                            <label class="texto">
+                                                                <b>
+                                                                    Confira a autenticidade no endereço http://www3.mte.gov.br/sistemas/mediador/.
+                                                                </b>
+                                                            </label>
+                                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" class="texto">
+                                    <p align="justify">
+FEDERACAO DOS TRABALHADORES EM TRANSP RODOV DO EST PR, CNPJ n. 81.455.248/0001-49, neste ato representado(a) por seu 
+
+Presidente, Sr(a). MOACIR RIBAS CZECK;
+    <br />
+&nbsp;
+    <br />
+SIND DOS TRAB E CONDUT EM TRANSP ROD E ANEXOS DE UMUARA, CNPJ n. 80.891.708/0001-19, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JOSE APARECIDO FALEIROS;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS CONDUTORES DE VEICULOS RODOVIARIOS E ANEXOS DE, CNPJ n. 81.878.845/0001-86, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JOSE APARECIDO FALEIROS;
+    <br />
+&nbsp;
+    <br />
+SINDICATO C V R T E T C P U M C L I I T CAMPO MOURAO PR, CNPJ n. 84.782.846/0001-10, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JOSE APARECIDO FALEIROS;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS TRABALH EM TRANSPORTES RODOV DE LONDRINA, CNPJ n. 78.636.222/0001-92, neste ato representado(a) por seu 
+
+Presidente, Sr(a). JOSE APARECIDO FALEIROS;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS MOTORISTAS, CONDUTORES DE VEICULOS RODOVIARIOS URBANOS E EM GERAL, TRABALHADORES EM TRANSPORTES RODOVIARIOS DE DOIS VIZINHOS - SINTRODOV, CNPJ n. 78.687.431/0001-65, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SIND DOS COND DE VEIC ROD E ANEXOS DE PARANAGUA, CNPJ n. 80.295.199/0001-61, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS MOTORISTAS,CONDUTORES DE VEICULOS RODOVIARIOS URBANOS E EM GERAL,TRABALHADORES EM TRANSPORTES RODOVIARIOS DE TELEMACO BORBA - SINCONVERT, CNPJ n. 81.393.142/0001-68, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SIND DOS TRAB EM TRANSPORTES RODOVIARIOS DE TOLEDO, CNPJ n. 80.878.085/0001-44, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS EMPREGRADOS DE EMPRESAS DE TRANSPORTE DE PASSAGEIROS INTERMUNICIPAL, INTERESTADUAL, TURISMO E FRETAMENTO DE CASCAVEL E REGIAO - SI, CNPJ n. 81.272.379/0001-90, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JOSE APARECIDO FALEIROS;
+    <br />
+&nbsp;
+    <br />
+SIND DOS MOTORISTAS, CONDUT. DE VEIC. RODOV URBANOS E EM GERAL, TRAB.TRANSP. ROD. PBCO, CNPJ n. 80.869.894/0001-90, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SIND DOS MOTORISTAS COB E TRABAL EM EMP DE TRANSP COLET EM VEIC ROD DE PASSAG URB MUN METROP INTERMU INTEREST E DE FRET DE PONTA GROSSA E REGIAO, CNPJ n. 84.786.144/0001-05, neste ato representado(a) por seu 
+
+Presidente, Sr(a). LUIZ CARLOS DE OLIVEIRA;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS TRAB EM TRANSP RODOV DE UNIAO DA VITORIA, CNPJ n. 80.060.635/0001-13, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SINDICATO PROFISSIONAL DOS TRABALHADORES EM TRANSPORTES RODOVIARIOS DE GUARAPUAVA, CNPJ n. 80.620.206/0001-53, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+                                        <label>
+                                            E
+                                        </label>
+                                        <br />
+                                        <br />
+SINFRETIBA - SINDICATO DAS EMPRESAS DE TRANSPORTE DE PASSAGE, CNPJ n. 81.051.997/0001-00, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JOSE VICENTE CALOBRIZI FERREIRA;
+    <br />
+&nbsp;
+    <br />
+                                                                                    celebram
+                                                                                    o
+                                         presente TERMO ADITIVO DE CONVEN&#199;&#195;O COLETIVA DE TRABALHO,
+ estipulando as condi&#231;&#245;es de trabalho previstas nas cl&#225;usulas seguintes:                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA PRIMEIRA - VIG&#202;NCIA E DATA-BASE
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    As partes fixam a vigência do presente Termo Aditivo de Convenção Coletiva de Trabalho no período de 01º de maio de 2025 a 31 de março de 2027 e a data-base da categoria em 01º de março.
+                                                </label>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA SEGUNDA - ABRANG&#202;NCIA
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    O presente Termo Aditivo de Convenção Coletiva de Trabalho abrangerá a(s) categoria(s) <b>Profissional dos Trabalhadores em Empresas de Transportes Rodoviários do 2º Grupo de Trabalhadores em Transportes Rodoviários e Anexos da CNTTT, previsto no quadro de atividades e profissões a que se refere o anexo do artigo 577 da CLT, e representando também todos os motoristas em geral, inclusive como categoria profissional diferenciada, todos os condutores de veículos rodoviários, inclusive como categoria profissional diferenciada, condutores de veículos em geral, condutores de veículos profissionais habilitados nas categorias A,B,C,D e E, a teor do art. 143 do CBT, motoristas vendedores e/ou entregadores pracistas, motociclistas, manobristas, operadores de máquinas e/ou empilhadeiras e condutores de equipamento automotor destinado a movimentação de cargas, assim como representando os empregados nas empresas dos setores a seguir especificados: "Empresas de Transportes Rodoviários das categorias econômicas de Transportes Rodoviários de Passageiros (Municipais, Intermunicipais, Interestaduais, Internacionais), Transportes Rodoviários de Cargas (Municipal, Intermunicipal, Interestadual e Internacional)em Geral, Carregadores e Transportadores de Volumes, de Bagagens em Geral, Postos de Serviços, e os empregados nas empresas que tenham, por objetivo principal ou preponderante, a movimentação física de mercadorias e bens em geral, em vias públicas ou rodovias, mediante a utilização de veículos automotores, bem como aquelas voltadas à prestação de serviços de logística, armazenagem ou integração multimodal, Transportes Coletivos de Passageiros Urbanos, Metropolitanos, inclusive em Automóvel de Aluguel (Táxi), Guardadores de Automóveis, Empregados de Agências e Estações Rodoviárias, Transportes de Passageiros por Fretamento (Turismo e Escolares), condutores de trator de roda, trator de esteira, trator misto, condutores de equipamento automotor destinado a execução de trabalho agrícola, de terraplenagem, de construção ou pavimentação, habilitados nas categorias C,D e E do art. 144 do CBT, ajudantes de motorista, como categoria similar, entendidos aqueles que, com exclusividade e em caráter permanente auxiliam o motorista em cargas, descargas e manobras, com ele permanecendo durante o transporte, empregados condutores de veículos, motoristas, como categoria diferenciada, nas empresas dos setores de: "Indústrias da Alimentação, Indústrias do Vestuário, Indústrias da Construção e do Mobiliário, Indústrias Urbanas (Inclusive Energia Elétrica, Água, Esgoto, Saneamento), Indústrias Extrativas, Indústrias de Fiação e Tecelagem, Indústrias de Artefatos de Couro, Indústrias de Artefatos de Borracha, Indústrias de Joalherias e Lapidação de Pedras Preciosas, Indústrias Químicas e Farmacêuticas, Indústrias do Papel, Papelão e Cortiça, Indústrias Gráficas, Indústrias de Vidros, Cristais, Espelhos, Cerâmicas de Louça e Porcelana, Indústrias de Instrumentos Musicais e de Brinquedos, Indústrias Cinematográficas, Indústrias de Beneficiamento, Indústrias de Artesanato em Geral e Indústrias Metalúrgicas, Mecânicas e do Material Elétrico". "Comércio Atacadista, Comércio Varejista, Agentes Autônomos do Comércio, Comércio Armazenador, Turismo e Hospitalidade, Empresas de Refeições Coletivas e Estabelecimentos de Serviços de Saúde". "Empresas de Comunicações, Empresas Jornalísticas, Empresas de Rádio e Televisão e Empresas de Publicidade". Estabelecimentos Bancários, Empresas de Seguros Privados e Capitalização, Agentes Autônomos de Seguros Privados e de Crédito e Entidades de Previdência Privada". "Estabelecimentos de Ensino, Empresa de Difusão Cultural e Artísticas, Estabelecimentos de Cultura Física e Estabelecimentos Hípicos", definidos na forma do quadro anexo do Artigo 577 da CLT". E os empregados condutores de veículos e motoristas, como categoria diferenciada, nas empresas dos setores a seguir: "Empregadores na Lavoura, Empregadores na Pecuária e Empregadores na Produção Extrativa Rural", definidos na forma do Artigo 1º das Portarias nºs 71 e 394 do MTPS". Cooperativas em Geral, "grupo constituído pelas Cooperativas de todos os setores econômicos", "Serviços Públicos", "Empresas de Economia mista de serviços públicos e seus concessionários e de outros ramos da economia; empresas públicas de administração direta e indireta cujos empregados sejam regidos pelo sistema da Consolidação das Leis do Trabalho</b>, com abrangência territorial em <b>Abatiá/PR, Adrianópolis/PR, Agudos do Sul/PR, Almirante Tamandaré/PR, Altamira do Paraná/PR, Alto Paraíso/PR, Alto Paraná/PR, Alto Piquiri/PR, Altônia/PR, Alvorada do Sul/PR, Amaporã/PR, Ampére/PR, Anahy/PR, Andirá/PR, Ângulo/PR, Antonina/PR, Antônio Olinto/PR, Apucarana/PR, Arapongas/PR, Arapoti/PR, Arapuã/PR, Araruna/PR, Araucária/PR, Ariranha do Ivaí/PR, Assaí/PR, Assis Chateaubriand/PR, Astorga/PR, Atalaia/PR, Balsa Nova/PR, Bandeirantes/PR, Barbosa Ferraz/PR, Barra do Jacaré/PR, Barracão/PR, Bela Vista da Caroba/PR, Bela Vista do Paraíso/PR, Bituruna/PR, Boa Esperança do Iguaçu/PR, Boa Esperança/PR, Boa Ventura de São Roque/PR, Boa Vista da Aparecida/PR, Bocaiúva do Sul/PR, Bom Jesus do Sul/PR, Bom Sucesso do Sul/PR, Bom Sucesso/PR, Borrazópolis/PR, Braganey/PR, Brasilândia do Sul/PR, Cafeara/PR, Cafelândia/PR, Cafezal do Sul/PR, Califórnia/PR, Cambará/PR, Cambé/PR, Cambira/PR, Campina da Lagoa/PR, Campina do Simão/PR, Campina Grande do Sul/PR, Campo Bonito/PR, Campo do Tenente/PR, Campo Largo/PR, Campo Magro/PR, Campo Mourão/PR, Cândido de Abreu/PR, Candói/PR, Cantagalo/PR, Capanema/PR, Capitão Leônidas Marques/PR, Carambeí/PR, Carlópolis/PR, Cascavel/PR, Castro/PR, Catanduvas/PR, Centenário do Sul/PR, Cerro Azul/PR, Céu Azul/PR, Chopinzinho/PR, Cianorte/PR, Cidade Gaúcha/PR, Clevelândia/PR, Colombo/PR, Colorado/PR, Congonhinhas/PR, Conselheiro Mairinck/PR, Contenda/PR, Corbélia/PR, Cornélio Procópio/PR, Coronel Domingos Soares/PR, Coronel Vivida/PR, Corumbataí do Sul/PR, Cruz Machado/PR, Cruzeiro do Iguaçu/PR, Cruzeiro do Oeste/PR, Cruzeiro do Sul/PR, Cruzmaltina/PR, Curitiba/PR, Curiúva/PR, Diamante do Norte/PR, Diamante do Sul/PR, Diamante D'Oeste/PR, Dois Vizinhos/PR, Douradina/PR, Doutor Camargo/PR, Doutor Ulysses/PR, Enéas Marques/PR, Engenheiro Beltrão/PR, Entre Rios do Oeste/PR, Esperança Nova/PR, Espigão Alto do Iguaçu/PR, Farol/PR, Faxinal/PR, Fazenda Rio Grande/PR, Fênix/PR, Fernandes Pinheiro/PR, Figueira/PR, Flor da Serra do Sul/PR, Floraí/PR, Floresta/PR, Florestópolis/PR, Flórida/PR, Formosa do Oeste/PR, Foz do Iguaçu/PR, Foz do Jordão/PR, Francisco Alves/PR, Francisco Beltrão/PR, General Carneiro/PR, Godoy Moreira/PR, Goioerê/PR, Goioxim/PR, Grandes Rios/PR, Guaíra/PR, Guairaçá/PR, Guamiranga/PR, Guapirama/PR, Guaporema/PR, Guaraci/PR, Guaraniaçu/PR, Guarapuava/PR, Guaraqueçaba/PR, Guaratuba/PR, Honório Serpa/PR, Ibaiti/PR, Ibema/PR, Ibiporã/PR, Icaraíma/PR, Iguaraçu/PR, Iguatu/PR, Imbaú/PR, Imbituva/PR, Inácio Martins/PR, Inajá/PR, Indianópolis/PR, Ipiranga/PR, Iporã/PR, Iracema do Oeste/PR, Irati/PR, Iretama/PR, Itaguajé/PR, Itaipulândia/PR, Itambaracá/PR, Itambé/PR, Itapejara d'Oeste/PR, Itaperuçu/PR, Itaúna do Sul/PR, Ivaí/PR, Ivaiporã/PR, Ivaté/PR, Ivatuba/PR, Jaboti/PR, Jacarezinho/PR, Jaguapitã/PR, Jaguariaíva/PR, Jandaia do Sul/PR, Janiópolis/PR, Japira/PR, Japurá/PR, Jardim Alegre/PR, Jardim Olinda/PR, Jataizinho/PR, Jesuítas/PR, Joaquim Távora/PR, Jundiaí do Sul/PR, Juranda/PR, Jussara/PR, Kaloré/PR, Lapa/PR, Laranjal/PR, Laranjeiras do Sul/PR, Leópolis/PR, Lidianópolis/PR, Lindoeste/PR, Loanda/PR, Lobato/PR, Luiziana/PR, Lunardelli/PR, Lupionópolis/PR, Mallet/PR, Mamborê/PR, Mandaguaçu/PR, Mandaguari/PR, Mandirituba/PR, Manfrinópolis/PR, Mangueirinha/PR, Manoel Ribas/PR, Marechal Cândido Rondon/PR, Maria Helena/PR, Marialva/PR, Marilândia do Sul/PR, Marilena/PR, Mariluz/PR, Mariópolis/PR, Maripá/PR, Marmeleiro/PR, Marquinho/PR, Marumbi/PR, Matelândia/PR, Matinhos/PR, Mato Rico/PR, Mauá da Serra/PR, Medianeira/PR, Mercedes/PR, Mirador/PR, Miraselva/PR, Missal/PR, Moreira Sales/PR, Morretes/PR, Munhoz de Melo/PR, Nossa Senhora das Graças/PR, Nova Aliança do Ivaí/PR, Nova América da Colina/PR, Nova Aurora/PR, Nova Cantu/PR, Nova Esperança do Sudoeste/PR, Nova Esperança/PR, Nova Fátima/PR, Nova Laranjeiras/PR, Nova Londrina/PR, Nova Olímpia/PR, Nova Prata do Iguaçu/PR, Nova Santa Bárbara/PR, Nova Santa Rosa/PR, Nova Tebas/PR, Novo Itacolomi/PR, Ortigueira/PR, Ourizona/PR, Ouro Verde do Oeste/PR, Paiçandu/PR, Palmas/PR, Palmeira/PR, Palmital/PR, Palotina/PR, Paraíso do Norte/PR, Paranacity/PR, Paranaguá/PR, Paranapoema/PR, Paranavaí/PR, Pato Bragado/PR, Paula Freitas/PR, Paulo Frontin/PR, Peabiru/PR, Perobal/PR, Pérola d'Oeste/PR, Pérola/PR, Piên/PR, Pinhais/PR, Pinhal de São Bento/PR, Pinhalão/PR, Pinhão/PR, Piraí do Sul/PR, Piraquara/PR, Pitanga/PR, Pitangueiras/PR, Planaltina do Paraná/PR, Planalto/PR, Ponta Grossa/PR, Pontal do Paraná/PR, Porecatu/PR, Porto Amazonas/PR, Porto Barreiro/PR, Porto Rico/PR, Porto Vitória/PR, Prado Ferreira/PR, Pranchita/PR, Presidente Castelo Branco/PR, Primeiro de Maio/PR, Prudentópolis/PR, Quarto Centenário/PR, Quatiguá/PR, Quatro Barras/PR, Quatro Pontes/PR, Quedas do Iguaçu/PR, Querência do Norte/PR, Quinta do Sol/PR, Quitandinha/PR, Ramilândia/PR, Rancho Alegre D'Oeste/PR, Rancho Alegre/PR, Realeza/PR, Rebouças/PR, Renascença/PR, Reserva do Iguaçu/PR, Reserva/PR, Ribeirão Claro/PR, Ribeirão do Pinhal/PR, Rio Azul/PR, Rio Bom/PR, Rio Bonito do Iguaçu/PR, Rio Branco do Ivaí/PR, Rio Branco do Sul/PR, Rio Negro/PR, Rolândia/PR, Roncador/PR, Rondon/PR, Rosário do Ivaí/PR, Sabáudia/PR, Salgado Filho/PR, Salto do Itararé/PR, Salto do Lontra/PR, Santa Amélia/PR, Santa Cecília do Pavão/PR, Santa Cruz de Monte Castelo/PR, Santa Fé/PR, Santa Helena/PR, Santa Inês/PR, Santa Isabel do Ivaí/PR, Santa Izabel do Oeste/PR, Santa Lúcia/PR, Santa Maria do Oeste/PR, Santa Mariana/PR, Santa Mônica/PR, Santa Tereza do Oeste/PR, Santa Terezinha de Itaipu/PR, Santana do Itararé/PR, Santo Antônio da Platina/PR, Santo Antônio do Caiuá/PR, Santo Antônio do Paraíso/PR, Santo Antônio do Sudoeste/PR, Santo Inácio/PR, São Carlos do Ivaí/PR, São Jerônimo da Serra/PR, São João do Caiuá/PR, São João do Ivaí/PR, São João do Triunfo/PR, São João/PR, São Jorge do Ivaí/PR, São Jorge do Patrocínio/PR, São Jorge d'Oeste/PR, São José da Boa Vista/PR, São José das Palmeiras/PR, São José dos Pinhais/PR, São Manoel do Paraná/PR, São Mateus do Sul/PR, São Miguel do Iguaçu/PR, São Pedro do Iguaçu/PR, São Pedro do Ivaí/PR, São Pedro do Paraná/PR, São Sebastião da Amoreira/PR, São Tomé/PR, Sapopema/PR, Sarandi/PR, Saudade do Iguaçu/PR, Sengés/PR, Serranópolis do Iguaçu/PR, Sertaneja/PR, Sertanópolis/PR, Siqueira Campos/PR, Sulina/PR, Tamarana/PR, Tamboara/PR, Tapejara/PR, Tapira/PR, Teixeira Soares/PR, Telêmaco Borba/PR, Terra Boa/PR, Terra Rica/PR, Terra Roxa/PR, Tibagi/PR, Tijucas do Sul/PR, Toledo/PR, Tomazina/PR, Três Barras do Paraná/PR, Tunas do Paraná/PR, Tuneiras do Oeste/PR, Tupãssi/PR, Turvo/PR, Ubiratã/PR, Umuarama/PR, União da Vitória/PR, Uniflor/PR, Uraí/PR, Ventania/PR, Vera Cruz do Oeste/PR, Verê/PR, Virmond/PR, Vitorino/PR, Wenceslau Braz/PR e Xambrê/PR</b>.
+                                                </label>
+                                                <br />
+                                    </p>
+
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Relações Sindicais
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras disposições sobre relação entre sindicato e empresa
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TERCEIRA - RELA&#199;&#195;O NOMINAL DE EMPREGADOS E FORNECIMENTO DE DOCUMENTOS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">As empresas devem encaminhar a entidade profissional c&oacute;pia das guias de descontos devidos ao Sindicato, com as suas respectivas rela&ccedil;&otilde;es nominais dos empregados e dos sal&aacute;rios, no prazo m&aacute;ximo de 30 (trinta) dias ap&oacute;s o desconto, conforme o Precedente Normativo n&ordm; 041 do TST.&nbsp;&nbsp;</p>
+<p style="text-align: justify;">Ficam as empresas obrigadas a fornecer ao sindicato profissional correspondente todos os documentos solicitados no curso do contrato de trabalho, inclusive c&oacute;pias de recibos de sal&aacute;rios, cart&otilde;es de ponto, extratos de FGTS, pagamentos de benef&iacute;cios convencionados e contribui&ccedil;&otilde;es estabelecidas. Em caso de recusa, independentemente de justificativa, ou de n&atilde;o atendimento no prazo estabelecido pelo sindicato, haver&aacute; autoriza&ccedil;&atilde;o para ajuizamento de a&ccedil;&atilde;o de exibi&ccedil;&atilde;o de documentos.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Disposições Gerais
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Aplicação do Instrumento Coletivo
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUARTA - REPRESENTA&#199;&#195;O DOS TRABALHADORES
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Fica acordado que a Federa&ccedil;&atilde;o dos Trabalhadores (FETROPAR) assinar&aacute; a presente CCT em nome do presidente do sindicato:&nbsp;&nbsp;SINDICATO DOS MOTORISTAS, CONDUTORES DE VEICULOS RODOVIARIOS E TRABALHADORES EM EMPRESAS DE TRANSP C P U MOT COB LINHAS INTERM INTEREST TUR ANEXOS MGA -&nbsp;<strong>SINTTROMAR</strong>&nbsp;o sindicato est&aacute; em fase de atualiza&ccedil;&atilde;o de mandato no MTE. Ficando estes, neste ato, representados pela Federa&ccedil;&atilde;o dos Trabalhadores em Transportes Rodovi&aacute;rios do Estado do PR &ndash; FETROPAR, por for&ccedil;a estatut&aacute;ria e expressa autoriza&ccedil;&atilde;o das entidades sindicais.</p>
+<p>&nbsp;</p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUINTA - PRAZO DE VIGENCIA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>Todas as demais cl&aacute;usulas da CCT - SINFRETIBA FRETAMENTO GERAL registrada em 04/08/2025 sob a MR031957/2025 e PROTOCOLO: 13068.205929/2025-57, e n&atilde;o alteradas por este Termo Aditivo permanecem inalterados restam ratificadas e em plena vig&ecirc;ncia at&eacute; 01 de mar&ccedil;o de 2027.</p>
+<p>&nbsp;</p>
+                                                </label>
+                                                <br />
+                                    }
+                                    <br />
+                                    <table border="0" cellpadding="0" cellspacing="0" align="center">
+                                        <tr>
+                                            <td align="center">
+                                                    <br />
+    <br />
+    <label class="textonome">
+        MOACIR RIBAS CZECK
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        FEDERACAO DOS TRABALHADORES EM TRANSP RODOV DO EST PR
+        <br />
+        <br />
+    </label>
+
+    <br />
+    <br />
+    <label class="textonome">
+        JOSE APARECIDO FALEIROS
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SIND DOS TRAB E CONDUT EM TRANSP ROD E ANEXOS DE UMUARA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JOSE APARECIDO FALEIROS
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS CONDUTORES DE VEICULOS RODOVIARIOS E ANEXOS DE
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JOSE APARECIDO FALEIROS
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO C V R T E T C P U M C L I I T CAMPO MOURAO PR
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JOSE APARECIDO FALEIROS
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SINDICATO DOS TRABALH EM TRANSPORTES RODOV DE LONDRINA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS MOTORISTAS, CONDUTORES DE VEICULOS RODOVIARIOS URBANOS E EM GERAL, TRABALHADORES EM TRANSPORTES RODOVIARIOS DE DOIS VIZINHOS - SINTRODOV
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SIND DOS COND DE VEIC ROD E ANEXOS DE PARANAGUA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS MOTORISTAS,CONDUTORES DE VEICULOS RODOVIARIOS URBANOS E EM GERAL,TRABALHADORES EM TRANSPORTES RODOVIARIOS DE TELEMACO BORBA - SINCONVERT
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SIND DOS TRAB EM TRANSPORTES RODOVIARIOS DE TOLEDO
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JOSE APARECIDO FALEIROS
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS EMPREGRADOS DE EMPRESAS DE TRANSPORTE DE PASSAGEIROS INTERMUNICIPAL, INTERESTADUAL, TURISMO E FRETAMENTO DE CASCAVEL E REGIAO - SI
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SIND DOS MOTORISTAS, CONDUT. DE VEIC. RODOV URBANOS E EM GERAL, TRAB.TRANSP. ROD. PBCO
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        LUIZ CARLOS DE OLIVEIRA
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SIND DOS MOTORISTAS COB E TRABAL EM EMP DE TRANSP COLET EM VEIC ROD DE PASSAG URB MUN METROP INTERMU INTEREST E DE FRET DE PONTA GROSSA E REGIAO
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS TRAB EM TRANSP RODOV DE UNIAO DA VITORIA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO PROFISSIONAL DOS TRABALHADORES EM TRANSPORTES RODOVIARIOS DE GUARAPUAVA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JOSE VICENTE CALOBRIZI FERREIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINFRETIBA - SINDICATO DAS EMPRESAS DE TRANSPORTE DE PASSAGE
+        <br />
+        <br />
+    </label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                        <br />
+                                        <center>
+                                            <label class="textogrupo">
+                                                <b>ANEXOS </b>
+                                            </label>
+                                        </center>
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO I - ATA FETROPAR
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR031726_20252025_06_06T10_13_00.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO II - ATA SINTRAU
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR031726_20252025_06_06T10_17_04.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO III - ATA SINTRODOV
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR011226_20252025_02_28T10_29_00.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO IV - ATA SINTROPAB
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR011226_20252025_02_28T10_31_24.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO V - ATA SINDICAP
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR011226_20252025_02_28T10_33_43.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO VI - ATA SINTTROL
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR011226_20252025_02_28T10_38_14.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO VII - ATA SINTROPAS-PG
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR031726_20252025_06_06T10_21_31.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO VIII - ATA SINCVRAAP
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR011226_20252025_02_28T10_41_23.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO IX - ATA SITROCAM
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR011226_20252025_02_28T10_42_32.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO X - ATA SINTRUV
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR011226_20252025_02_28T10_43_34.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XI - ATA SINCONVERT
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR011226_20252025_02_28T10_44_52.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XII - ATA SINTTROTOL
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR022458_20252025_04_29T10_16_12.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XIII - ATA SINETRAPITEL
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR031726_20252025_06_06T10_20_38.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XIV - ATA SINTRAR
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR070340_20252025_11_11T14_55_30.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                        <!--****************************************** FIM - Anexos ******************************************-->
+                                            <label class="texto">
+                                                &#160;&#160;&#160;&#160;A autenticidade deste documento poderá ser confirmada na
+                                                página do Ministerio do Trabalho e Emprego na Internet, no endereço http://www.mte.gov.br.
+                                            </label>
+                                            <br />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </div>
+</body>
+<script>
+    setTimeout(function () {
+        window.history.replaceState({}, '', window.location.pathname);
+    }, 0);
+</script>
+</html>

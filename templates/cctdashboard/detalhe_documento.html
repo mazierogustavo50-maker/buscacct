@@ -1,0 +1,105 @@
+{% extends "cctdashboard/base.html" %}
+{% block title %}{{ documento.tipo }} - {{ documento.sindicato.nome }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:lista_documentos' %}">Documentos</a></li>
+        <li class="breadcrumb-item active">#{{ documento.pk }}</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                <span>
+                    {% if documento.tipo == "CCT" %}
+                        <span class="badge bg-primary me-2">CCT</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark me-2">TA-CCT</span>
+                    {% endif %}
+                    {{ documento.sindicato.codigo }} - {{ documento.sindicato.nome }}
+                </span>
+                <span>
+                    {% if documento.status_extracao == "EXTRAIDO" %}
+                        <span class="badge bg-success">Extraído</span>
+                    {% elif documento.status_extracao == "ERRO" %}
+                        <span class="badge bg-danger">Erro</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Pendente</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Sindicato</dt>
+                    <dd class="col-sm-8">
+                        <a href="{% url 'cctdashboard:detalhe_sindicato' documento.sindicato.pk %}">
+                            {{ documento.sindicato.codigo }} - {{ documento.sindicato.nome }}
+                        </a>
+                    </dd>
+
+                    <dt class="col-sm-4">Data Início Vigência</dt>
+                    <dd class="col-sm-8">{{ documento.data_inicio_vigencia|date:"d/m/Y"|default:"-" }}</dd>
+
+                    <dt class="col-sm-4">Data Fim Vigência</dt>
+                    <dd class="col-sm-8">{{ documento.data_fim_vigencia|date:"d/m/Y"|default:"-" }}</dd>
+
+                    <dt class="col-sm-4">Data Base</dt>
+                    <dd class="col-sm-8">{{ documento.data_base|date:"d/m/Y"|default:"-" }}</dd>
+
+                    <dt class="col-sm-4">Reajuste (%)</dt>
+                    <dd class="col-sm-8">{{ documento.reajuste_percentual|default:"-" }}</dd>
+
+                    <dt class="col-sm-4">Contrib. Sindical Empregado</dt>
+                    <dd class="col-sm-8">{{ documento.contribuicao_sindical_empregado|default:"-" }}</dd>
+
+                    <dt class="col-sm-4">Contrib. Sindical Patronal</dt>
+                    <dd class="col-sm-8">{{ documento.contribuicao_sindical_patronal|default:"-" }}</dd>
+
+                    <dt class="col-sm-4">Status Extração</dt>
+                    <dd class="col-sm-8">{{ documento.get_status_extracao_display }}</dd>
+
+                    <dt class="col-sm-4">Arquivo PDF</dt>
+                    <dd class="col-sm-8">
+                        {% if documento.arquivo_pdf %}
+                            <code class="small">{{ documento.arquivo_pdf }}</code>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+
+                {% if documento.arquivo_pdf %}
+                <div class="mt-4">
+                    <a href="{{ documento.arquivo_pdf }}" target="_blank" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-pdf-fill me-2"></i>Abrir PDF
+                    </a>
+                    <a href="{{ documento.arquivo_pdf }}" download class="btn btn-outline-secondary">
+                        <i class="bi bi-download me-2"></i>Baixar PDF
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm bg-light">
+            <div class="card-body">
+                <h6 class="card-title fw-bold"><i class="bi bi-lightning-fill me-2 text-warning"></i>Ações Rápidas</h6>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'cctdashboard:detalhe_sindicato' documento.sindicato.pk %}" class="btn btn-outline-primary">
+                        <i class="bi bi-people-fill me-2"></i>Ver Sindicato
+                    </a>
+                    <a href="{% url 'cctdashboard:lista_documentos' %}?sindicato={{ documento.sindicato.pk }}" class="btn btn-outline-info">
+                        <i class="bi bi-files me-2"></i>Documentos do Sindicato
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1845 @@
+
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <title>
+        Mediador - Extrato Conven&#231;&#227;o Coletiva
+    </title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+    <script src="https://www.google.com/recaptcha/api.js?render=6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G"></script>
+
+    <script src='/sistemas/mediador/WebResource.axd?d=ls-JK0luimixBX3RtKP4OuM6Nbr55f1ikjLAMnxPrvPWRxDuzHsg65FphFc0YmwGvPuaSOvOnFNL4Mq2J7O55VkuvR-JNDegUEHaozvuG4GfYZuef32jriBr06lvlGac5F6-tkLMmrZoMutKUlmTDs6EfByvhBlqjoPaLqkzgWOQbhBdGIEvithrw3-5H5qk0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=Px3s_uYn4d177Bapr6UItVAG4ySRRwV1FTF9REvDumgGERVSCp8kyUryq_3KpZpUTfDe5TqxyIZGZxX5ozdMPUJbZ6hLNkyZcQs3Jq49Tq4elUn1XVD0J1HZdSLCj4u7lSEusPaT52P-dmmUW16Zx-F1DukKY3vEPHf0rDfBa2Ek1wHWv_TRP5IVvEToeq9-7oWzL-s-gnso82iAY4IHaA2&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=CjtT-uoLDoJdb4jgIJsBSRfL44ke78nKZN-T9Xh3VSuD7RX_5Bbo7zl2hrjZ0swKv3_WHboUwa3CrIc3r4fFnDK9--SThodGc3omd1KRkx-JcDZI56y8-pa3_jBuZ_Ja8EMw_zpGdh3c9iwxA6DgF6ADJueXAYnVerg4cx6Bv0PIW6hB8qDQX-29PZKYY9GD0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=hlEAjtYEwmyXvO53WOf3q1zm2M7vuEdUVyDiqXVCgKr5riw1ELy1ZRVj03iNlJYxSTquNrQZHsvSiEbqGSmz3MMcWp23BUlw4alWlNPe5NP81SNNQVIF6kR2DGagvrRoBfqFTWglcSdlZQtbZxa5nSJXuFFkjU7ovmwG9osuidcErpqwHbUr6Ngxm-jvdKpU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=NCcLU-zMz9clvVmV2ucp3Ot41YxhAEEnw1oODrj8U91mAFxGPkAkQeWXV5fcdwyy0mrLKva6KKMcHAaFm2jnwiusIA32tvo4e5f3N2JCWpIcY6qf8KJPLTTSkEYlrbyi5wATnAAhBkhIGD7thl1Lbyo0K8SYohjMh-git_nbtJv05RRshlEMjUi_DzdFBcqU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=1io6R1AjpcUezik5_qSigmQJFRbaB2L40L4rOH4MFKicVZMDTRO2C05XLVrubr29MfmMtziY_kIcjW_ZmQGmx7YNmW57PfPG1GkmCEILrEoNQLwRbo25stWZt8KVTCCGiLf2PdSQiW2RglNOyI0M__DHWfTq1HvMHualKSNfkpcafH4w3IeATgirTQJMa3Ry0&t=639106604800000000' type='text/javascript'></script>
+
+
+<script type="text/javascript">
+        var recaptchaSiteKey = '6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G';
+        var pageLoadToken = '';
+        var isPageValidated = false;
+
+        function onRecaptchaLoad() {
+            console.log('reCAPTCHA carregado, validando página...');
+            executePageLoadRecaptcha();
+        }
+
+        function executePageLoadRecaptcha() {
+            if (typeof grecaptcha === 'undefined') {
+                console.error('reCAPTCHA não carregado');
+                return;
+            }
+
+            grecaptcha.ready(function() {
+                grecaptcha.execute(recaptchaSiteKey, {
+                    action: 'page_load_resumo'
+                }).then(function(token) {
+                    console.log('Token de página gerado');
+                    pageLoadToken = token;
+
+                    // Enviar o token para o servidor
+                    validatePageLoadToken(token);
+                }).catch(function(error) {
+                    console.error('Erro no reCAPTCHA de página:', error);
+                    // Em desenvolvimento, permitir continuar
+                });
+            });
+        }
+
+        function validatePageLoadToken(token) {
+            var currentUrl = window.location.href;
+            var queryString = window.location.search;
+            var nrSolicitacao = 'MR005340/2026';
+
+            $.ajax({
+                url: '/sistemas/mediador/Resumo/ValidateResumoPageLoad',
+                type: 'POST',
+                data: {
+                    recaptchaToken: token,
+                    currentUrl: currentUrl,
+                    queryString: queryString,
+                    nrSolicitacao: nrSolicitacao
+                },
+                success: function(response) {
+                    if (response.success) {
+                        console.log('Página validada com sucesso');
+                        isPageValidated = true;
+                        showPageContent();
+                    } else {
+                        console.warn('Validação de página falhou:', response.message);
+                        handleValidationFailed(response);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao validar página:', error);
+                    handleValidationFailed({ message: 'Erro de comunicação com o servidor' });
+                }
+            });
+        }
+
+        function showPageContent() {
+            // Remover overlay de loading se existir
+            $('#recaptcha-loading').remove();
+            console.log('Conteúdo da página liberado');
+        }
+
+        function handleValidationFailed(response) {
+            // Mostrar mensagem de erro
+            var errorHtml = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                    <div style="text-align: center; padding: 20px;">
+                        <h2 style="color: #d32f2f;">Validação de Segurança</h2>
+                        <p style="font-size: 16px; margin: 20px 0;">${response.message || 'Falha na validação de segurança.'}</p>
+                        <button onclick="window.location.reload()" style="padding: 10px 20px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Tentar Novamente
+                        </button>
+                        <br><br>
+                        <button onclick="window.location.href='/sistemas/mediador/'" style="padding: 8px 16px; background: #757575; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Voltar para Página Inicial
+                        </button>
+                    </div>
+                </div>
+            `;
+            $('body').prepend(errorHtml);
+        }
+
+        $(document).ready(function() {
+            console.log('Página carregada - ambiente de produção');
+
+            // Pular validação reCAPTCHA em produção
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.log('Produção - validando sem reCAPTCHA');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 1000);
+
+            // Timeout de segurança reduzido
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.warn('Timeout na validação - liberando conteúdo');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 5000); // Reduzido para 5 segundos
+        });
+
+        function Imprimir() {
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "none";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "none";
+            window.print();
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "";
+            return true;
+        }
+        $(function () {
+            var marcaDaguaHtml = $('.MarcaDagua').html();
+            var width = $('body').width();
+            var marcaW = $('.MarcaDagua').width();
+
+            var qtdNescessarios = Math.round((width / marcaW) + 0.4);
+            if (qtdNescessarios > 0)
+                for (var incrementador = 0; incrementador < qtdNescessarios; incrementador++) {
+                    $('.MarcaDagua').append("<br />");
+                    $('.MarcaDagua').append(marcaDaguaHtml);
+                }
+        });
+
+
+</script>
+    <style type="text/css">
+        .titulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .Subtitulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 13px;
+        }
+        .texto
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .tituloClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .descricaoClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .textogrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+        .textosubgrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        .textonome
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .textofuncao
+        {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .pagebreak
+        {
+            page-break-after: always;
+        }
+        table.titulo
+        {
+            text-align: left;
+        }
+        @page Section2 {size:21cm 29.7cm ;mso-page-orientation:portrait;margin-top:2cm; margin-rigth:2cm; mso-paper-source:0;}
+        div.Section2 {page:Section2;}
+        pre
+        {
+            white-space: pre-wrap; /* css-3 */
+            white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+            white-space: -pre-wrap; /* Opera 4-6 */
+            white-space: -o-pre-wrap; /* Opera 7 */
+            word-wrap: break-word; /* Internet Explorer 5.5+ */
+            white-space: normal;
+        }
+    </style>
+    <!--[if gte mso 9]>
+    <xml>
+    <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+    </xml>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="Section2">
+
+        <center>
+            <table border="0" style="width: 18cm;" id="tblConteudo">
+                <tr>
+                    <td>
+                        <table style="width: 100%;" cellpadding="0" cellspacing="0">
+
+                                                            <tr>
+                                    <td align="center" class="titulo" style="text-transform: uppercase;">
+                                        <b>
+                                            Conven&#231;&#227;o Coletiva De Trabalho 2026/2028
+                                        </b>
+                                        <br />
+                                        <br />
+                                    </td>
+                                </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: left;">
+                                        <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <td>
+                                                        <b>NÚMERO DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        PR000431/2026
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        06/03/2026
+                                                    </td>
+                                                </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>NÚMERO DA SOLICITAÇÃO:</b>
+                                                </td>
+                                                <td style="width: 10px">
+                                                </td>
+                                                <td>
+                                                    MR005340/2026
+                                                </td>
+                                            </tr>
+                                                                                            <tr>
+                                                    <td>
+                                                        <b>NÚMERO DO PROCESSO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        13068.201266/2026-82
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DO PROTOCOLO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+26/02/2026                                                    </td>
+                                                </tr>
+                                        </table>
+                                        <br />
+
+                                                        <p>
+                                                            <label class="texto">
+                                                                <b>
+                                                                    Confira a autenticidade no endereço http://www3.mte.gov.br/sistemas/mediador/.
+                                                                </b>
+                                                            </label>
+                                                        </p>
+                                                    <br />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" class="texto">
+                                    <p align="justify">
+FEDERACAO DOS TRABALHADORES EM TRANSP RODOV DO EST PR, CNPJ n. 81.455.248/0001-49, neste ato representado(a) por seu 
+
+Presidente, Sr(a). MOACIR RIBAS CZECK;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS TRAB EM TRANSP RODOV DE UNIAO DA VITORIA, CNPJ n. 80.060.635/0001-13, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS TRAB. CONDUTORES DE VEICULOS MOTONETAS, MOTOCICLETAS E SIMILARES DE CURITIBA E REGIAO METROPOLITANA, CNPJ n. 02.914.270/0001-33, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SINDICATO C V R T E T C P U M C L I I T CAMPO MOURAO PR, CNPJ n. 84.782.846/0001-10, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JOSE APARECIDO FALEIROS;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS TRABALHADORES EM TRANSPORTES RODOVIARIOS DE CASCAVEL, CNPJ n. 77.841.682/0001-90, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SIND DOS COND DE VEIC ROD E ANEXOS DE PARANAGUA, CNPJ n. 80.295.199/0001-61, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS MOTORISTAS, CONDUTORES DE VEICULOS RODOVIARIOS URBANOS E EM GERAL, TRABALHADORES EM TRANSPORTES RODOVIARIOS DE DOIS VIZINHOS - SINTRODOV, CNPJ n. 78.687.431/0001-65, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SIND DOS TRAB EM TRANSP RODOVIARIOS DE FRANC BELTRAO, CNPJ n. 78.686.888/0001-55, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SINDICATO PROFISSIONAL DOS TRABALHADORES EM TRANSPORTES RODOVIARIOS DE GUARAPUAVA, CNPJ n. 80.620.206/0001-53, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS TRABALH EM TRANSPORTES RODOV DE LONDRINA, CNPJ n. 78.636.222/0001-92, neste ato representado(a) por seu 
+
+Presidente, Sr(a). JOSE APARECIDO FALEIROS;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS TRABALHADORES EM TRANSP RODOV DE F IGUACU, CNPJ n. 75.431.932/0001-98, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SIND DOS MOTORISTAS, CONDUT. DE VEIC. RODOV URBANOS E EM GERAL, TRAB.TRANSP. ROD. PBCO, CNPJ n. 80.869.894/0001-90, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS MOTORISTAS, CONDUTORES DE VEICULOS RODOVIARIOS E TRABALHADORES EM TRANSPORTES  RODOVIARIOS  DE PONTA GROSSA, CNPJ n. 80.251.929/0001-22, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS MOTORISTAS,CONDUTORES DE VEICULOS RODOVIARIOS URBANOS E EM GERAL,TRABALHADORES EM TRANSPORTES RODOVIARIOS DE TELEMACO BORBA - SINCONVERT, CNPJ n. 81.393.142/0001-68, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SIND DOS TRAB E CONDUT EM TRANSP ROD E ANEXOS DE UMUARA, CNPJ n. 80.891.708/0001-19, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JOSE APARECIDO FALEIROS;
+    <br />
+&nbsp;
+    <br />
+SIND DOS TRAB COND DE VEIC DO TIPO MOT, MOT, BICICL  E TRIC MOTORES DA REG NORTE DO PARANA, CNPJ n. 10.612.279/0001-18, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS TRABALHADORES EM TRANSPORTES RODOVIARIOS DO ESTADO DO PARANA, CNPJ n. 76.602.366/0001-00, neste ato representado(a) por seu 
+
+Presidente, Sr(a). MOACIR RIBAS CZECK;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS CONDUTORES DE VEICULOS RODOVIARIOS E ANEXOS DE, CNPJ n. 81.878.845/0001-86, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JOSE APARECIDO FALEIROS;
+    <br />
+&nbsp;
+    <br />
+SIND DOS TRAB EM TRANSPORTES RODOVIARIOS DE TOLEDO, CNPJ n. 80.878.085/0001-44, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JACEGUAI TEIXEIRA;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DOS MOTORISTAS, CONDUTORES DE VEICULOS RODOVIARIOS, CNPJ n. 79.147.450/0001-61, neste ato representado(a) por seu 
+
+Procurador, Sr(a). JOSE APARECIDO FALEIROS;
+    <br />
+&nbsp;
+    <br />
+                                        <label>
+                                            E
+                                        </label>
+                                        <br />
+                                        <br />
+SINDICATO DAS EMPR DE ASSEIO E CONSERV NO ESTADO DO PR, CNPJ n. 77.998.938/0001-77, neste ato representado(a) por seu 
+
+Presidente, Sr(a). ROGERIO BUENO DE QUEIROS;
+    <br />
+&nbsp;
+    <br />
+                                                                                    celebram
+                                                                                    a
+                                         presente CONVEN&#199;&#195;O COLETIVA DE TRABALHO,
+ estipulando as condi&#231;&#245;es de trabalho previstas nas cl&#225;usulas seguintes:                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA PRIMEIRA - VIG&#202;NCIA E DATA-BASE
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    As partes fixam a vigência da presente Convenção Coletiva de Trabalho no período de 01º de fevereiro de 2026 a 31 de janeiro de 2028 e a data-base da categoria em 01º de fevereiro.
+                                                </label>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA SEGUNDA - ABRANG&#202;NCIA
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    A presente Convenção Coletiva de Trabalho abrangerá a(s) categoria(s) <b>Profissional dos Trabalhadores em Empresas de Transportes Rodoviários do 2º Grupo de Trabalhadores em Transportes Rodoviários e Anexos da CNTTT, previsto no quadro de atividades e profissões a que se refere o anexo do artigo 577 da CLT, e representando também todos os motoristas em geral, inclusive como categoria profissional diferenciada, todos os condutores de veículos rodoviários, inclusive como categoria profissional diferenciada, condutores de veículos em geral, condutores de veículos profissionais habilitados nas categorias A,B,C,D e E, a teor do art. 143 do CBT, motoristas vendedores e/ou entregadores pracistas, motociclistas, manobristas, operadores de máquinas e/ou empilhadeiras e condutores de equipamento automotor destinado a movimentação de cargas, assim como representando os empregados nas empresas dos setores a seguir especificados: "Empresas de Transportes Rodoviários das categorias econômicas de Transportes Rodoviários de Passageiros (Municipais, Intermunicipais, Interestaduais, Internacionais), Transportes Rodoviários de Cargas (Municipal, Intermunicipal, Interestadual e Internacional)em Geral, Carregadores e Transportadores de Volumes, de Bagagens em Geral, Postos de Serviços, e os empregados nas empresas que tenham, por objetivo principal ou preponderante, a movimentação física de mercadorias e bens em geral, em vias públicas ou rodovias, mediante a utilização de veículos automotores, bem como aquelas voltadas à prestação de serviços de logística, armazenagem ou integração multimodal, Transportes Coletivos de Passageiros Urbanos, Metropolitanos, inclusive em Automóvel de Aluguel (Táxi), Guardadores de Automóveis, Empregados de Agências e Estações Rodoviárias, Transportes de Passageiros por Fretamento (Turismo e Escolares), condutores de trator de roda, trator de esteira, trator misto, condutores de equipamento automotor destinado a execução de trabalho agrícola, de terraplenagem, de construção ou pavimentação, habilitados nas categorias C,D e E do art. 144 do CBT, ajudantes de motorista, como categoria similar, entendidos aqueles que, com exclusividade e em caráter permanente auxiliam o motorista em cargas, descargas e manobras, com ele permanecendo durante o transporte, empregados condutores de veículos, motoristas, como categoria diferenciada, nas empresas dos setores de: "Indústrias da Alimentação, Indústrias do Vestuário, Indústrias da Construção e do Mobiliário, Indústrias Urbanas (Inclusive Energia Elétrica, Água, Esgoto, Saneamento), Indústrias Extrativas, Indústrias de Fiação e Tecelagem, Indústrias de Artefatos de Couro, Indústrias de Artefatos de Borracha, Indústrias de Joalherias e Lapidação de Pedras Preciosas, Indústrias Químicas e Farmacêuticas, Indústrias do Papel, Papelão e Cortiça, Indústrias Gráficas, Indústrias de Vidros, Cristais, Espelhos, Cerâmicas de Louça e Porcelana, Indústrias de Instrumentos Musicais e de Brinquedos, Indústrias Cinematográficas, Indústrias de Beneficiamento, Indústrias de Artesanato em Geral e Indústrias Metalúrgicas, Mecânicas e do Material Elétrico". "Comércio Atacadista, Comércio Varejista, Agentes Autônomos do Comércio, Comércio Armazenador, Turismo e Hospitalidade, Empresas de Refeições Coletivas e Estabelecimentos de Serviços de Saúde". "Empresas de Comunicações, Empresas Jornalísticas, Empresas de Rádio e Televisão e Empresas de Publicidade". Estabelecimentos Bancários, Empresas de Seguros Privados e Capitalização, Agentes Autônomos de Seguros Privados e de Crédito e Entidades de Previdência Privada". "Estabelecimentos de Ensino, Empresa de Difusão Cultural e Artísticas, Estabelecimentos de Cultura Física e Estabelecimentos Hípicos", definidos na forma do quadro anexo do Artigo 577 da CLT". E os empregados condutores de veículos e motoristas, como categoria diferenciada, nas empresas dos setores a seguir: "Empregadores na Lavoura, Empregadores na Pecuária e Empregadores na Produção Extrativa Rural", definidos na forma do Artigo 1º das Portarias nºs 71 e 394 do MTPS". Cooperativas em Geral, "grupo constituído pelas Cooperativas de todos os setores econômicos", "Serviços Públicos", "Empresas de Economia mista de serviços públicos e seus concessionários e de outros ramos da economia; empresas públicas de administração direta e indireta cujos empregados sejam regidos pelo sistema da Consolidação das Leis do Trabalho</b>, com abrangência territorial em <b>PR</b>.
+                                                </label>
+                                                <br />
+                                    </p>
+
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Salários, Reajustes e Pagamento
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Piso Salarial
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TERCEIRA - SAL&#193;RIO NORMATIVO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>Assegura-se a partir de 1&ordm; de fevereiro de 2025, os seguintes pisos salariais (atualizados com 1,76% INPC de agosto/24 a janeiro/25):</p>
+<p>&nbsp;</p>
+<p>a)&nbsp; - Para Motoristas de "Rodo trem e Bitrem", R$ 3.236,00.</p>
+<p>&nbsp;</p>
+<p>b)&nbsp; - Para Motoristas de "Carreta, Semi Reboques e &Ocirc;nibus", R$ 3.188,00.</p>
+<p>&nbsp;</p>
+<p>c)&nbsp; - Para Motoristas de caminh&otilde;es "Truck" e Micro-&ocirc;nibus, R$2.740,00.</p>
+<p>&nbsp;</p>
+<p>d)&nbsp; - Para Motoristas de caminh&otilde;es de grande porte como "Toco", R$ 2.512,00.</p>
+<p>&nbsp;</p>
+<p>e)&nbsp; - Para os Motoristas dos demais ve&iacute;culos, R$2.303,00.</p>
+<p>&nbsp;</p>
+<p>f)&nbsp; - Para "Motociclistas" R$ 1.962,00.</p>
+<p>&nbsp;</p>
+<p>g)&nbsp; - Para "Ajudantes de motoristas" R$ 1.946,00.</p>
+<p>&nbsp;</p>
+<p style="text-align: justify;">PAR&Aacute;GRAFO PRIMEIRO &ndash; Tendo em conta a data do fechamento da presente negocia&ccedil;&atilde;o, as diferen&ccedil;as resultantes dos pisos acima fixados, poder&atilde;o ser pagas, at&eacute; o m&ecirc;s subsequente ao m&ecirc;s do registro deste instrumento, em rubrica pr&oacute;pria de &ldquo;abono&rdquo;, sem outros &ocirc;nus. Ainda, faculta-se &agrave;s empresas a dedu&ccedil;&atilde;o de eventuais reajustes concedidos no indicado per&iacute;odo.<span style="text-decoration: line-through;">&nbsp;</span>Considerar-se-&atilde;o como diferen&ccedil;as restritamente as apuradas nos meses de agosto/24 a janeiro/25, para os empregados que tenham sido admitidos antes de 1&ordm; de agosto de 2024, (sendo que para os que tenham sido admitidos ap&oacute;s 1&ordm; de agosto de 2024, o valor corresponder&aacute; a 1/6 dos valores abaixo,&nbsp; conforme cada piso:</p>
+<p>&nbsp;</p>
+<p>- Para Motoristas de "Rodo trem e Bitrem", R$ 335,76</p>
+<p>- Para Motoristas de "Carreta, Semi Reboques e &Ocirc;nibus",. R$ 330, 84</p>
+<p>- Para Motoristas de caminh&otilde;es "Truck" e Micro-&ocirc;nibus, R$ 284,28</p>
+<p>- Para Motoristas de caminh&otilde;es de grande porte como "Toco", R$ 260,64</p>
+<p>- Para os Motoristas dos demais ve&iacute;culos, R$ 239,16&nbsp;</p>
+<p>- Para "Motociclistas" R$ 203,58</p>
+<p>- Para "Ajudantes de motoristas; R$ 201,90</p>
+<p><strong>PAR&Aacute;GRAFO SEGUNDO</strong> &ndash; Os valores acima mencionados ser&atilde;o pagos sob a rubrica de &ldquo;abono&rdquo; na folha imediatamente seguinte ao registro deste instrumento coletivo, sem natureza salarial, em prol da negocia&ccedil;&atilde;o sindical que resgatou o instrumento normativo, a data-base e o estabelecimeno de reajuste a partir de 01.02.26.</p>
+<p><strong>PAR&Aacute;GRAFO TERCEIRO</strong> - Assegura-se a partir de 1&ordm; de fevereiro de 2026, os seguintes pisos salariais:</p>
+<p>&nbsp;</p>
+<p align="left">A)- Para Motoristas de "Rodo trem e Bitrem", R$ 3.485,00.</p>
+<p>&nbsp;</p>
+<p align="left">B)&nbsp; - Para Motoristas de "Carreta, Semi Reboques e &Ocirc;nibus", R$ 3.434,00.</p>
+<p>C)- Para Motoristas de caminh&otilde;es "Truck" e Micro-&ocirc;nibus, R$ 2.951,00.</p>
+<p>&nbsp;</p>
+<p align="left">D)- Para Motoristas de caminh&otilde;es de grande porte como "Toco", R$ 2.706,00.</p>
+<p>&nbsp;</p>
+<p align="left">&nbsp;E)- Para os Motoristas dos demais ve&iacute;culos, R$ 2.480.00.</p>
+<p>&nbsp;</p>
+<p align="left">F)- Para "Motociclistas" R$ 2.113,00.</p>
+<p align="left">&nbsp;</p>
+<p align="left">G)- Para "Ajudantes de motoristas" R$ 2.096,00.</p>
+<div>
+<div>
+<div id="_com_1">
+<p>&nbsp;</p>
+</div>
+</div>
+</div>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Reajustes/Correções Salariais
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUARTA - REAJUSTE SALARIAL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>Aos empregados ocupantes dos cargos/fun&ccedil;&otilde;es acima indicados, que percebem sal&aacute;rios superiores aos pisos ora fixados, fica assegurado o reajuste pelo INPC de 1&ordm; de fevereiro/2025 &agrave; 31/01/2026, na propor&ccedil;&atilde;o de 1/12 por m&ecirc;s trabalhado, autorizada a compensa&ccedil;&atilde;o dos reajustes j&aacute; antecipados.</p>
+<p>Para a data base de 01.02.2027, fica ajustado uma corre&ccedil;&atilde;o pelo &iacute;ndice cheio do INPC acumulado entre 01.02.2026 e 31.01.2027, acrescido de 1% (um por cento).</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Descontos Salariais
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUINTA - DESCONTO EM FOLHA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Para os efeitos do artigo 462 da CLT, a empresa poder&aacute; descontar da remunera&ccedil;&atilde;o mensal do empregado, quando expressamente autorizadas pelo mesmo, e desde que n&atilde;o excedam 30% (trinta por cento) da remunera&ccedil;&atilde;o mensal, as parcelas relativas &agrave; empr&eacute;stimos dos conv&ecirc;nios MTB/CEF e SINDICATOS PROFISSIONAIS, bem como planos de assist&ecirc;ncia m&eacute;dica e/ou odontol&oacute;gica, conv&ecirc;nio com farm&aacute;cia, &oacute;ticas, supermercados e cong&ecirc;neres, dentre outros, mensalidades de seguros de vida, al&eacute;m de empr&eacute;stimos pessoais, em car&aacute;ter excepcional, para atender emerg&ecirc;ncia, feitos pelos sindicatos profissionais convenentes. Uma vez autorizado o desconto, individualmente ou coletivamente, n&atilde;o mais poder&aacute; o empregado pleitear a devolu&ccedil;&atilde;o do mesmo. Outrossim, em todas estas hip&oacute;teses o empregado poder&aacute;, a qualquer tempo, revogar a autoriza&ccedil;&atilde;o, desde que seus d&eacute;bitos estejam liquidados com o sindicato, a partir de quando, ent&atilde;o, o desconto deixar&aacute; de ser procedido.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO &Uacute;NICO -</strong> O repasse das import&acirc;ncias descontadas, devidas aos sindicatos profissionais, ser&aacute; efetuado at&eacute; o 5&ordm; dia &uacute;til ap&oacute;s o desconto.</p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA SEXTA - DESCONTOS DECORRENTES DE MULTAS DE TR&#194;NSITO INERENTES &#192; PROFISS&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span>A empresa dever&aacute; comunicar a ocorr&ecirc;ncia de multa de tr&acirc;nsito praticada pelo empregado, apresentando a esta c&oacute;pia de auto de infra&ccedil;&atilde;o, desde que decorrente do exerc&iacute;cio de sua atividade. Neste caso, o empregado poder&aacute; solicitar e providenciar o recurso administrativo cab&iacute;vel, devendo a empresa, querendo o empregado, faz&ecirc;-lo. Enquanto estiver sub-judicie, se n&atilde;o comprovado o dolo ou culpa evidente, n&atilde;o poder&aacute; a empresa efetuar quaisquer descontos a este t&iacute;tulo, ressalvada a hip&oacute;tese de rescis&atilde;o contratual ou quando o empregado n&atilde;o apresentar justificativa sustent&aacute;vel para a defesa.</span></p>
+<p style="text-align: justify;"><strong><span>PAR&Aacute;GRAFO PRIMEIRO</span></strong><span> - Se os descontos acima forem efetuados em folha de pagamento, poder&atilde;o s&ecirc;-lo, de uma &uacute;nica vez ou parcelados, neste &uacute;ltimo caso, ser&atilde;o corrigidos. Recomenda-se que esta circunstancia seja inserida no contrato de trabalho conforme &sect; 1&ordm; do Art. 462 da CLT.</span></p>
+<h5 style="text-align: justify;"><span style="font-family: arial, helvetica, sans-serif;"><span style="font-size: x-small;"><strong>PAR&Aacute;GRAFO SEGUNDO</strong> -&nbsp;</span><span style="font-size: x-small;">Na hip&oacute;tese de ocorr&ecirc;ncia de multa de tr&acirc;nsito aplicada em ve&iacute;culo conduzido pelo empregado, a empresa poder&aacute; providenciar a apresenta&ccedil;&atilde;o do condutor ve&iacute;culo, remetendo &agrave; autoridade de tr&acirc;nsito o respectivo auto de apresenta&ccedil;&atilde;o devidamente firmado, acompanhado dos documentos pessoais do condutor do ve&iacute;culo, para os efeitos legais previstos pelo C&oacute;digo Brasileiro de Tr&acirc;nsito</span><span style="font-size: x-small;">.</span></span></h5>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras normas referentes a salários, reajustes, pagamentos e critérios para cálculo
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA S&#201;TIMA - COMPROVANTES DE PAGAMENTO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>As empresas fornecer&atilde;o comprovante de pagamento, especificando as verbas pagas, descontos efetuados e recolhimento do FGTS.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Gratificações, Adicionais, Auxílios e Outros
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Adicional de Hora-Extra
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA OITAVA - ADICIONAL DE HORAS EXTRAS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>As horas extras ser&atilde;o pagas, com os adicionais previstos na Conven&ccedil;&atilde;o Coletiva de Trabalho da categoria preponderante.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Auxílio Alimentação
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA NONA - ALIMENTA&#199;&#195;O E ESTADIA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Os empregados ser&atilde;o reembolsados, quando em viagem a servi&ccedil;o fora do munic&iacute;pio sede das empresas e que implique em necessidade de refei&ccedil;&otilde;es e pernoites, das despesas devidas com alimenta&ccedil;&atilde;o e estadia, em n&iacute;veis adequados, ajustados com as empresas, n&atilde;o podendo em hip&oacute;tese nenhuma ser inferior ao aqui ajustado.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO PRIMEIRO</strong>&nbsp;- Aos empregados, quando em viagem a servi&ccedil;o das empresas, fora do seu domic&iacute;lio sede, fica assegurada a percep&ccedil;&atilde;o de alimenta&ccedil;&atilde;o e estadia paga pelas empresas, &agrave; partir de 01.02.2026,&nbsp; nos seguintes valores:<strong> R$ 34,00</strong>, (<strong>trinta e quatro<strong> reais</strong></strong>), para almo&ccedil;o;&nbsp;<strong>R$ 34,00</strong>, (trinta e quatro<strong>reais</strong>), para jantar;&nbsp;<strong>R$17,00</strong>&nbsp;<strong>(dezessete<strong>&nbsp;reais</strong></strong>), para caf&eacute;;&nbsp;<strong>R$17,00</strong>&nbsp;<strong>(dezessete<strong>&nbsp;reais</strong></strong>), para pernoite/banho, totalizando&nbsp;<strong>R$&nbsp;102,00&nbsp;(cento e dois reais),</strong> de despesas di&aacute;rias comprovadas por documentos fiscais, sem natureza salarial.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO SEGUNDO</strong>&nbsp;- As empresas que mantiverem conv&ecirc;nios com Restaurantes e Dormit&oacute;rios para o atendimento das obriga&ccedil;&otilde;es contidas nessa cl&aacute;usula ficam desobrigadas do reembolso.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO TERCEIRO</strong>&nbsp;- As despesas referidas na cl&aacute;usula 09 da CCT&nbsp;e par&aacute;grafos primeiro e par&aacute;grafo segundo n&atilde;o ter&atilde;o natureza salarial.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Seguro de Vida
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA - SEGURO DE VIDA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>As empresas dever&atilde;o custear o benef&iacute;cio do seguro obrigat&oacute;rio aos profissionais motoristas e demais empregados abrangidos por este instrumento coletivo, destinado a morte natural e &agrave; cobertura dos riscos pessoais inerentes &agrave;s suas atividades, tais como morte acidental, invalidez permanente, conforme previsto no par&aacute;grafo &uacute;nico, artigo 2&ordm; da Lei 13.103/2015.</p>
+<p><strong>PAR&Aacute;GRAFO PRIMEIRO:</strong>&nbsp;Alternativamente ao disposto no caput, as empresas que em 1&ordm; de fevereiro de 2026 n&atilde;o possuam seguro de vida em grupo sob sua inteira responsabilidade, pagar&atilde;o mensalmente, o valor equivalente a 3,5% (tr&ecirc;s e meio por cento) do sal&aacute;rio m&iacute;nimo, por empregado abrangido por esta conven&ccedil;&atilde;o, ao Sindicato Profissional, que se obriga a manter ap&oacute;lice coletiva de seguro, em favor de seus representados constantes da rela&ccedil;&atilde;o mensal encaminhada pela empresa juntamente com a guia de recolhimento:</p>
+<p>I - Na hip&oacute;tese da empresa possuir at&eacute; cinco empregados abrangidos por esta conven&ccedil;&atilde;o, dever&aacute; proceder a pagamentos semestrais antecipados, sob este t&iacute;tulo, ao Sindicato Profissional, sem se desobrigar, no entanto, de manter informada a Entidade Sindical obreira sobre altera&ccedil;&otilde;es de admiss&atilde;o e demiss&atilde;o.</p>
+<p>II - O seguro estipulado pelo Sindicato Profissional viger&aacute; ap&oacute;s 60 (sessenta) dias da comunica&ccedil;&atilde;o de ades&atilde;o e pagamento do pr&ecirc;mio em guias por este fornecida, com autentica&ccedil;&atilde;o do recolhimento em conta banc&aacute;ria. A empresa dever&aacute; comunicar, de imediato, ao Sindicato Profissional, o nome e a data do nascimento do segurado. Ocorrendo o sinistro dentro do mencionado prazo de car&ecirc;ncia n&atilde;o caber&aacute; qualquer responsabilidade ao Sindicato Profissional, bem assim quando da aus&ecirc;ncia de informa&ccedil;&atilde;o correta por parte das empresas.</p>
+<p><strong>PAR&Aacute;GRAFO SEGUNDO:&nbsp;</strong>Permanecem v&aacute;lidos os benef&iacute;cios mais favor&aacute;veis concedidos pela empresa, neste sentido, ficando esta, no entanto, respons&aacute;vel por eventual indeniza&ccedil;&atilde;o, decorrente do n&atilde;o cumprimento do ora estabelecido.</p>
+<p><strong>PAR&Aacute;GRAFO TERCEIRO:</strong>&nbsp;N&atilde;o se aplica o par&aacute;grafo primeiro da presente cl&aacute;usula de SEGURO DE&nbsp; VIDA EM GRUPO para&nbsp;as entidades sindicais, Sindicato dos Trabalhadores em&nbsp;Transportes Rodovi&aacute;rios do Estado do Paran&aacute; &ndash;&nbsp;<strong>SITRO</strong>, Sindicato dos Motoristas, Condutores de Ve&iacute;culos Rodovi&aacute;rios em Geral e Trabalhadores em Transportes Rodovi&aacute;rios de Ponta Grossa -&nbsp;<strong>SITROPONTA</strong>&nbsp;&nbsp;e o&nbsp; Sindicatos dos Trabalhadores em Transportes rodovi&aacute;rios de&nbsp;Cascavel -&nbsp;<strong>SITROVEL</strong>, SINDICATO PROFISSIONAL DOS TRABALHADORES EM TRANSPORTES RODOVIARIOS DE GUARAPUAVA &ndash;&nbsp;<strong>SINTRAR</strong>, SINDICATO C V R T E T C P U M C L I I T CAMPO MOURAO PR -&nbsp;<strong>SITROCAM</strong>, SINDICATO DOS MOTORISTAS, CONDUTORES DE VEICULOS RODOVIARIOS E TRABALHADORES EM EMPRESAS DE TRANSP C P U MOT COB LINHAS INTERM INTEREST TUR ANEXOS MGA &ndash;&nbsp;<strong>SINTTROMAR</strong>, SIND DOS TRAB EM TRANSPORTES RODOVIARIOS DE TOLEDO &ndash;&nbsp;<strong>SINTTROTOL</strong>, SIND DOS TRAB E CONDUT EM TRANSP ROD E ANEXOS DE UMUARAMA &ndash;&nbsp;<strong>SINTRAU</strong>, SINDICATO DOS CONDUTORES DE VEICULOS RODOVIARIOS E ANEXOS DE APUCARANA &ndash;&nbsp;<strong>SINCVRAAP</strong>,&nbsp; SIND DOS COND DE VEIC ROD E ANEXOS DE PARANAGUA -&nbsp;<strong>SINDICAP</strong>&nbsp; e SINDICATO DOS MOTORISTAS, CONDUTORES DE VEICULOS RODOVIARIOS URBANOS E EM GERAL, TRABALHADORES EM TRANSPORTES RODOVIARIOS DE TELEMACO BORBA &ndash;&nbsp;<strong>SINCONVERT</strong>; SINDICATO DOS MOTORISTAS, CONDUTORES DE VEICULOS RODOVIARIOS URBANOS E EM GERAL, TRABALHADORES EM TRANSPORTES RODOVIARIOS DE DOIS VIZINHOS &ndash; <strong>SINTRODOV</strong>; SINDICATO DOS TRABALHADORES EM TRANSPORTES RODOVIARIOS DE FRANCISCO BELTR&Atilde;O &ndash; <strong>SITROFAB</strong>; SINDICATO DOS TRABALHADORES EM TRANSPORTES RODOVIARIOS DE FOZ DO IGUA&Ccedil;U &ndash; <strong>SITRO &ndash; FI</strong>;SINDICATO DOS MOTORISTAS, CONDUTORES DE VEICULOS RODOVIARIOS URBANOS E EM GERAL, TRABALHADORES EM TRANSPORTES RODOVIARIOS DE PATO BRANCO<strong> &ndash; SINTROPAB</strong>; SINDICATO DOS TRABALHADORES EM TRANSPORTES RODOVI&Aacute;RIOS DE UNI&Atilde;O DA VITORIA<strong> - SINTRUV </strong>&nbsp;&nbsp;pois as mesmas n&atilde;o possuem ap&oacute;lice de seguro de vida em grupo para seus representados, ficando as empresas representadas pelo sindicato patronal respons&aacute;veis pelo devido cumprimento do referido seguro de vida&nbsp;aos trabalhadores representados pelos tr&ecirc;s sindicatos profissionais, conforme LEI 13.103/2015 e caput desta cl&aacute;usula.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Contrato de Trabalho – Admissão, Demissão, Modalidades
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Normas para Admissão/Contratação
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA PRIMEIRA - EMPREGADOS NOVOS ADMITIDOS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>Ao empregado admitido para a fun&ccedil;&atilde;o de outro empregado dispensado, sem justa causa, ser&aacute; garantido aquele sal&aacute;rio igual ao do empregado de menor sal&aacute;rio na fun&ccedil;&atilde;o, sem considerar vantagens pessoais (Instru&ccedil;&atilde;o no 4 do TST, item XXIII).</p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA SEGUNDA - RESCIS&#213;ES CONTRATUAIS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>Nas rescis&otilde;es contratuais aplicar-se-&aacute; o artigo 477 da CLT. Na hip&oacute;tese de n&atilde;o ser efetuado o mencionado pagamento, nos termos estipulados, motivado pela aus&ecirc;ncia do empregado, a empresa far&aacute; comunica&ccedil;&atilde;o por escrito ao Sindicato dos Trabalhadores, que ter&aacute; 05 (cinco) dias para a sua manifesta&ccedil;&atilde;o. Persistindo a aus&ecirc;ncia, ficar&aacute; a empresa dispensada de qualquer san&ccedil;&atilde;o.</p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA TERCEIRA - COMUNICA&#199;&#195;O DO MOTIVO DE DISPENSA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>No caso de despedida por justa causa, as empresas comunicar&atilde;o por escrito aos empregados o motivo da dispensa.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras normas referentes a admissão, demissão e modalidades de contratação
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA QUARTA - ANOTA&#199;&#213;ES NA CARTEIRA PROFISSIONAL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>&nbsp;</p>
+<p>As empresas anotar&atilde;o na CTPS a fun&ccedil;&atilde;o efetivamente exercida pelo empregado observada a classifica&ccedil;&atilde;o brasileira de ocupa&ccedil;&atilde;o (CBO).</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Relações de Trabalho – Condições de Trabalho, Normas de Pessoal e Estabilidades
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Ferramentas e Equipamentos de Trabalho
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA QUINTA - LOCA&#199;&#195;O DE MOTOS E USO DE IMAGEM
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">O empregado, contratado sob o regime da CLT a partir de 1&ordm; de fevereiro de 2026, possuidor de motocicleta a qualquer t&iacute;tulo (propriet&aacute;rio, locat&aacute;rio, comodat&aacute;rio, etc.) a ser utilizada a servi&ccedil;o da empregadora na entrega de mercadorias e documentos, receber&aacute; a t&iacute;tulo de aluguel uma parcela mensal, n&atilde;o integrante da remunera&ccedil;&atilde;o para nenhum efeito, o valor de&nbsp;<strong>R$560,00</strong><strong>, (quinhentos e sessenta reais),</strong> a ser pago at&eacute; o dia 10 de cada m&ecirc;s. As partes reconhecem que os pagamentos concedidos pelas empresas aos condutores de motos e similares, tais como o pagamento de aluguel da moto e uso de imagem, n&atilde;o ter&aacute; natureza salarial.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO PRIMEIRO:</strong>&nbsp;Empregado e empregador reconhecem que o valor acima consignado para a loca&ccedil;&atilde;o da motocicleta n&atilde;o abrange a quilometragem rodada e a gasolina utilizada mensalmente na presta&ccedil;&atilde;o do servi&ccedil;o para o empregador, o que dever&aacute; ser ajustado diretamente entre empregado e empregador.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO SEGUNDO:&nbsp;</strong><strong>USO DE IMAGEM</strong> &ndash; Empregado e empregador reconhecem que o uso de imagem nas motocicletas e similares, com a finalidade de divulgar o nome da empresa, n&atilde;o gera qualquer direito a vantagens ou indeniza&ccedil;&otilde;es aos condutores ou propriet&aacute;rios das motocicletas ou similares.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO TERCEIRO:</strong>&nbsp;O direito ao recebimento dos valores constantes do caput desta cl&aacute;usula, bem como o seu par&aacute;grafo primeiro s&oacute; ocorrer&aacute; quando o empregado utilizar sua pr&oacute;pria motocicleta, o equipamento que seja copropriet&aacute;rio, ou por ele arrendado formalmente.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Jornada de Trabalho – Duração, Distribuição, Controle, Faltas
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Compensação de Jornada
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA SEXTA - COMPENSA&#199;&#195;O DA JORNADA DE TRABALHO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>&nbsp;</p>
+<p>Para as empresas e empregados que optarem pelo regime de compensa&ccedil;&atilde;o de jornada de trabalho, o hor&aacute;rio ser&aacute; o seguinte:</p>
+<p><strong>a)&nbsp;&nbsp;&nbsp;&nbsp; </strong>Extin&ccedil;&atilde;o completa do trabalho aos s&aacute;bados: As horas de trabalho correspondentes aos s&aacute;bados ser&atilde;o compensadas no decurso da semana de segunda a sexta-feira, com acr&eacute;scimo de at&eacute; no m&aacute;ximo, duas horas di&aacute;rias, de maneira que nesses dias se completem as quarenta e quatro horas semanais, respeitados os intervalos de Lei;</p>
+<p><strong>b)</strong> Extin&ccedil;&atilde;o parcial do trabalho aos s&aacute;bados: as horas correspondentes &agrave; redu&ccedil;&atilde;o do trabalho aos s&aacute;bados, ser&atilde;o da mesma forma compensadas pela prorroga&ccedil;&atilde;o da jornada de trabalho de segunda a sexta-feira, observadas as condi&ccedil;&otilde;es b&aacute;sicas referidas no item anterior;</p>
+<p><strong>c)</strong> Competir&aacute; a cada empresa, de comum acordo com seus empregados, fixar jornada de trabalho, para efeito de compensa&ccedil;&atilde;o objetivando a extin&ccedil;&atilde;o total ou parcial do expediente aos s&aacute;bados, dentro das normas aqui estabelecidas.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Férias e Licenças
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras disposições sobre férias e licenças
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA S&#201;TIMA - F&#201;RIAS PROPORCIONAIS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>&nbsp;</p>
+<p>Ao empregado com menos de um ano de empresa, e que rescinda seu contrato laboral, ser&aacute; devido o pagamento das f&eacute;rias proporcionais, desde que o mesmo tenha mais de seis meses de trabalho na empresa, ficando assegurado tamb&eacute;m o pagamento de 1/3 (um ter&ccedil;o) do sal&aacute;rio normal na concess&atilde;o das f&eacute;rias ou na rescis&atilde;o contratual.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Saúde e Segurança do Trabalhador
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Equipamentos de Segurança
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA OITAVA - R&#193;DIO AMADOR
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>&nbsp;</p>
+<p>Facultam-se as empresas, visando a seguran&ccedil;a do tr&acirc;nsito, e na preserva&ccedil;&atilde;o de vidas humanas, a instala&ccedil;&atilde;o de r&aacute;dio PX ou sistemas de rastreamento em seus ve&iacute;culos.</p>
+<p>&nbsp;</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Uniforme
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA NONA - UNIFORMES E MATERIAL PARA TRABALHO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>&nbsp;</p>
+<p>Quando for obrigat&oacute;rio o uso de uniforme e equipamentos para o trabalho, as empresas fornecer&atilde;o gratuitamente, vedado qualquer desconto a esse t&iacute;tulo.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Aceitação de Atestados Médicos
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA - ATESTADOS M&#201;DICOS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>&nbsp;</p>
+<p>As empresas aceitar&atilde;o os atestados m&eacute;dicos e odontol&oacute;gicos expedidos pelos profissionais dos Sindicatos dos Trabalhadores, tendo em vista conv&ecirc;nio firmado com o INSS e na hip&oacute;tese de as empresas disporem de servi&ccedil;os m&eacute;dicos e odontol&oacute;gicos pr&oacute;prios, suas validades depender&atilde;o do visto de seus profissionais.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Relações Sindicais
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Contribuições Sindicais
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA PRIMEIRA - CONTRIBUI&#199;&#195;O ASSISTENCIAL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">As partes convenentes expressamente concordam que a participa&ccedil;&atilde;o do sindicato profissional no processo negocial que culminou com este instrumento coletivo foi essencial (art. 8&ordm;, VI, CF) e deu garantia de equil&iacute;brio de for&ccedil;as para que fosse alcan&ccedil;ada a presente negocia&ccedil;&atilde;o coletiva frut&iacute;fera, cujo reconhecimento &eacute; um direito que visa a melhoria da condi&ccedil;&atilde;o social obreira (art. 7&ordm;, XXVI, CF).</p>
+<p style="text-align: justify;">Igualmente, tem presente as partes que a primazia do trabalho &eacute; um escopo da ordem social (art. 193, CF) e que a solidariedade &eacute; um objetivo fundamental da Rep&uacute;blica Federativa do Brasil.</p>
+<p style="text-align: justify;">Soma-se a isso que a representa&ccedil;&atilde;o sindical &eacute; categorial e n&atilde;o meramente associativa (art. 8&ordm;, III, CF), pelo que resta conclu&iacute;do que o sindicato profissional teve participa&ccedil;&atilde;o obrigat&oacute;ria na negocia&ccedil;&atilde;o coletiva e resguardou direitos e alcan&ccedil;ou conquistas para toda a categoria e n&atilde;o apenas para associados ou uma fra&ccedil;&atilde;o dos empregados de sua representa&ccedil;&atilde;o, pelo que resta fixada a seguinte regra coletiva:</p>
+<p style="text-align: justify;">I &ndash; Sendo inconstitucional a obrigatoriedade de trabalho sem remunera&ccedil;&atilde;o e porque fere o direito &agrave; igualdade, estabelecem com apoio na decis&atilde;o assemblear autorizadora da assinatura deste instrumento coletivo, a <strong>CONTRIBUI&Ccedil;&Atilde;O ASSISTENCIAL </strong>de car&aacute;ter solid&aacute;rio e devida por todos os integrantes da categoria profissional, a ser revertida em favor da entidade profissional, com vi&eacute;s de ressarcimento e retribui&ccedil;&atilde;o pelo trabalho sindical frut&iacute;fero na negocia&ccedil;&atilde;o, na forma estabelecida pelo art. 513, al&iacute;nea &ldquo;e&rdquo;, da CLT.</p>
+<p style="text-align: justify;">II &ndash; A <strong>CONTRIBUI&Ccedil;&Atilde;O ASSISTENCIAL </strong>aqui tratada fica limitada a 1% (um porcento) mensal, calculado sobre o valor do piso salarial da respectiva fun&ccedil;&atilde;o do empregado e que foi conquistado pela negocia&ccedil;&atilde;o coletiva, exceto no m&ecirc;s de outubro em que o valor do desconto ser&aacute; acrescido de mais 1% para repasse &agrave; FETROPAR que capitaneou a negocia&ccedil;&atilde;o.</p>
+<p style="text-align: justify;">III &ndash; A <strong>CONTRIBUI&Ccedil;&Atilde;O ASSISTENCIAL</strong>, lastreada pelas regras constitucionais acima delineadas n&atilde;o se confunde e nem implica em associa&ccedil;&atilde;o &agrave; entidade;</p>
+<p style="text-align: justify;">IV &ndash; Ser&aacute; de responsabilidade das entidades sindicais profissionais emitir guias pelo valor global da contribui&ccedil;&atilde;o, cabendo &agrave;s empresas informar o n&uacute;mero de empregados abrangidos;</p>
+<p style="text-align: justify;">V &ndash; Fica estabelecido que &eacute; de exclusiva responsabilidade das entidades obreiras a eventual defesa desta cl&aacute;usula em qualquer esfera.</p>
+<p style="text-align: justify;">VI &ndash; A contribui&ccedil;&atilde;o aqui tratada decorre de negocia&ccedil;&atilde;o coletiva, foi deliberada e institu&iacute;da em Assembleia Geral da categoria, n&atilde;o se registrando oposi&ccedil;&atilde;o a sua institui&ccedil;&atilde;o, atendido assim o TEMA 935 do STF. Ainda assim, deliberaram os sindicatos representativos da categoria profissional por ainda oportunizar o direito de oposi&ccedil;&atilde;o, ser&aacute; exercido pessoalmente perante o sindicato benefici&aacute;rio, de modo escrito, no prazo de at&eacute; dez dias contado do registro do presente instrumento.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras disposições sobre relação entre sindicato e empresa
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA SEGUNDA - EMPRESAS EM RECUPERA&#199;&#195;O JUDICIAL E FALIDAS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>&nbsp;</p>
+<p>As empresas em recupera&ccedil;&atilde;o judicial e a massa falida, que continuarem a operar e as empresas que se encontrarem em dificuldades econ&ocirc;micas, poder&atilde;o, previamente, negociar com o Sindicato dos Empregados, condi&ccedil;&otilde;es para pagamento dos sal&aacute;rios, &iacute;ndices de corre&ccedil;&atilde;o salarial e haveres rescis&oacute;rios.</p>
+<p>&nbsp;</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Disposições Gerais
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Aplicação do Instrumento Coletivo
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA TERCEIRA - ABRANG&#202;NCIA E EXCLUS&#213;ES
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">A presente Conven&ccedil;&atilde;o Coletiva de Trabalho abrange os Motoristas (Condutores de Ve&iacute;culos Rodovi&aacute;rios), Motoristas (Entregadores Pracistas), Motoristas (Vendedores), Manobristas, Operadores de Empilhadeiras, Motociclistas e Ajudantes de Motoristas, categoria diferenciada que mantenham v&iacute;nculo nas empresas do Com&eacute;rcio, representadas pelas entidades patronais, observada as respectivas bases territoriais.</p>
+<p style="text-align: justify;"><strong>PAR&Aacute;GRAFO &Uacute;NICO:&nbsp;</strong>Para os empregados em empresas que possuam Acordo Coletivo de Trabalho,&nbsp;firmado com sindicatos profissionais signat&aacute;rios do presente instrumento,&nbsp;as condi&ccedil;&otilde;es estabelecidas no acordo coletivo de trabalho sempre prevalecer&atilde;o sobre as estipuladas em conven&ccedil;&atilde;o coletiva de trabalho.&nbsp;</p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA QUARTA - CONDI&#199;&#213;ES DE TRABALHO PREVISTA NA CCT DA CATEGORIA PREPONDERANTE
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p><strong><br /> </strong><br /> Aplica-se &agrave; categoria profissional dos motoristas a cl&aacute;usula de vale alimenta&ccedil;&atilde;o da CCT da categoria preponderante.</p>
+<p>&nbsp;<strong>PAR&Aacute;GRAFO &Uacute;NICO - </strong>Ser&atilde;o aplicadas aos motoristas os abonos espontaneamente concedidos por Acordos Coletivos &agrave; Conven&ccedil;&atilde;o Coletiva da Categoria predominante.</p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA QUINTA - APLICA&#199;&#195;O DA CCT
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>&nbsp;</p>
+<p><span>A presente conven&ccedil;&atilde;o coletiva de trabalho ser&aacute; aplic&aacute;vel exclusivamente nas empresas de Asseio e Conserva&ccedil;&atilde;o representadas pelas entidades patronais sindicais signat&aacute;rias.</span></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Descumprimento do Instrumento Coletivo
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA SEXTA - PENALIDADE
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>&nbsp;</p>
+<p>Pela inobserv&acirc;ncia da presente Conven&ccedil;&atilde;o ser&aacute; aplicada penalidade no valor de 10% (dez por cento) do sal&aacute;rio normativo, que reverter&aacute; em favor do empregado prejudicado.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Renovação/Rescisão do Instrumento Coletivo
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA S&#201;TIMA - PROCESSO DE PRORROGA&#199;&#195;O E REVIS&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>&nbsp;</p>
+<p>Os entendimentos com vistas &agrave; celebra&ccedil;&atilde;o de nova Conven&ccedil;&atilde;o Coletiva para o pr&oacute;ximo per&iacute;odo de&nbsp;1&ordm; fevereiro de 2027, dever&atilde;o ser iniciados com anteced&ecirc;ncia de 60 (sessenta) dias antes do t&eacute;rmino desta Conven&ccedil;&atilde;o.&nbsp;</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras Disposições
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA OITAVA - OITAVA FORO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>&nbsp;</p>
+<p>As diverg&ecirc;ncias ser&atilde;o dirimidas pelas partes, sendo que o foro competente para apreciar qualquer reclama&ccedil;&atilde;o trabalhista oriunda da presente Conven&ccedil;&atilde;o Coletiva de Trabalho ser&aacute; o da Vara do Trabalho ou do Ju&iacute;zo de Direito da localidade onde o empregado prestar seus servi&ccedil;os ao empregador.</p>
+                                                </label>
+                                                <br />
+                                    }
+                                    <br />
+                                    <table border="0" cellpadding="0" cellspacing="0" align="center">
+                                        <tr>
+                                            <td align="center">
+                                                    <br />
+    <br />
+    <label class="textonome">
+        MOACIR RIBAS CZECK
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        FEDERACAO DOS TRABALHADORES EM TRANSP RODOV DO EST PR
+        <br />
+        <br />
+    </label>
+
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS TRAB EM TRANSP RODOV DE UNIAO DA VITORIA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS TRAB. CONDUTORES DE VEICULOS MOTONETAS, MOTOCICLETAS E SIMILARES DE CURITIBA E REGIAO METROPOLITANA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JOSE APARECIDO FALEIROS
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO C V R T E T C P U M C L I I T CAMPO MOURAO PR
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS TRABALHADORES EM TRANSPORTES RODOVIARIOS DE CASCAVEL
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SIND DOS COND DE VEIC ROD E ANEXOS DE PARANAGUA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS MOTORISTAS, CONDUTORES DE VEICULOS RODOVIARIOS URBANOS E EM GERAL, TRABALHADORES EM TRANSPORTES RODOVIARIOS DE DOIS VIZINHOS - SINTRODOV
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SIND DOS TRAB EM TRANSP RODOVIARIOS DE FRANC BELTRAO
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO PROFISSIONAL DOS TRABALHADORES EM TRANSPORTES RODOVIARIOS DE GUARAPUAVA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JOSE APARECIDO FALEIROS
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SINDICATO DOS TRABALH EM TRANSPORTES RODOV DE LONDRINA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS TRABALHADORES EM TRANSP RODOV DE F IGUACU
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SIND DOS MOTORISTAS, CONDUT. DE VEIC. RODOV URBANOS E EM GERAL, TRAB.TRANSP. ROD. PBCO
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS MOTORISTAS, CONDUTORES DE VEICULOS RODOVIARIOS E TRABALHADORES EM TRANSPORTES  RODOVIARIOS  DE PONTA GROSSA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS MOTORISTAS,CONDUTORES DE VEICULOS RODOVIARIOS URBANOS E EM GERAL,TRABALHADORES EM TRANSPORTES RODOVIARIOS DE TELEMACO BORBA - SINCONVERT
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JOSE APARECIDO FALEIROS
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SIND DOS TRAB E CONDUT EM TRANSP ROD E ANEXOS DE UMUARA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SIND DOS TRAB COND DE VEIC DO TIPO MOT, MOT, BICICL  E TRIC MOTORES DA REG NORTE DO PARANA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        MOACIR RIBAS CZECK
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SINDICATO DOS TRABALHADORES EM TRANSPORTES RODOVIARIOS DO ESTADO DO PARANA
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JOSE APARECIDO FALEIROS
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS CONDUTORES DE VEICULOS RODOVIARIOS E ANEXOS DE
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JACEGUAI TEIXEIRA
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SIND DOS TRAB EM TRANSPORTES RODOVIARIOS DE TOLEDO
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        JOSE APARECIDO FALEIROS
+        <br style="height: 5px" />
+        Procurador
+        <br style="height: 5px" />
+        SINDICATO DOS MOTORISTAS, CONDUTORES DE VEICULOS RODOVIARIOS
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        ROGERIO BUENO DE QUEIROS
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SINDICATO DAS EMPR DE ASSEIO E CONSERV NO ESTADO DO PR
+        <br />
+        <br />
+    </label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                        <br />
+                                        <center>
+                                            <label class="textogrupo">
+                                                <b>ANEXOS </b>
+                                            </label>
+                                        </center>
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO I - ATA FETROPAR
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_09_49.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO II - ATA  - SINTRUV 
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_11_01.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO III - ATA - SINTRAMOTOS 
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_15_06.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO IV - ATA SITROCAM
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_16_07.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO V - ATA - SITROVEL
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_16_32.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO VI - ATA - SINDICAP
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_17_13.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO VII - ATA - SINTRODOV
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_17_52.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO VIII - ATA - SITROFAB
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_18_37.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO IX - ATA SINTROL
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_23T10_28_59.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO X - ATA - SINTROPAB
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_19_46.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XI - ATA -  SITROPONTA
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_20_55.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XII - ATA - SINCONVERT
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_27_52.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XIII - ATA - SINTRAU
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_29_13.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XIV - ATA - SINDMOTOS NORTE
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_29_52.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XV - ATA - SITRO
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_30_35.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XVI - ATA - SINCVRAAP
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_31_28.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XVII - ATA - SINTTROMAR
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_20T15_32_23.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XVIII - ATA SINTRAR
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_23T10_27_57.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XIX - ATA SITROFI
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_23T10_29_23.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO XX - ATA SINTTROTOL
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR005340_20262026_02_23T10_35_41.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                        <!--****************************************** FIM - Anexos ******************************************-->
+                                            <label class="texto">
+                                                &#160;&#160;&#160;&#160;A autenticidade deste documento poderá ser confirmada na
+                                                página do Ministerio do Trabalho e Emprego na Internet, no endereço http://www.mte.gov.br.
+                                            </label>
+                                            <br />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </div>
+</body>
+<script>
+    setTimeout(function () {
+        window.history.replaceState({}, '', window.location.pathname);
+    }, 0);
+</script>
+</html>

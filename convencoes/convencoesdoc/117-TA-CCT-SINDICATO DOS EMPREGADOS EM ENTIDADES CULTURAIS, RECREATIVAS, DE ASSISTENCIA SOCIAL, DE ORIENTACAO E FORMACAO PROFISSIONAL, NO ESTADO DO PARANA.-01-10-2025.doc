@@ -1,0 +1,565 @@
+
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <title>
+        Mediador - Extrato Termo Aditivo de Acordo Coletivo
+    </title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+    <script src="https://www.google.com/recaptcha/api.js?render=6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G"></script>
+
+    <script src='/sistemas/mediador/WebResource.axd?d=ls-JK0luimixBX3RtKP4OuM6Nbr55f1ikjLAMnxPrvPWRxDuzHsg65FphFc0YmwGvPuaSOvOnFNL4Mq2J7O55VkuvR-JNDegUEHaozvuG4GfYZuef32jriBr06lvlGac5F6-tkLMmrZoMutKUlmTDs6EfByvhBlqjoPaLqkzgWOQbhBdGIEvithrw3-5H5qk0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=Px3s_uYn4d177Bapr6UItVAG4ySRRwV1FTF9REvDumgGERVSCp8kyUryq_3KpZpUTfDe5TqxyIZGZxX5ozdMPUJbZ6hLNkyZcQs3Jq49Tq4elUn1XVD0J1HZdSLCj4u7lSEusPaT52P-dmmUW16Zx-F1DukKY3vEPHf0rDfBa2Ek1wHWv_TRP5IVvEToeq9-7oWzL-s-gnso82iAY4IHaA2&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=CjtT-uoLDoJdb4jgIJsBSRfL44ke78nKZN-T9Xh3VSuD7RX_5Bbo7zl2hrjZ0swKv3_WHboUwa3CrIc3r4fFnDK9--SThodGc3omd1KRkx-JcDZI56y8-pa3_jBuZ_Ja8EMw_zpGdh3c9iwxA6DgF6ADJueXAYnVerg4cx6Bv0PIW6hB8qDQX-29PZKYY9GD0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=hlEAjtYEwmyXvO53WOf3q1zm2M7vuEdUVyDiqXVCgKr5riw1ELy1ZRVj03iNlJYxSTquNrQZHsvSiEbqGSmz3MMcWp23BUlw4alWlNPe5NP81SNNQVIF6kR2DGagvrRoBfqFTWglcSdlZQtbZxa5nSJXuFFkjU7ovmwG9osuidcErpqwHbUr6Ngxm-jvdKpU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=NCcLU-zMz9clvVmV2ucp3Ot41YxhAEEnw1oODrj8U91mAFxGPkAkQeWXV5fcdwyy0mrLKva6KKMcHAaFm2jnwiusIA32tvo4e5f3N2JCWpIcY6qf8KJPLTTSkEYlrbyi5wATnAAhBkhIGD7thl1Lbyo0K8SYohjMh-git_nbtJv05RRshlEMjUi_DzdFBcqU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=1io6R1AjpcUezik5_qSigmQJFRbaB2L40L4rOH4MFKicVZMDTRO2C05XLVrubr29MfmMtziY_kIcjW_ZmQGmx7YNmW57PfPG1GkmCEILrEoNQLwRbo25stWZt8KVTCCGiLf2PdSQiW2RglNOyI0M__DHWfTq1HvMHualKSNfkpcafH4w3IeATgirTQJMa3Ry0&t=639106604800000000' type='text/javascript'></script>
+
+
+<script type="text/javascript">
+        var recaptchaSiteKey = '6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G';
+        var pageLoadToken = '';
+        var isPageValidated = false;
+
+        function onRecaptchaLoad() {
+            console.log('reCAPTCHA carregado, validando página...');
+            executePageLoadRecaptcha();
+        }
+
+        function executePageLoadRecaptcha() {
+            if (typeof grecaptcha === 'undefined') {
+                console.error('reCAPTCHA não carregado');
+                return;
+            }
+
+            grecaptcha.ready(function() {
+                grecaptcha.execute(recaptchaSiteKey, {
+                    action: 'page_load_resumo'
+                }).then(function(token) {
+                    console.log('Token de página gerado');
+                    pageLoadToken = token;
+
+                    // Enviar o token para o servidor
+                    validatePageLoadToken(token);
+                }).catch(function(error) {
+                    console.error('Erro no reCAPTCHA de página:', error);
+                    // Em desenvolvimento, permitir continuar
+                });
+            });
+        }
+
+        function validatePageLoadToken(token) {
+            var currentUrl = window.location.href;
+            var queryString = window.location.search;
+            var nrSolicitacao = 'MR026071/2026';
+
+            $.ajax({
+                url: '/sistemas/mediador/Resumo/ValidateResumoPageLoad',
+                type: 'POST',
+                data: {
+                    recaptchaToken: token,
+                    currentUrl: currentUrl,
+                    queryString: queryString,
+                    nrSolicitacao: nrSolicitacao
+                },
+                success: function(response) {
+                    if (response.success) {
+                        console.log('Página validada com sucesso');
+                        isPageValidated = true;
+                        showPageContent();
+                    } else {
+                        console.warn('Validação de página falhou:', response.message);
+                        handleValidationFailed(response);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao validar página:', error);
+                    handleValidationFailed({ message: 'Erro de comunicação com o servidor' });
+                }
+            });
+        }
+
+        function showPageContent() {
+            // Remover overlay de loading se existir
+            $('#recaptcha-loading').remove();
+            console.log('Conteúdo da página liberado');
+        }
+
+        function handleValidationFailed(response) {
+            // Mostrar mensagem de erro
+            var errorHtml = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                    <div style="text-align: center; padding: 20px;">
+                        <h2 style="color: #d32f2f;">Validação de Segurança</h2>
+                        <p style="font-size: 16px; margin: 20px 0;">${response.message || 'Falha na validação de segurança.'}</p>
+                        <button onclick="window.location.reload()" style="padding: 10px 20px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Tentar Novamente
+                        </button>
+                        <br><br>
+                        <button onclick="window.location.href='/sistemas/mediador/'" style="padding: 8px 16px; background: #757575; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Voltar para Página Inicial
+                        </button>
+                    </div>
+                </div>
+            `;
+            $('body').prepend(errorHtml);
+        }
+
+        $(document).ready(function() {
+            console.log('Página carregada - ambiente de produção');
+
+            // Pular validação reCAPTCHA em produção
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.log('Produção - validando sem reCAPTCHA');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 1000);
+
+            // Timeout de segurança reduzido
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.warn('Timeout na validação - liberando conteúdo');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 5000); // Reduzido para 5 segundos
+        });
+
+        function Imprimir() {
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "none";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "none";
+            window.print();
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "";
+            return true;
+        }
+        $(function () {
+            var marcaDaguaHtml = $('.MarcaDagua').html();
+            var width = $('body').width();
+            var marcaW = $('.MarcaDagua').width();
+
+            var qtdNescessarios = Math.round((width / marcaW) + 0.4);
+            if (qtdNescessarios > 0)
+                for (var incrementador = 0; incrementador < qtdNescessarios; incrementador++) {
+                    $('.MarcaDagua').append("<br />");
+                    $('.MarcaDagua').append(marcaDaguaHtml);
+                }
+        });
+
+
+</script>
+    <style type="text/css">
+        .titulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .Subtitulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 13px;
+        }
+        .texto
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .tituloClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .descricaoClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .textogrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+        .textosubgrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        .textonome
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .textofuncao
+        {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .pagebreak
+        {
+            page-break-after: always;
+        }
+        table.titulo
+        {
+            text-align: left;
+        }
+        @page Section2 {size:21cm 29.7cm ;mso-page-orientation:portrait;margin-top:2cm; margin-rigth:2cm; mso-paper-source:0;}
+        div.Section2 {page:Section2;}
+        pre
+        {
+            white-space: pre-wrap; /* css-3 */
+            white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+            white-space: -pre-wrap; /* Opera 4-6 */
+            white-space: -o-pre-wrap; /* Opera 7 */
+            word-wrap: break-word; /* Internet Explorer 5.5+ */
+            white-space: normal;
+        }
+    </style>
+    <!--[if gte mso 9]>
+    <xml>
+    <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+    </xml>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="Section2">
+
+        <center>
+            <table border="0" style="width: 18cm;" id="tblConteudo">
+                <tr>
+                    <td>
+                        <table style="width: 100%;" cellpadding="0" cellspacing="0">
+
+                                                            <tr>
+                                    <td align="center" class="titulo" style="text-transform: uppercase;">
+                                        <b>
+                                            Termo Aditivo a Acordo Coletivo De Trabalho 2025/2026
+                                        </b>
+                                        <br />
+                                        <br />
+                                    </td>
+                                </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: left;">
+                                        <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <td>
+                                                        <b>NÚMERO DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        PR001098/2026
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        15/05/2026
+                                                    </td>
+                                                </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>NÚMERO DA SOLICITAÇÃO:</b>
+                                                </td>
+                                                <td style="width: 10px">
+                                                </td>
+                                                <td>
+                                                    MR026071/2026
+                                                </td>
+                                            </tr>
+                                                                                            <tr>
+                                                    <td>
+                                                        <b>NÚMERO DO PROCESSO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        13068.203346/2026-72
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DO PROTOCOLO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+15/05/2026                                                    </td>
+                                                </tr>
+                                        </table>
+                                        <br />
+
+                                                    <br />
+                                                    <br />
+                                                    <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                        <tr>
+                                                            <td>
+                                                                <b>
+                                                                    N&#218;MERO DO PROCESSO  DO ACORDO COLETIVO PRINCIPAL:
+                                                                </b>
+                                                            </td>
+                                                            <td style="width: 10px">
+                                                            </td>
+                                                            <td>
+                                                                13068.209497/2025-53
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <b>
+                                                                    DATA DE REGISTRO  DO ACORDO COLETIVO PRINCIPAL:
+                                                                </b>
+                                                            </td>
+                                                            <td style="width: 10px">
+                                                            </td>
+                                                            <td>
+17/12/2025                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                        <p>
+                                                            <label class="texto">
+                                                                <b>
+                                                                    Confira a autenticidade no endereço http://www3.mte.gov.br/sistemas/mediador/.
+                                                                </b>
+                                                            </label>
+                                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" class="texto">
+                                    <p align="justify">
+SINDICATO DOS EMPREGADOS EM ENTIDADES CULTURAIS, RECREATIVAS, DE ASSISTENCIA SOCIAL, DE ORIENTACAO E FORMACAO PROFISSIONAL, NO ESTADO DO PARANA., CNPJ n. 75.992.446/0001-49, neste ato representado(a) por seu 
+
+Presidente, Sr(a). MARCELO DOS SANTOS;
+    <br />
+&nbsp;
+    <br />
+                                        <label>
+                                            E
+                                        </label>
+                                        <br />
+                                        <br />
+LUMIAR CONSULTORIA AMBIENTAL LTDA, CNPJ n. 18.516.937/0001-80, neste ato representado(a) por seu 
+
+Administrador, Sr(a). ADRIANA CECATO PLAZZI;
+    <br />
+&nbsp;
+    <br />
+                                                                                    celebram
+                                                                                    o
+                                         presente TERMO ADITIVO DE ACORDO COLETIVO DE TRABALHO,
+ estipulando as condi&#231;&#245;es de trabalho previstas nas cl&#225;usulas seguintes:                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA PRIMEIRA - VIG&#202;NCIA E DATA-BASE
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    As partes fixam a vigência do presente Termo Aditivo de Acordo Coletivo de Trabalho no período de 01º de outubro de 2025 a 30 de setembro de 2026 e a data-base da categoria em 01º de outubro.
+                                                </label>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA SEGUNDA - ABRANG&#202;NCIA
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    O presente Termo Aditivo de Acordo Coletivo de Trabalho, aplicável no âmbito da(s) empresa(s) acordante(s), abrangerá a(s) categoria(s) <b>                                       Profissional dos Empregados em Entidades Culturais, Recreativas e de Assistência Social, de Orientação e Formação Profissional, do Plano da CNTEEC                                  </b>, com abrangência territorial em <b>Adrianópolis/PR, Agudos do Sul/PR, Almirante Tamandaré/PR, Altamira do Paraná/PR, Alto Paraíso/PR, Alto Paraná/PR, Alto Piquiri/PR, Altônia/PR, Amaporã/PR, Ampére/PR, Anahy/PR, Ângulo/PR, Antonina/PR, Araruna/PR, Araucária/PR, Ariranha do Ivaí/PR, Astorga/PR, Atalaia/PR, Balsa Nova/PR, Barbosa Ferraz/PR, Barracão/PR, Bela Vista da Caroba/PR, Bituruna/PR, Boa Esperança do Iguaçu/PR, Boa Esperança/PR, Boa Ventura de São Roque/PR, Boa Vista da Aparecida/PR, Bocaiúva do Sul/PR, Bom Jesus do Sul/PR, Bom Sucesso do Sul/PR, Bom Sucesso/PR, Braganey/PR, Brasilândia do Sul/PR, Cafelândia/PR, Cafezal do Sul/PR, Campina da Lagoa/PR, Campina do Simão/PR, Campina Grande do Sul/PR, Campo Bonito/PR, Campo do Tenente/PR, Campo Largo/PR, Campo Magro/PR, Campo Mourão/PR, Cândido de Abreu/PR, Candói/PR, Cantagalo/PR, Capanema/PR, Céu Azul/PR, Chopinzinho/PR, Cianorte/PR, Cidade Gaúcha/PR, Clevelândia/PR, Colombo/PR, Colorado/PR, Contenda/PR, Coronel Domingos Soares/PR, Coronel Vivida/PR, Corumbataí do Sul/PR, Cruzeiro do Iguaçu/PR, Cruzeiro do Oeste/PR, Cruzeiro do Sul/PR, Curitiba/PR, Diamante do Norte/PR, Diamante do Sul/PR, Diamante D'Oeste/PR, Dois Vizinhos/PR, Douradina/PR, Doutor Camargo/PR, Doutor Ulysses/PR, Enéas Marques/PR, Engenheiro Beltrão/PR, Entre Rios do Oeste/PR, Esperança Nova/PR, Espigão Alto do Iguaçu/PR, Farol/PR, Fazenda Rio Grande/PR, Fênix/PR, Flor da Serra do Sul/PR, Floraí/PR, Floresta/PR, Flórida/PR, Foz do Iguaçu/PR, Foz do Jordão/PR, Francisco Alves/PR, Francisco Beltrão/PR, General Carneiro/PR, Godoy Moreira/PR, Goioxim/PR, Grandes Rios/PR, Guairaçá/PR, Guaporema/PR, Guarapuava/PR, Guaraqueçaba/PR, Guaratuba/PR, Honório Serpa/PR, Icaraíma/PR, Iguaraçu/PR, Iguatu/PR, Inácio Martins/PR, Inajá/PR, Indianópolis/PR, Iporã/PR, Iracema do Oeste/PR, Iretama/PR, Itaguajé/PR, Itaipulândia/PR, Itambé/PR, Itapejara d'Oeste/PR, Itaperuçu/PR, Itaúna do Sul/PR, Ivaté/PR, Ivatuba/PR, Janiópolis/PR, Japurá/PR, Jardim Olinda/PR, Jesuítas/PR, Juranda/PR, Jussara/PR, Lapa/PR, Laranjal/PR, Loanda/PR, Lobato/PR, Luiziana/PR, Mamborê/PR, Mandaguaçu/PR, Mandaguari/PR, Mandirituba/PR, Manfrinópolis/PR, Mangueirinha/PR, Manoel Ribas/PR, Maria Helena/PR, Marialva/PR, Marilena/PR, Mariluz/PR, Maringá/PR, Mariópolis/PR, Marmeleiro/PR, Marquinho/PR, Matinhos/PR, Mato Rico/PR, Mirador/PR, Moreira Sales/PR, Morretes/PR, Munhoz de Melo/PR, Nossa Senhora das Graças/PR, Nova Aliança do Ivaí/PR, Nova Cantu/PR, Nova Esperança do Sudoeste/PR, Nova Esperança/PR, Nova Laranjeiras/PR, Nova Londrina/PR, Nova Olímpia/PR, Nova Prata do Iguaçu/PR, Nova Santa Rosa/PR, Nova Tebas/PR, Novo Itacolomi/PR, Ortigueira/PR, Ourizona/PR, Ouro Verde do Oeste/PR, Paiçandu/PR, Palmas/PR, Palmital/PR, Paraíso do Norte/PR, Paranacity/PR, Paranaguá/PR, Paranapoema/PR, Paranavaí/PR, Pato Branco/PR, Peabiru/PR, Perobal/PR, Pérola d'Oeste/PR, Pérola/PR, Piên/PR, Pinhais/PR, Pinhal de São Bento/PR, Pinhão/PR, Piraquara/PR, Pitanga/PR, Planaltina do Paraná/PR, Planalto/PR, Pontal do Paraná/PR, Porto Barreiro/PR, Porto Rico/PR, Porto Vitória/PR, Pranchita/PR, Presidente Castelo Branco/PR, Quarto Centenário/PR, Quatro Barras/PR, Querência do Norte/PR, Quinta do Sol/PR, Quitandinha/PR, Ramilândia/PR, Rancho Alegre D'Oeste/PR, Realeza/PR, Renascença/PR, Reserva do Iguaçu/PR, Rio Bonito do Iguaçu/PR, Rio Branco do Ivaí/PR, Rio Branco do Sul/PR, Rio Negro/PR, Roncador/PR, Rondon/PR, Rosário do Ivaí/PR, Salgado Filho/PR, Salto do Lontra/PR, Santa Cruz de Monte Castelo/PR, Santa Fé/PR, Santa Inês/PR, Santa Isabel do Ivaí/PR, Santa Izabel do Oeste/PR, Santa Lúcia/PR, Santa Maria do Oeste/PR, Santa Mônica/PR, Santa Terezinha de Itaipu/PR, Santo Antônio do Caiuá/PR, Santo Antônio do Sudoeste/PR, Santo Inácio/PR, São Carlos do Ivaí/PR, São João do Caiuá/PR, São João do Ivaí/PR, São João/PR, São Jorge do Ivaí/PR, São Jorge do Patrocínio/PR, São Jorge d'Oeste/PR, São José das Palmeiras/PR, São José dos Pinhais/PR, São Manoel do Paraná/PR, São Pedro do Iguaçu/PR, São Pedro do Ivaí/PR, São Pedro do Paraná/PR, São Tomé/PR, Sarandi/PR, Saudade do Iguaçu/PR, Serranópolis do Iguaçu/PR, Sulina/PR, Tamboara/PR, Tapejara/PR, Tapira/PR, Terra Boa/PR, Terra Rica/PR, Tijucas do Sul/PR, Tunas do Paraná/PR, Tuneiras do Oeste/PR, Tupãssi/PR, Turvo/PR, Umuarama/PR, Uniflor/PR, Verê/PR, Virmond/PR, Vitorino/PR e Xambrê/PR</b>.
+                                                </label>
+                                                <br />
+                                    </p>
+
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Jornada de Trabalho – Duração, Distribuição, Controle, Faltas
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Compensação de Jornada
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TERCEIRA - OBJETO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span>Pelo presente termo aditivo fica alterada a reda&ccedil;&atilde;o da cl&aacute;usula quarta do ACT 2025/2026, registrado dia 17/12/2025, com o n&uacute;mero do processo: 13068.209497/2025-53 e n&uacute;mero de registro no MTE: PR003958/2025.<br /></span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUARTA - BANCO DE HORAS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><strong>Fica institu&iacute;do o Banco de Horas, nos termos do par&aacute;grafo 2&ordm; do artigo 59 da CLT, com as seguintes disposi&ccedil;&otilde;es:</strong></p>
+<p style="text-align: justify;"><strong>a)</strong> Haver&aacute; controle di&aacute;rio, individual e eletr&ocirc;nico do lan&ccedil;amento das horas a cr&eacute;dito e a d&eacute;bito, chancelado pelo empregado, onde os registros ser&atilde;o confrontados com o controle de frequ&ecirc;ncia mensal e estar&atilde;o dispon&iacute;veis para o controle di&aacute;rio do saldo de horas.</p>
+<p style="text-align: justify;"><strong>b)</strong> Ser&atilde;o creditadas para o empregado as horas trabalhadas al&eacute;m da sua jornada di&aacute;ria, <strong>limitada ao m&aacute;ximo de 2 (duas) horas</strong>, salvo situa&ccedil;&otilde;es excepcionais de urg&ecirc;ncia, nas quais a finaliza&ccedil;&atilde;o de determinadas atividades seja imprescind&iacute;vel.</p>
+<p style="text-align: justify;"><strong>c)</strong> A crit&eacute;rio do empregador os dias &uacute;teis que se encontrarem entre feriados e finais de semana, ou vice-versa, poder&atilde;o tamb&eacute;m ser compensados atrav&eacute;s do Banco de Horas.</p>
+<p style="text-align: justify;"><strong>d)</strong> As horas trabalhadas em dias de descanso semanal remunerado e dias feriados ser&atilde;o creditadas em dobro no Banco de Horas, exceto se houver a respectiva compensa&ccedil;&atilde;o <strong>no prazo de 72h.</strong></p>
+<p style="text-align: justify;"><strong>e)</strong> <strong>Quando n&atilde;o houver atividades a serem realizadas, os empregados poder&atilde;o ser dispensados do comparecimento ao trabalho, sendo as horas debitadas no Banco de Horas, observado o limite m&aacute;ximo de d&eacute;bito de 40 (quarenta) horas negativas dentro de um mesmo m&ecirc;s de compet&ecirc;ncia. </strong></p>
+<p style="text-align: justify;"><strong>f)</strong> Ser&atilde;o debitadas ao saldo de horas do empregado a quantidade horas relativas &agrave; atrasos, sa&iacute;das antecipadas ou faltas ao trabalho, quando negociadas previamente com o gestor imediato.</p>
+<p style="text-align: justify;"><strong>g)</strong> As faltas, atrasos ou sa&iacute;das antecipadas n&atilde;o negociadas previamente e n&atilde;o justificadas na forma legal, poder&atilde;o ser descontadas do sal&aacute;rio mensal nos termos da legisla&ccedil;&atilde;o vigente.</p>
+<p style="text-align: justify;"><strong>h)</strong> O saldo de horas negativas existente no Banco de Horas poder&aacute; ser exigido pelo empregador com anteced&ecirc;ncia m&iacute;nima de 48h, n&atilde;o podendo haver recusa do empregado na presta&ccedil;&atilde;o do servi&ccedil;o, exceto por motivo justificado nos termos da legisla&ccedil;&atilde;o vigente.</p>
+<p style="text-align: justify;"><strong>i)</strong> Os saldos em favor dos empregados, mediante negocia&ccedil;&atilde;o antecipada com o gestor imediato, poder&atilde;o ser compensados pela diminui&ccedil;&atilde;o da jornada de trabalho em outro(s) dia(s).</p>
+<p style="text-align: justify;"><strong>j) Ao final de cada m&ecirc;s de compet&ecirc;ncia, eventual saldo negativo existente no Banco de Horas ser&aacute; integralmente remido (zerado), n&atilde;o sendo transferido para o m&ecirc;s subsequente. </strong></p>
+<p style="text-align: justify;"><strong>k) As horas positivas permanecer&atilde;o acumuladas para compensa&ccedil;&atilde;o na forma desta cl&aacute;usula, observado o prazo m&aacute;ximo de 12 (doze) meses, nos termos do &sect;2&ordm; do art. 59 da CLT, limitado o registro no Banco de Horas a at&eacute; 40 (quarenta) horas extras por m&ecirc;s de compet&ecirc;ncia. </strong></p>
+<p style="text-align: justify;"><strong>l) As horas que excederem o limite mensal de 40 (quarenta) horas n&atilde;o ser&atilde;o incorporadas ao Banco de Horas, sendo pagas na folha de pagamento do respectivo m&ecirc;s de compet&ecirc;ncia, com os adicionais legais ou convencionais aplic&aacute;veis. </strong></p>
+<p style="text-align: justify;"><strong>m) Ao final do m&ecirc;s de setembro de 2026, ser&aacute; realizado o balan&ccedil;o das horas credoras remanescentes no Banco de Horas, que ser&atilde;o pagas na folha de outubro de 2026 com adicional de 50% (cinquenta por cento), ou, 100% (cem por cento) quando relativas ao DSR e feriados n&atilde;o compensados.</strong></p>
+<p style="text-align: justify;"><strong>n)</strong> A qualquer momento, antes do balan&ccedil;o anual, o empregador poder&aacute; a seu exclusivo crit&eacute;rio, pagar aos empregados, o total ou parte das horas creditadas no Banco de Horas com o acr&eacute;scimo legal.</p>
+<p style="text-align: justify;"><strong>o)</strong> Poder&aacute; o empregado mediante manifesta&ccedil;&atilde;o por escrito solicitar o ac&uacute;mulo das horas no Banco de Horas para compensa&ccedil;&atilde;o antecedente &agrave;s suas f&eacute;rias ou subsequente a elas, de acordo com a conveni&ecirc;ncia do empregador.</p>
+<p style="text-align: justify;"><strong>p)</strong> Em caso de rescis&atilde;o de contrato de trabalho as horas excedentes no Banco de Horas dever&atilde;o ser pagas com os devidos acr&eacute;scimos legais, juntamente com o pagamento das verbas rescis&oacute;rias, na forma do par&aacute;grafo 3&ordm; do artigo 59 da CLT. J&aacute; as eventuais horas negativas ser&atilde;o remidas (abonadas).</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo &uacute;nico -</strong> Adultera&ccedil;&atilde;o dos registros do controle de jornada de trabalho &eacute; considerado falta grave e est&aacute; sujeito a rescis&atilde;o contratual por justa causa.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Disposições Gerais
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras Disposições
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUINTA - DA MANUTEN&#199;&#195;O E RATIFICA&#199;&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span>Ficam mantidas e ratificadas todas as Cl&aacute;usulas do Acordo Coletivo de Trabalho 2025/2026 que n&atilde;o tenham sido objeto do presente Termo Aditivo.</span></p>
+                                                </label>
+                                                <br />
+                                    }
+                                    <br />
+                                    <table border="0" cellpadding="0" cellspacing="0" align="center">
+                                        <tr>
+                                            <td align="center">
+                                                    <br />
+    <br />
+    <label class="textonome">
+        MARCELO DOS SANTOS
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SINDICATO DOS EMPREGADOS EM ENTIDADES CULTURAIS, RECREATIVAS, DE ASSISTENCIA SOCIAL, DE ORIENTACAO E FORMACAO PROFISSIONAL, NO ESTADO DO PARANA.
+        <br />
+        <br />
+    </label>
+
+    <br />
+    <br />
+    <label class="textonome">
+        ADRIANA CECATO PLAZZI
+        <br style="height: 5px" />
+        Administrador
+        <br style="height: 5px" />
+        LUMIAR CONSULTORIA AMBIENTAL LTDA
+        <br />
+        <br />
+    </label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                        <br />
+                                        <center>
+                                            <label class="textogrupo">
+                                                <b>ANEXOS </b>
+                                            </label>
+                                        </center>
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO I - ATA
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR026071_20262026_05_13T11_00_56.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                        <!--****************************************** FIM - Anexos ******************************************-->
+                                            <label class="texto">
+                                                &#160;&#160;&#160;&#160;A autenticidade deste documento poderá ser confirmada na
+                                                página do Ministerio do Trabalho e Emprego na Internet, no endereço http://www.mte.gov.br.
+                                            </label>
+                                            <br />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </div>
+</body>
+<script>
+    setTimeout(function () {
+        window.history.replaceState({}, '', window.location.pathname);
+    }, 0);
+</script>
+</html>

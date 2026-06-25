@@ -1,0 +1,1205 @@
+
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <title>
+        Mediador - Extrato Conven&#231;&#227;o Coletiva
+    </title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+    <script src="https://www.google.com/recaptcha/api.js?render=6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G"></script>
+
+    <script src='/sistemas/mediador/WebResource.axd?d=ls-JK0luimixBX3RtKP4OuM6Nbr55f1ikjLAMnxPrvPWRxDuzHsg65FphFc0YmwGvPuaSOvOnFNL4Mq2J7O55VkuvR-JNDegUEHaozvuG4GfYZuef32jriBr06lvlGac5F6-tkLMmrZoMutKUlmTDs6EfByvhBlqjoPaLqkzgWOQbhBdGIEvithrw3-5H5qk0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=Px3s_uYn4d177Bapr6UItVAG4ySRRwV1FTF9REvDumgGERVSCp8kyUryq_3KpZpUTfDe5TqxyIZGZxX5ozdMPUJbZ6hLNkyZcQs3Jq49Tq4elUn1XVD0J1HZdSLCj4u7lSEusPaT52P-dmmUW16Zx-F1DukKY3vEPHf0rDfBa2Ek1wHWv_TRP5IVvEToeq9-7oWzL-s-gnso82iAY4IHaA2&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=CjtT-uoLDoJdb4jgIJsBSRfL44ke78nKZN-T9Xh3VSuD7RX_5Bbo7zl2hrjZ0swKv3_WHboUwa3CrIc3r4fFnDK9--SThodGc3omd1KRkx-JcDZI56y8-pa3_jBuZ_Ja8EMw_zpGdh3c9iwxA6DgF6ADJueXAYnVerg4cx6Bv0PIW6hB8qDQX-29PZKYY9GD0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=hlEAjtYEwmyXvO53WOf3q1zm2M7vuEdUVyDiqXVCgKr5riw1ELy1ZRVj03iNlJYxSTquNrQZHsvSiEbqGSmz3MMcWp23BUlw4alWlNPe5NP81SNNQVIF6kR2DGagvrRoBfqFTWglcSdlZQtbZxa5nSJXuFFkjU7ovmwG9osuidcErpqwHbUr6Ngxm-jvdKpU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=NCcLU-zMz9clvVmV2ucp3Ot41YxhAEEnw1oODrj8U91mAFxGPkAkQeWXV5fcdwyy0mrLKva6KKMcHAaFm2jnwiusIA32tvo4e5f3N2JCWpIcY6qf8KJPLTTSkEYlrbyi5wATnAAhBkhIGD7thl1Lbyo0K8SYohjMh-git_nbtJv05RRshlEMjUi_DzdFBcqU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=1io6R1AjpcUezik5_qSigmQJFRbaB2L40L4rOH4MFKicVZMDTRO2C05XLVrubr29MfmMtziY_kIcjW_ZmQGmx7YNmW57PfPG1GkmCEILrEoNQLwRbo25stWZt8KVTCCGiLf2PdSQiW2RglNOyI0M__DHWfTq1HvMHualKSNfkpcafH4w3IeATgirTQJMa3Ry0&t=639106604800000000' type='text/javascript'></script>
+
+
+<script type="text/javascript">
+        var recaptchaSiteKey = '6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G';
+        var pageLoadToken = '';
+        var isPageValidated = false;
+
+        function onRecaptchaLoad() {
+            console.log('reCAPTCHA carregado, validando página...');
+            executePageLoadRecaptcha();
+        }
+
+        function executePageLoadRecaptcha() {
+            if (typeof grecaptcha === 'undefined') {
+                console.error('reCAPTCHA não carregado');
+                return;
+            }
+
+            grecaptcha.ready(function() {
+                grecaptcha.execute(recaptchaSiteKey, {
+                    action: 'page_load_resumo'
+                }).then(function(token) {
+                    console.log('Token de página gerado');
+                    pageLoadToken = token;
+
+                    // Enviar o token para o servidor
+                    validatePageLoadToken(token);
+                }).catch(function(error) {
+                    console.error('Erro no reCAPTCHA de página:', error);
+                    // Em desenvolvimento, permitir continuar
+                });
+            });
+        }
+
+        function validatePageLoadToken(token) {
+            var currentUrl = window.location.href;
+            var queryString = window.location.search;
+            var nrSolicitacao = 'MR039480/2025';
+
+            $.ajax({
+                url: '/sistemas/mediador/Resumo/ValidateResumoPageLoad',
+                type: 'POST',
+                data: {
+                    recaptchaToken: token,
+                    currentUrl: currentUrl,
+                    queryString: queryString,
+                    nrSolicitacao: nrSolicitacao
+                },
+                success: function(response) {
+                    if (response.success) {
+                        console.log('Página validada com sucesso');
+                        isPageValidated = true;
+                        showPageContent();
+                    } else {
+                        console.warn('Validação de página falhou:', response.message);
+                        handleValidationFailed(response);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao validar página:', error);
+                    handleValidationFailed({ message: 'Erro de comunicação com o servidor' });
+                }
+            });
+        }
+
+        function showPageContent() {
+            // Remover overlay de loading se existir
+            $('#recaptcha-loading').remove();
+            console.log('Conteúdo da página liberado');
+        }
+
+        function handleValidationFailed(response) {
+            // Mostrar mensagem de erro
+            var errorHtml = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                    <div style="text-align: center; padding: 20px;">
+                        <h2 style="color: #d32f2f;">Validação de Segurança</h2>
+                        <p style="font-size: 16px; margin: 20px 0;">${response.message || 'Falha na validação de segurança.'}</p>
+                        <button onclick="window.location.reload()" style="padding: 10px 20px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Tentar Novamente
+                        </button>
+                        <br><br>
+                        <button onclick="window.location.href='/sistemas/mediador/'" style="padding: 8px 16px; background: #757575; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Voltar para Página Inicial
+                        </button>
+                    </div>
+                </div>
+            `;
+            $('body').prepend(errorHtml);
+        }
+
+        $(document).ready(function() {
+            console.log('Página carregada - ambiente de produção');
+
+            // Pular validação reCAPTCHA em produção
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.log('Produção - validando sem reCAPTCHA');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 1000);
+
+            // Timeout de segurança reduzido
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.warn('Timeout na validação - liberando conteúdo');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 5000); // Reduzido para 5 segundos
+        });
+
+        function Imprimir() {
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "none";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "none";
+            window.print();
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "";
+            return true;
+        }
+        $(function () {
+            var marcaDaguaHtml = $('.MarcaDagua').html();
+            var width = $('body').width();
+            var marcaW = $('.MarcaDagua').width();
+
+            var qtdNescessarios = Math.round((width / marcaW) + 0.4);
+            if (qtdNescessarios > 0)
+                for (var incrementador = 0; incrementador < qtdNescessarios; incrementador++) {
+                    $('.MarcaDagua').append("<br />");
+                    $('.MarcaDagua').append(marcaDaguaHtml);
+                }
+        });
+
+
+</script>
+    <style type="text/css">
+        .titulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .Subtitulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 13px;
+        }
+        .texto
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .tituloClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .descricaoClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .textogrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+        .textosubgrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        .textonome
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .textofuncao
+        {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .pagebreak
+        {
+            page-break-after: always;
+        }
+        table.titulo
+        {
+            text-align: left;
+        }
+        @page Section2 {size:21cm 29.7cm ;mso-page-orientation:portrait;margin-top:2cm; margin-rigth:2cm; mso-paper-source:0;}
+        div.Section2 {page:Section2;}
+        pre
+        {
+            white-space: pre-wrap; /* css-3 */
+            white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+            white-space: -pre-wrap; /* Opera 4-6 */
+            white-space: -o-pre-wrap; /* Opera 7 */
+            word-wrap: break-word; /* Internet Explorer 5.5+ */
+            white-space: normal;
+        }
+    </style>
+    <!--[if gte mso 9]>
+    <xml>
+    <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+    </xml>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="Section2">
+
+        <center>
+            <table border="0" style="width: 18cm;" id="tblConteudo">
+                <tr>
+                    <td>
+                        <table style="width: 100%;" cellpadding="0" cellspacing="0">
+
+                                                            <tr>
+                                    <td align="center" class="titulo" style="text-transform: uppercase;">
+                                        <b>
+                                            Conven&#231;&#227;o Coletiva De Trabalho 2024/2026
+                                        </b>
+                                        <br />
+                                        <br />
+                                    </td>
+                                </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: left;">
+                                        <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <td>
+                                                        <b>NÚMERO DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        PR001795/2025
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        09/07/2025
+                                                    </td>
+                                                </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>NÚMERO DA SOLICITAÇÃO:</b>
+                                                </td>
+                                                <td style="width: 10px">
+                                                </td>
+                                                <td>
+                                                    MR039480/2025
+                                                </td>
+                                            </tr>
+                                                                                            <tr>
+                                                    <td>
+                                                        <b>NÚMERO DO PROCESSO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        13068.205134/2025-49
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DO PROTOCOLO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+08/07/2025                                                    </td>
+                                                </tr>
+                                        </table>
+                                        <br />
+
+                                                        <p>
+                                                            <label class="texto">
+                                                                <b>
+                                                                    Confira a autenticidade no endereço http://www3.mte.gov.br/sistemas/mediador/.
+                                                                </b>
+                                                            </label>
+                                                        </p>
+                                                    <br />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" class="texto">
+                                    <p align="justify">
+SINDICATO DOS EMPREGADOS EM ENTIDADES CULTURAIS, RECREATIVAS, DE ASSISTENCIA SOCIAL, DE ORIENTACAO E FORMACAO PROFISSIONAL, NO ESTADO DO PARANA., CNPJ n. 75.992.446/0001-49, neste ato representado(a) por seu 
+
+Presidente, Sr(a). MARCELO DOS SANTOS;
+    <br />
+&nbsp;
+    <br />
+                                        <label>
+                                            E
+                                        </label>
+                                        <br />
+                                        <br />
+SINDICATO DOS CLUBES ESPORTIVOS, DE CULTURA FISICA E HIPICOS DO ESTADO DO PARANA., CNPJ n. 02.740.267/0001-40, neste ato representado(a) por seu 
+
+Presidente, Sr(a). ALI TARBINE;
+    <br />
+&nbsp;
+    <br />
+                                                                                    celebram
+                                                                                    a
+                                         presente CONVEN&#199;&#195;O COLETIVA DE TRABALHO,
+ estipulando as condi&#231;&#245;es de trabalho previstas nas cl&#225;usulas seguintes:                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA PRIMEIRA - VIG&#202;NCIA E DATA-BASE
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    As partes fixam a vigência da presente Convenção Coletiva de Trabalho no período de 01º de setembro de 2024 a 31 de agosto de 2026 e a data-base da categoria em 01º de setembro.
+                                                </label>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA SEGUNDA - ABRANG&#202;NCIA
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    A presente Convenção Coletiva de Trabalho abrangerá a(s) categoria(s) <b>Profissional dos Empregados em Entidades Culturais, Recreativas e de Assistência Social, de Orientação e Formação Profissional, do Plano da CNTEEC</b>, com abrangência territorial em <b>Adrianópolis/PR, Agudos do Sul/PR, Almirante Tamandaré/PR, Altamira do Paraná/PR, Alto Paraíso/PR, Alto Paraná/PR, Alto Piquiri/PR, Altônia/PR, Amaporã/PR, Ampére/PR, Anahy/PR, Ângulo/PR, Antonina/PR, Araruna/PR, Araucária/PR, Ariranha do Ivaí/PR, Astorga/PR, Atalaia/PR, Balsa Nova/PR, Barbosa Ferraz/PR, Barracão/PR, Bela Vista da Caroba/PR, Bituruna/PR, Boa Esperança do Iguaçu/PR, Boa Esperança/PR, Boa Ventura de São Roque/PR, Boa Vista da Aparecida/PR, Bocaiúva do Sul/PR, Bom Jesus do Sul/PR, Bom Sucesso do Sul/PR, Bom Sucesso/PR, Braganey/PR, Brasilândia do Sul/PR, Cafelândia/PR, Cafezal do Sul/PR, Campina da Lagoa/PR, Campina do Simão/PR, Campina Grande do Sul/PR, Campo Bonito/PR, Campo do Tenente/PR, Campo Largo/PR, Campo Magro/PR, Campo Mourão/PR, Cândido de Abreu/PR, Candói/PR, Cantagalo/PR, Capanema/PR, Céu Azul/PR, Chopinzinho/PR, Cianorte/PR, Cidade Gaúcha/PR, Clevelândia/PR, Colombo/PR, Colorado/PR, Contenda/PR, Coronel Domingos Soares/PR, Coronel Vivida/PR, Corumbataí do Sul/PR, Cruzeiro do Iguaçu/PR, Cruzeiro do Oeste/PR, Cruzeiro do Sul/PR, Curitiba/PR, Diamante do Norte/PR, Diamante do Sul/PR, Diamante D'Oeste/PR, Dois Vizinhos/PR, Douradina/PR, Doutor Camargo/PR, Doutor Ulysses/PR, Enéas Marques/PR, Engenheiro Beltrão/PR, Entre Rios do Oeste/PR, Esperança Nova/PR, Espigão Alto do Iguaçu/PR, Farol/PR, Fazenda Rio Grande/PR, Fênix/PR, Flor da Serra do Sul/PR, Floraí/PR, Floresta/PR, Flórida/PR, Foz do Iguaçu/PR, Foz do Jordão/PR, Francisco Alves/PR, Francisco Beltrão/PR, General Carneiro/PR, Godoy Moreira/PR, Goioxim/PR, Grandes Rios/PR, Guairaçá/PR, Guaporema/PR, Guarapuava/PR, Guaraqueçaba/PR, Guaratuba/PR, Honório Serpa/PR, Icaraíma/PR, Iguaraçu/PR, Iguatu/PR, Inácio Martins/PR, Inajá/PR, Indianópolis/PR, Iporã/PR, Iracema do Oeste/PR, Iretama/PR, Itaguajé/PR, Itaipulândia/PR, Itambé/PR, Itapejara d'Oeste/PR, Itaperuçu/PR, Itaúna do Sul/PR, Ivaté/PR, Ivatuba/PR, Janiópolis/PR, Japurá/PR, Jardim Olinda/PR, Jesuítas/PR, Juranda/PR, Jussara/PR, Lapa/PR, Laranjal/PR, Loanda/PR, Lobato/PR, Luiziana/PR, Mamborê/PR, Mandaguaçu/PR, Mandaguari/PR, Mandirituba/PR, Manfrinópolis/PR, Mangueirinha/PR, Manoel Ribas/PR, Maria Helena/PR, Marialva/PR, Marilena/PR, Mariluz/PR, Maringá/PR, Mariópolis/PR, Marmeleiro/PR, Marquinho/PR, Matinhos/PR, Mato Rico/PR, Mirador/PR, Moreira Sales/PR, Morretes/PR, Munhoz de Melo/PR, Nossa Senhora das Graças/PR, Nova Aliança do Ivaí/PR, Nova Cantu/PR, Nova Esperança do Sudoeste/PR, Nova Esperança/PR, Nova Laranjeiras/PR, Nova Londrina/PR, Nova Olímpia/PR, Nova Prata do Iguaçu/PR, Nova Santa Rosa/PR, Nova Tebas/PR, Novo Itacolomi/PR, Ortigueira/PR, Ourizona/PR, Ouro Verde do Oeste/PR, Paiçandu/PR, Palmas/PR, Palmital/PR, Paraíso do Norte/PR, Paranacity/PR, Paranaguá/PR, Paranapoema/PR, Paranavaí/PR, Pato Branco/PR, Peabiru/PR, Perobal/PR, Pérola d'Oeste/PR, Pérola/PR, Piên/PR, Pinhais/PR, Pinhal de São Bento/PR, Pinhão/PR, Piraquara/PR, Pitanga/PR, Planaltina do Paraná/PR, Planalto/PR, Pontal do Paraná/PR, Porto Barreiro/PR, Porto Rico/PR, Porto Vitória/PR, Pranchita/PR, Presidente Castelo Branco/PR, Quarto Centenário/PR, Quatro Barras/PR, Querência do Norte/PR, Quinta do Sol/PR, Quitandinha/PR, Ramilândia/PR, Rancho Alegre D'Oeste/PR, Realeza/PR, Renascença/PR, Reserva do Iguaçu/PR, Rio Bonito do Iguaçu/PR, Rio Branco do Ivaí/PR, Rio Branco do Sul/PR, Rio Negro/PR, Roncador/PR, Rondon/PR, Rosário do Ivaí/PR, Salgado Filho/PR, Salto do Lontra/PR, Santa Cruz de Monte Castelo/PR, Santa Fé/PR, Santa Inês/PR, Santa Isabel do Ivaí/PR, Santa Izabel do Oeste/PR, Santa Lúcia/PR, Santa Maria do Oeste/PR, Santa Mônica/PR, Santa Terezinha de Itaipu/PR, Santo Antônio do Caiuá/PR, Santo Antônio do Sudoeste/PR, Santo Inácio/PR, São Carlos do Ivaí/PR, São João do Caiuá/PR, São João do Ivaí/PR, São João/PR, São Jorge do Ivaí/PR, São Jorge do Patrocínio/PR, São Jorge d'Oeste/PR, São José das Palmeiras/PR, São José dos Pinhais/PR, São Manoel do Paraná/PR, São Pedro do Iguaçu/PR, São Pedro do Ivaí/PR, São Pedro do Paraná/PR, São Tomé/PR, Sarandi/PR, Saudade do Iguaçu/PR, Serranópolis do Iguaçu/PR, Sulina/PR, Tamboara/PR, Tapejara/PR, Tapira/PR, Terra Boa/PR, Terra Rica/PR, Tijucas do Sul/PR, Tunas do Paraná/PR, Tuneiras do Oeste/PR, Tupãssi/PR, Turvo/PR, Umuarama/PR, Uniflor/PR, Verê/PR, Virmond/PR, Vitorino/PR e Xambrê/PR</b>.
+                                                </label>
+                                                <br />
+                                    </p>
+
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Salários, Reajustes e Pagamento
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Piso Salarial
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TERCEIRA - PISO SALARIAL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>Fixa&ccedil;&atilde;o do sal&aacute;rio normativo para a categoria profissional de <strong>R$ 1.650,00 (mil seiscentos e cinquenta reais)</strong> <strong>a partir de 1&ordm; de setembro de 2024.</strong></p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Primeiro</strong> - <strong>Em 1&ordm; de setembro de 2025</strong> o piso salarial vigente ser&aacute; corrigido pelo percentual equivalente &agrave; <strong>varia&ccedil;&atilde;o acumulada do INPC do per&iacute;odo de setembro de 2024 a agosto de 2025, somando o percentual de 1% (um por cento) a t&iacute;tulo de ganho real</strong>.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Segundo - As diferen&ccedil;as salariais retroativas ao m&ecirc;s de setembro de 2024 dever&atilde;o ser pagas na folha de pagamento correspondente ao m&ecirc;s de julho de 2025 (at&eacute; o 5&ordm; dia &uacute;til de agosto)</strong><strong>.</strong></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Reajustes/Correções Salariais
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUARTA - REAJUSTE SALARIAL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">O reajuste salarial da categoria profissional na data base, ser&aacute; de <strong>5% (cinco por cento)</strong> a incidir sobre os sal&aacute;rios vigentes em 31 de agosto de 2024.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Primeiro - </strong><strong>Em 1&ordm; de setembro de 2025</strong> os sal&aacute;rios vigentes em 31 de agosto de 2025 <strong>ser&atilde;o corrigidos pelo percentual equivalente &agrave; varia&ccedil;&atilde;o acumulada do INPC do per&iacute;odo de setembro de 2024 a agosto de 2025, somando o percentual de 1% (um por cento) a t&iacute;tulo de ganho real.</strong></p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Segundo </strong>-<strong>&nbsp;</strong>Os reajustes espont&acirc;neos concedidos por liberalidade durante os doze meses anteriores &agrave; presente Conven&ccedil;&atilde;o Coletiva poder&atilde;o ser compensados na data base da categoria, excetuando-se as promo&ccedil;&otilde;es salariais.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Terceiro - As diferen&ccedil;as salariais e dos demais benef&iacute;cios financeiros retroativos ao m&ecirc;s de setembro de 2024 dever&atilde;o ser pagos na folha de pagamento correspondente ao m&ecirc;s de julho de 2025 (at&eacute; o&nbsp;</strong><strong>5&ordm; dia &uacute;til de agosto)</strong><strong>.</strong></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Pagamento de Salário – Formas e Prazos
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUINTA - MULTA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>Em caso de atraso no pagamento dos sal&aacute;rios a academia pagar&aacute; multa equivalente a 2% (dois por cento) do sal&aacute;rio em favor do empregado a cada m&ecirc;s de atraso.</p>
+<p><strong>Par&aacute;grafo &Uacute;nico - </strong>Considera-se atraso o pagamento efetuado ap&oacute;s o 5&ordm; dia &uacute;til do m&ecirc;s subsequente ao vencido.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Descontos Salariais
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA SEXTA - DESCONTO EM FOLHA DE PAGAMENTO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Os empregados poder&atilde;o sofrer descontos em seus sal&aacute;rios at&eacute; o limite de 1/3 (um ter&ccedil;o) do total destes e, excepcionalmente, em valores maiores, limitados a 50% (cinquenta por cento) do sal&aacute;rio, desde que autorizados por escrito, conforme disp&otilde;e o artigo 462 da Consolida&ccedil;&atilde;o das Leis do Trabalho.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo &Uacute;nico </strong>- Para obten&ccedil;&atilde;o do &iacute;ndice dever&aacute; ser considerado o total das parcelas salariais, deduzindo os descontos legais e contratuais.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Gratificações, Adicionais, Auxílios e Outros
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Comissões
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA S&#201;TIMA - EMPREGADO COMISSIONADO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Ao empregado que recebe exclusivamente comiss&otilde;es, fica assegurado o piso salarial da categoria profissional, quando o valor daquelas n&atilde;o atingir o valor deste.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Auxílio Alimentação
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA OITAVA - AUX&#205;LIO REFEI&#199;&#195;O/ALIMENTA&#199;&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><strong>As </strong><strong>a</strong><strong>cademias conceder&atilde;o o benef&iacute;cio do vale refei&ccedil;&atilde;o/alimenta&ccedil;&atilde;o no valor de R$ 17,00 (dezessete reais) por dia trabalhado/compensado aos empregados com carga hor&aacute;ria de 220h/m&ecirc;s, atrav&eacute;s de cart&atilde;o ou pec&uacute;nia.</strong></p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Primeiro &ndash; Em 1&ordm; de setembro de 2025 as </strong><strong>a</strong><strong>cademias conceder&atilde;o o benef&iacute;cio do vale refei&ccedil;&atilde;o/alimenta&ccedil;&atilde;o no valor de R$ 19,00 (dezenove reais) por dia trabalhado/compensado aos empregados com carga hor&aacute;ria a partir de 200h/m&ecirc;s, atrav&eacute;s de cart&atilde;o ou pec&uacute;nia.</strong></p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Segundo</strong>&nbsp;- A academia que fornece alimenta&ccedil;&atilde;o equivalente &agrave; refei&ccedil;&atilde;o (almo&ccedil;o e/ou jantar) sem custo para os seus empregados, fica eximida do fornecimento do vale refei&ccedil;&atilde;o/alimenta&ccedil;&atilde;o ou pec&uacute;nia.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Terceiro</strong>&nbsp;- A academia que j&aacute; fornece o vale refei&ccedil;&atilde;o/alimenta&ccedil;&atilde;o em valor igual ou superior a R$ 17,00 (dezessete reais) a partir 1&ordm; de setembro de 2024, dever&aacute; reajustar valor do benef&iacute;cio em <strong>5% (cinco por cento).</strong></p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Quarto</strong>&nbsp;- A academia que j&aacute; fornece o vale refei&ccedil;&atilde;o/alimenta&ccedil;&atilde;o em valor igual ou superior a R$ 19,00 (dezenove reais) a partir de 1&ordm; de setembro de 2025, dever&aacute; reajustar valor do benef&iacute;cio <strong>pelo percentual equivalente &agrave; varia&ccedil;&atilde;o acumulada do INPC do per&iacute;odo de setembro de 2024 a agosto de 2025, somando o percentual de 1% (um por cento) a t&iacute;tulo de ganho real.</strong></p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Quinto</strong>&nbsp;- O benef&iacute;cio de vale refei&ccedil;&atilde;o/alimenta&ccedil;&atilde;o n&atilde;o tem natureza salarial, n&atilde;o se incorpora &agrave; remunera&ccedil;&atilde;o para nenhum efeito al&eacute;m de n&atilde;o constituir base de incid&ecirc;ncia da contribui&ccedil;&atilde;o previdenci&aacute;ria ou FGTS (artigo 457, &sect; 2&ordm; da CLT).</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Sexto - As diferen&ccedil;as do vale refei&ccedil;&atilde;o/alimenta&ccedil;&atilde;o retroativas ao m&ecirc;s de setembro de 2024 dever&atilde;o ser pagas na folha de pagamento correspondente ao m&ecirc;s de julho de 2025 (at&eacute; o</strong><strong> 5</strong><strong>&ordm;</strong><strong> dia &uacute;til de agosto)</strong><strong>.</strong></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Auxílio Transporte
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA NONA - VALE TRANSPORTE
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">As academias poder&atilde;o fornecer aos empregados o pagamento do vale transporte em pec&uacute;nia de acordo com a Lei n&ordm; 7.619/87. O benef&iacute;cio n&atilde;o tem natureza salarial, n&atilde;o se incorpora &agrave; remunera&ccedil;&atilde;o para nenhum efeito al&eacute;m de n&atilde;o constituir base de incid&ecirc;ncia da contribui&ccedil;&atilde;o previdenci&aacute;ria ou FGTS (artigo 458, &sect; 2&ordm;, III da CLT.</p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA - VALE COMBUST&#205;VEL
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">As academias que fornecem vale combust&iacute;vel aos seus empregados em dinheiro ou cart&atilde;o combust&iacute;vel, o valor fornecido n&atilde;o se incorporar&aacute; a remunera&ccedil;&atilde;o dos empregados e nem ser&aacute; considerado sal&aacute;rio <em>in natura.</em></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Auxílio Saúde
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA PRIMEIRA - PLANO ODONTOL&#211;GICO CONV&#202;NIO SENALBA-PR
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">O SENALBA-PR oferece aos seus associados e contribuintes o conv&ecirc;nio de Plano Odontol&oacute;gico DENTAL UNI - AMPLO DOC, com participa&ccedil;&atilde;o financeira mensal, mediante contrata&ccedil;&atilde;o por ades&atilde;o pelo per&iacute;odo m&iacute;nimo de 12 meses, nos termos e condi&ccedil;&otilde;es dispostas no formul&aacute;rio dispon&iacute;vel no site do Sindicato: <a href="http://senalbapr.com.br/site/senalba-odonto.php"><strong>http://senalbapr.com.br/site/senalba-odonto.php.</strong></a></p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo &Uacute;nico - </strong>Havendo interesse na contrata&ccedil;&atilde;o do plano odontol&oacute;gico DENTAL UNI - AMPLO DOC por mais de um empregado e caso haja concord&acirc;ncia da Entidade empregadora, esta poder&aacute; vir a descontar em folha de pagamento e repassar ao Sindicato laboral os respectivos valores das mensalidades.</p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA SEGUNDA - ASSIST&#202;NCIA M&#201;DICA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">O SENALBA-PR oferece aos seus associados com desconto da mensalidade social em folha de pagamento o conv&ecirc;nio de assist&ecirc;ncia m&eacute;dica firmado junto ao <a href="https://www.senalbapr.com.br/site/senalba-instituto-de-saude.php"><strong>INSTITUTO DE SA&Uacute;DE</strong></a>, o qual oferece consultas m&eacute;dicas em dezenas de especialidades, odontologia, fisioterapia, exames com agendamento e valores acess&iacute;veis, mediante contrata&ccedil;&atilde;o por ades&atilde;o pelo per&iacute;odo m&iacute;nimo de 12 meses, nos termos e condi&ccedil;&otilde;es dispostas no formul&aacute;rio dispon&iacute;vel no site do Sindicato: <a href="http://www.senalbapr.com.br/site/senalba-instituto-de-saude.php"><strong>http://www.senalbapr.com.br/site/senalba-instituto-de-saude.php</strong></a>.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo &Uacute;nico -</strong> Havendo interesse na contrata&ccedil;&atilde;o da assist&ecirc;ncia m&eacute;dica INSTITUTO DE SA&Uacute;DE o empregado dever&aacute; concordar com o desconto em folha de pagamento da sua mensalidade familiar e a academia, ap&oacute;s essa autoriza&ccedil;&atilde;o, dever&aacute; descontar e repassar os valores devidos ao SENALBA-PR por dep&oacute;sito em conta banc&aacute;ria ou PIX.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outros Auxílios
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA TERCEIRA - AUX&#205;LIO NATALIDADE
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">As academias fornecer&atilde;o aos empregados (homem ou mulher) um aux&iacute;lio natalidade em parcela &uacute;nica no valor de <strong>R$ 530,00 (quinhentos e trinta reais)</strong> em at&eacute; 30 dias ap&oacute;s o nascimento de filho, mediante apresenta&ccedil;&atilde;o de certid&atilde;o espec&iacute;fica ou termo de ado&ccedil;&atilde;o.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Primeiro</strong> - A partir de 1&ordm; de setembro de 2025 as academias fornecer&atilde;o aos empregados (homem ou mulher) um aux&iacute;lio natalidade em parcela &uacute;nica no valor de <strong>R$ 600,00 (seiscentos reais)</strong> em at&eacute; 30 dias ap&oacute;s o nascimento de filho, mediante apresenta&ccedil;&atilde;o de certid&atilde;o espec&iacute;fica ou termo de ado&ccedil;&atilde;o.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Segundo</strong>&nbsp;- Aplica-se igualmente a concess&atilde;o deste aux&iacute;lio no caso de ado&ccedil;&atilde;o, sendo o pagamento realizado em at&eacute; 30 dias ap&oacute;s o registro de filia&ccedil;&atilde;o.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Terceiro - As parcelas &uacute;nicas retroativas ao m&ecirc;s de setembro de 2024 no valor de R$ 530,00 (quinhentos e trinta reais) dever&atilde;o ser pagas na folha de pagamento correspondente ao m&ecirc;s de julho de 2025 (at&eacute; 5&ordm; dia &uacute;til de agosto)</strong><strong>.</strong></p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Quarto</strong> - Na hip&oacute;tese de o aux&iacute;lio natalidade j&aacute; ter sido pago parcialmente ou integralmente, ficar&aacute; devida apenas a complementa&ccedil;&atilde;o da diferen&ccedil;a, se houver.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Contrato de Trabalho – Admissão, Demissão, Modalidades
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Aviso Prévio
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA QUARTA - AVISO PR&#201;VIO - DISPENSA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Ao empregado demitido que, durante o per&iacute;odo de cumprimento de aviso pr&eacute;vio, obtiver novo emprego, dever&aacute; ser dispensado, desde que o requeira por escrito, anexando prova da nova coloca&ccedil;&atilde;o, ficando a academia desonerada do pagamento dos dias n&atilde;o trabalhados, bem como de seus reflexos.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Relações de Trabalho – Condições de Trabalho, Normas de Pessoal e Estabilidades
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Estabilidade Mãe
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA QUINTA - LICEN&#199;A E ESTABILIDADE DA GESTANTE
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Ser&aacute; garantido o emprego e o sal&aacute;rio &agrave; empregada gestante desde a confirma&ccedil;&atilde;o da gravidez at&eacute; 5 (cinco) meses ap&oacute;s o parto, podendo a crit&eacute;rio do empregador ser estendido este prazo para at&eacute; seis meses.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Primeiro - </strong>No caso de ado&ccedil;&atilde;o de crian&ccedil;a com at&eacute; seis anos de idade, a empregada ter&aacute; direito ao mesmo benef&iacute;cio supracitado, ou seja, garantia provis&oacute;ria no emprego por 5 (cinco) meses ap&oacute;s a data de ado&ccedil;&atilde;o, podendo optativamente ser estendido este prazo por at&eacute; seis meses.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Segundo - </strong>No caso de ado&ccedil;&atilde;o de crian&ccedil;a de at&eacute; 6 (seis) anos de idade, a empregada ter&aacute; direito a uma licen&ccedil;a remunerada de 30 (trinta) dias, mediante a comprova&ccedil;&atilde;o perante a Academia, nos 30 (trinta) dias subsequentes &agrave; ado&ccedil;&atilde;o.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Terceiro - </strong>Em se tratando de ado&ccedil;&atilde;o de crian&ccedil;a, entre 6 (seis) anos e um dia a 10 (dez) anos de idade, a licen&ccedil;a ser&aacute; de 15 (quinze) dias.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Quarto - </strong>Os pagamentos dos sal&aacute;rios referentes ao quinto e o sexto (optativo) m&ecirc;s da licen&ccedil;a maternidade ser&atilde;o de responsabilidade da academia.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Estabilidade Aposentadoria
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA SEXTA - ESTABILIDADE PR&#201;-APOSENTADORIA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Aos empregados que estiverem a um m&aacute;ximo de 12 (doze) meses da aquisi&ccedil;&atilde;o do direito &agrave; aposentadoria e que contem, no m&iacute;nimo, 05 (cinco) anos de servi&ccedil;o na mesma Academia, fica assegurada a garantia ao emprego e sal&aacute;rio durante o per&iacute;odo que falta &agrave; aposentadoria, considerando a legisla&ccedil;&atilde;o previdenci&aacute;ria, ressalvados os casos de justa causa.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo &Uacute;nico - </strong>Para fazer jus ao benef&iacute;cio, o empregado dever&aacute; comunicar em uma &uacute;nica vez a academia, juntando documento comprobat&oacute;rio emitido pelo INSS, da sua condi&ccedil;&atilde;o de aposent&aacute;vel, at&eacute; 60 (sessenta) dias ap&oacute;s o in&iacute;cio do prazo previsto no caput desta cl&aacute;usula.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Jornada de Trabalho – Duração, Distribuição, Controle, Faltas
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Prorrogação/Redução de Jornada
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA S&#201;TIMA - ESCALA 12X36 HORAS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Fica facultado &agrave;s academias, por peculiaridade do servi&ccedil;o, estabelecerem aos empregados jornada em escala de 12 (doze) horas de trabalho por 36 (trinta e seis) horas de descanso, assegurado o pagamento em dobro dos dias feriados trabalhados.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Compensação de Jornada
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA OITAVA - BANCO DE HORAS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Nos termos do par&aacute;grafo 2&ordm; do art. 59 da CLT, as partes convenentes instituem o BANCO DE HORAS que se reger&aacute; pelo presente instrumento, e cuja principal caracter&iacute;stica &eacute; a dispensa de acr&eacute;scimo no sal&aacute;rio, se o excesso de horas em dia for compensado pela correspondente diminui&ccedil;&atilde;o em outro dia, podendo tal compensa&ccedil;&atilde;o ocorrer no per&iacute;odo m&aacute;ximo de 01 (um) ano.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Primeiro - </strong>Para os fins desta cl&aacute;usula, s&atilde;o consideradas como cr&eacute;dito as horas extras trabalhadas pelo empregado e como d&eacute;bito as horas correspondentes &agrave; sua jornada normal de trabalho que deixaram de ser trabalhadas.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Segundo - </strong>As aus&ecirc;ncias injustificadas, atrasos e sa&iacute;das antecipadas n&atilde;o autorizadas previamente n&atilde;o ser&atilde;o contabilizados no banco de horas e ser&atilde;o descontados em folha de pagamento, inclusive do descanso semanal remunerado. Do mesmo modo, as aus&ecirc;ncias justificadas com atestados m&eacute;dicos que sejam validados pela Academia tamb&eacute;m n&atilde;o ser&atilde;o contabilizadas no Banco de Horas, sendo abonadas as respectivas horas.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Terceiro - </strong>Desde que expressa e previamente autorizado pelo Gestor direto do funcion&aacute;rio, poder&atilde;o ser levadas a d&eacute;bito no Banco de Horas as horas n&atilde;o trabalhadas pelo empregado em decorr&ecirc;ncia de altera&ccedil;&otilde;es no hor&aacute;rio de entrada e sa&iacute;da, dias pontes de feriados ou em outras situa&ccedil;&otilde;es espec&iacute;ficas autorizadas.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Quarto </strong>- Ao final do per&iacute;odo de 12 meses, haver&aacute; o zeramento do banco de horas, sendo que as horas positivas dever&atilde;o ser pagas na compet&ecirc;ncia do m&ecirc;s subsequente com os acr&eacute;scimos legais e as horas negativas ser&atilde;o remidas/abonadas.</p>
+<p style="text-align: justify;"><strong>Paragrafo Quinto - </strong>No caso de pedido de demiss&atilde;o, em havendo eventual saldo negativo no banco de horas, o mesmo poder&aacute; ser descontado das verbas rescis&oacute;rias. J&aacute; na demiss&atilde;o sem justa causa, fica vedado a empregadora o desconto deste eventual saldo negativo de banco de horas do empregado.</p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA NONA - COMPENSA&#199;&#195;O DA JORNADA DE TRABALHO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Ser&aacute; permitida a compensa&ccedil;&atilde;o da jornada de trabalho do s&aacute;bado, pelo acr&eacute;scimo do n&uacute;mero de horas correspondentes aos dias &uacute;teis de segunda a sexta-feira, desde que n&atilde;o ultrapasse a jornada semanal de 44 (quarenta e quatro) horas, independentemente de homologa&ccedil;&atilde;o do SENALBA-PR e de assinatura de acordo individual.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Intervalos para Descanso
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA - INTERVALOS INTRAJORNADAS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Se houver concord&acirc;ncia do empregador, quando a pedido do empregado com jornada superior a 06 (seis) horas di&aacute;rias, ser&aacute; permitido a realiza&ccedil;&atilde;o de intervalo intrajornada em tempo m&iacute;nimo de 30 (trinta) minutos, nos termos do artigo 611-A, III da CLT, e m&aacute;ximo de 04 (quatro) horas.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo &Uacute;nico </strong>- Esta redu&ccedil;&atilde;o do intervalo intrajornada n&atilde;o ser&aacute; considerada para nenhum efeito como hora extra.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Descanso Semanal
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA PRIMEIRA - TRABALHO EM DOMINGOS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Quando houver necessidade da presta&ccedil;&atilde;o de servi&ccedil;os aos domingos, ser&aacute; estabelecida escala de revezamento, mensalmente organizada, de modo que cada empregado, pelo menos uma vez ao m&ecirc;s, tenha sua folga coincidente com o domingo.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Controle da Jornada
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA SEGUNDA - CONTROLE DE JORNADA SISTEMA ALTERNATIVO ELETR&#212;NICO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">As academias poder&atilde;o adotar sistemas alternativos eletr&ocirc;nicos de controle de jornada de trabalho nos termos da Portaria n&deg; 671 do MTP, de 08/11/2021, da Portaria n&ordm; 1.486 do MTP, de 03/06/2022, <strong>da Portaria n&ordm; 3.717 do MTP, de 09/11/2022, e da Portaria n&ordm; 4.198 do MTP, de 19/12/2022</strong>, sem preju&iacute;zo do disposto no art. 74, &sect;2&deg;, da CLT, que determina o controle de jornada por meio manual, mec&acirc;nico ou eletr&ocirc;nico.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Faltas
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA TERCEIRA - ABONO DE FALTAS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">As faltas para acompanhamento m&eacute;dico de c&ocirc;njuge/companheiro(a), filhos at&eacute; o m&ecirc;s que completar <strong>18 (dezoito)</strong> anos, filhos PcD - Pessoa com Defici&ecirc;ncia de qualquer idade e pais acima de 60 (sessenta) anos, desde que devidamente comprovadas no prazo de 72h (setenta e duas horas) da data de emiss&atilde;o do atestado ou declara&ccedil;&atilde;o de comparecimento passado pelo profissional que prestou a assist&ecirc;ncia, ser&atilde;o abonadas pela academia sempre que n&atilde;o ultrapassar a <strong>6 (seis) faltas por ano.</strong></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA QUARTA - AUS&#202;NCIAS ABONADAS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">As academias considerar&atilde;o como aus&ecirc;ncias abonadas as seguintes condi&ccedil;&otilde;es e circunst&acirc;ncias devidamente comprovadas:</p>
+<p style="text-align: justify;">a) 3 (tr&ecirc;s) dias <strong>&uacute;teis</strong> consecutivos em virtude de casamento.</p>
+<p style="text-align: justify;">b) 2 (dois) dias <strong>&uacute;teis</strong> consecutivos em caso de falecimento dos pais, c&ocirc;njuges e filhos.</p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA QUINTA - VIOL&#202;NCIA DOM&#201;STICA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><strong>Ser&aacute; concedido o abono de faltas para o empregado(a) v&iacute;tima de viol&ecirc;ncia dom&eacute;stica de at&eacute; 3 (tr&ecirc;s) dias &uacute;teis por ano, mediante apresenta&ccedil;&atilde;o em at&eacute; 5 (cinco) dias do boletim de ocorr&ecirc;ncia policial ao setor de recursos humanos.</strong></p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras disposições sobre jornada
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA SEXTA - REUNI&#213;ES DE SERVI&#199;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">As reuni&otilde;es e treinamentos de car&aacute;ter obrigat&oacute;rio realizados fora da jornada de trabalho contratada, destinados &agrave; capacita&ccedil;&atilde;o, atualiza&ccedil;&atilde;o profissional e/ou planejamento das atividades, ser&atilde;o lan&ccedil;adas como horas extras no banco de horas e compensadas no prazo estabelecido na presente CCT.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo &Uacute;nico </strong>- Caso a academia n&atilde;o fa&ccedil;a uso do banco de horas, as horas laboradas ser&atilde;o pagas como horas extras com os devidos acr&eacute;scimos legais.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Férias e Licenças
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras disposições sobre férias e licenças
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA S&#201;TIMA - LICEN&#199;A PARA O TRATAMENTO DE DOEN&#199;A DE PESSOA DA FAM&#205;LIA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">O(a) empregado(a) poder&aacute; solicitar a sua chefia imediata licen&ccedil;a especial para tratamento de doen&ccedil;a em pessoa da fam&iacute;lia: ascendente e descendente de primeiro grau (pais ou filhos), c&ocirc;njuge ou companheiro(a).</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo &Uacute;nico - </strong>Os dias de licen&ccedil;a dever&atilde;o ser repostos para que as faltas possam ser abonadas, n&atilde;o podendo ultrapassar 30 (trinta) dias.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Saúde e Segurança do Trabalhador
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Uniforme
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA OITAVA - UNIFORMES E EPI`S
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Sempre que exigidos, por for&ccedil;a de Lei ou delibera&ccedil;&atilde;o do empregador, os uniformes e EPI's ser&atilde;o fornecidos gratuitamente e substitu&iacute;dos por desgaste de uso normal.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo &Uacute;nico - </strong>Ocorrendo neglig&ecirc;ncia do empregado na guarda ou uso do uniforme ou EPI's, a reposi&ccedil;&atilde;o dos mesmos poder&aacute; ser cobrada.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Aceitação de Atestados Médicos
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA NONA - ATESTADOS M&#201;DICOS E ODONTOL&#211;GICOS
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">A academia dever&aacute; reconhecer a legitimidade dos atestados m&eacute;dicos/odontol&oacute;gicos e declara&ccedil;&otilde;es de comparecimento, observada a legisla&ccedil;&atilde;o, para justificativas de aus&ecirc;ncias no trabalho. No caso de o colaborador ter aderido &agrave; assist&ecirc;ncia m&eacute;dica conveniada, os atestados a serem aceitos ser&atilde;o prioritariamente aqueles fornecidos por m&eacute;dicos credenciados, da rede pr&oacute;pria da operadora ou do SUS. Ser&atilde;o aceitos e v&aacute;lidos os atestados m&eacute;dicos/odontol&oacute;gicos e declara&ccedil;&otilde;es de comparecimento, quando entregues a &aacute;rea de RH da academia no prazo m&aacute;ximo de 48h (presencial ou eletr&ocirc;nico) contados da emiss&atilde;o.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Primeiro - </strong>Fica o empregado obrigado a comunicar &agrave; sua chefia imediata o seu afastamento por motivo de licen&ccedil;a m&eacute;dica, no prazo de 24h, a partir da data inicial do primeiro dia de afastamento.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Segundo - </strong>Caso o atestado ou declara&ccedil;&atilde;o de comparecimento seja enviado de maneira eletr&ocirc;nica (digitalmente) ao RH da academia, o colaborador se compromete a entregar o atestado original &agrave; academia ou &agrave; chefia imediata, no prazo de 24h, ap&oacute;s o retorno do afastamento m&eacute;dico.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Relações Sindicais
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Contribuições Sindicais
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA - COTA NEGOCIAL 2025 - SENALBA-PR
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Conforme delibera&ccedil;&atilde;o na <strong>Assembleia Geral Extraordin&aacute;ria N&ordm; 11/2024</strong>, realizada pelo Sindicato e encerrada no dia 7 de julho de 2025, junto &agrave; categoria profissional representada pelo SENALBA-PR, com a participa&ccedil;&atilde;o e vota&ccedil;&atilde;o de associados ou n&atilde;o, e nos termos do Artigo 513 da CLT,&nbsp;<strong>as academias descontar&atilde;o a COTA NEGOCIAL 2025 no valor &uacute;nico anual de R$ 75,00 (setenta e cinco reais)</strong>,&nbsp;<strong>do sal&aacute;rio referente ao m&ecirc;s de JULHO de 2025</strong>,&nbsp;<span style="text-decoration: underline;">de todos os empregados abrangidos e beneficiados</span>&nbsp;pela presente Conven&ccedil;&atilde;o Coletiva de Trabalho.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Primeiro</strong>&nbsp;- Os empregados que s&atilde;o associados do SENALBA-PR, e est&atilde;o em dia com as mensalidades sociais e/ou aqueles que autorizaram o desconto da Contribui&ccedil;&atilde;o Sindical 2025 em favor do SENALBA-PR, ficam isentos da COTA NEGOCIAL 2025.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Segundo </strong><strong>-</strong> Os empregados de academias contribuintes com a <strong>COTA NEGOCIAL 2025 </strong>em favor do SENALBA-PR ter&atilde;o direito a entrada gratuita no Araucaria Acqua Park e contrata&ccedil;&atilde;o do plano odontol&oacute;gico conforme disposi&ccedil;&otilde;es informadas no site.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Terceiro </strong>- Conforme deliberado na respectiva assembleia, fica facultado aos empregados a liberdade de se opor ao desconto da COTA NEGOCIAL 2025, devendo para isto <strong>protocolar pessoalmente carta de oposi&ccedil;&atilde;o individual devidamente assinada, em duas vias</strong>, sendo uma para o Sindicato e a outra via protocolada para entregar ao setor de Recursos Humanos da academia, contendo as seguintes informa&ccedil;&otilde;es: nome completo, CPF, Cidade, Entidade em que trabalha, e-mail e/ou whatsapp para contato, na sede do Sindicato, <strong>no per&iacute;odo de 11 &agrave; 21 de julho de 2025</strong>.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Quarto </strong>- <strong>Os empregados que n&atilde;o residem/trabalhem na cidade de Curitiba - PR</strong> poder&atilde;o, no mesmo prazo acima, encaminhar uma via da carta de oposi&ccedil;&atilde;o em envelope individual via AR (Aviso de Recebimento) para o endere&ccedil;o do SENALBA-PR, servindo o comprovante de envio fornecido pelos correios como documento comprobat&oacute;rio para ser entregue ao setor de Recursos Humanos da academia juntamente com a outra via da carta de oposi&ccedil;&atilde;o.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Quinto </strong>- <strong>A carta de oposi&ccedil;&atilde;o &agrave; COTA NEGOCIAL 2025 &eacute; um documento formal, individual e pessoal, n&atilde;o sendo aceita, protocolada e nem ter&aacute; validade carta de oposi&ccedil;&atilde;o incompleta ou diferente do estabelecido na presente cl&aacute;usula.</strong></p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Sexto&nbsp;</strong>- Havendo qualquer desconto indevido, o empregado poder&aacute; solicitar o reembolso ao SENALBA-PR em at&eacute; 30 dias mediante comprova&ccedil;&atilde;o e justificativa.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo S&eacute;timo</strong>&nbsp;- As academias <strong>repassar&atilde;o</strong> ao Sindicato,&nbsp;<strong>em at&eacute; 10 dias ap&oacute;s o desconto</strong>, o valor correspondente a arrecada&ccedil;&atilde;o da COTA NEGOCIAL 2025 por dep&oacute;sito banc&aacute;rio em favor do&nbsp;<strong>SENALBA-PR</strong> <strong>- CNPJ: 75.992.446/0001-49, no Banco: 748 SICREDI, Ag&ecirc;ncia: 0752, Conta Corrente: 17995-7, </strong>ou via&nbsp;<strong>PIX com a chave CNPJ: 75.992.446/0001-49</strong>&nbsp;&nbsp;<strong>e, enviar&atilde;o</strong>&nbsp;ao Sindicato para o e-mail:&nbsp;<a href="mailto:arrecadacao@senalbapr.com.br"><strong>arrecadacao@senalbapr.com.br</strong></a>&nbsp;o comprovante de dep&oacute;sito e a planilha em Excel com a rela&ccedil;&atilde;o dos contribuintes contendo:&nbsp;<span style="text-decoration: underline;">CPF, Nome Completo e e-mail/WhatsApp para contato</span>&nbsp;(se houver), para que o SENALBA-PR possa manter atualizado o cadastro de contribuintes e proceda a&nbsp;<span style="text-decoration: underline;">emiss&atilde;o do respectivo recibo &agrave; entidade empregadora</span>.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Oitavo </strong>- <strong>No ato de novas admiss&otilde;es</strong>, a academia dever&aacute; apresentar a presente Conven&ccedil;&atilde;o Coletiva de Trabalho aos novos empregados e descontar a COTA NEGOCIAL 2025 de forma proporcional aos meses restantes da vig&ecirc;ncia desse instrumento, (R$ 75,00 &divide; 12 x n&ordm; meses at&eacute; agosto/2026) devendo efetuar o repasse ao Sindicato nos termos disposto no par&aacute;grafo anterior, exceto se o rec&eacute;m contratado enviar ao Sindicato &ldquo;carta de oposi&ccedil;&atilde;o ao desconto da COTA NEGOCIAL 2025&rdquo;, no prazo de 10 dias da contrata&ccedil;&atilde;o.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo Nono</strong>&nbsp;- O descumprimento desta cl&aacute;usula, bem como o incentivo por parte do empregador e/ou seus gestores &agrave; oposi&ccedil;&atilde;o &agrave; COTA NEGOCIAL 2025, ser&aacute; caracterizado como <strong>ato anti sindical </strong>e estar&aacute; sujeito &agrave;s medidas judiciais cab&iacute;veis, al&eacute;m da multa prevista no presente instrumento.</p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA PRIMEIRA - TAXA NEGOCIAL PATRONAL - SINDICLUBES-PR
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Conforme delibera&ccedil;&atilde;o da Assembleia Geral Extraordin&aacute;ria, as Entidades integrantes da categoria econ&ocirc;mica do SINDICLUBES-PR devem recolher a Taxa Negocial Patronal no prazo e condi&ccedil;&otilde;es definidos abaixo:</p>
+<p style="text-align: justify;">Par&aacute;grafo Primeiro &ndash; As Entidades recolher&atilde;o ao SINDICLUBES-PR o valor correspondente a 3% (tr&ecirc;s por cento) sobre o total da folha de pagamento dos empregados referente ao m&ecirc;s de julho de 2025, com vencimento em 25 de agosto de 2025, utilizando-se guias fornecidas pelo Sindicato.</p>
+<p style="text-align: justify;">Par&aacute;grafo Segundo - As guias dever&atilde;o ser solicitadas atrav&eacute;s do e-mail <a href="mailto:secretaria@sindiclubespr.com.br">secretaria@sindiclubespr.com.br</a>. Para tanto a empresa dever&aacute; encaminhar o CNPJ e o extrato mensal da folha de pagamento do m&ecirc;s de julho/2025.</p>
+<p style="text-align: justify;">Par&aacute;grafo Terceiro &ndash; Na eventualidade de a Entidade n&atilde;o possuir empregados no per&iacute;odo de vig&ecirc;ncia desta conven&ccedil;&atilde;o coletiva, ser&aacute; devido o valor fixo de R$ 300,00 (trezentos reais), a t&iacute;tulo de contribui&ccedil;&atilde;o m&iacute;nima.</p>
+<p style="text-align: justify;">Par&aacute;grafo Quarto - Os valores arrecadados ser&atilde;o destinados ao custeio das despesas relacionadas &agrave; negocia&ccedil;&atilde;o coletiva, assessoria jur&iacute;dica e administrativa, e ao fortalecimento da representa&ccedil;&atilde;o sindical patronal em prol da categoria econ&ocirc;mica.</p>
+                                                </label>
+                                                <br />
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Disposições Gerais
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Regras para a Negociação
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA SEGUNDA - NEGOCIA&#199;&#213;ES PERMANENTES
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Os Sindicatos convenentes, durante a vig&ecirc;ncia desta Conven&ccedil;&atilde;o Coletiva de Trabalho, proceder&atilde;o as novas negocia&ccedil;&otilde;es no sentido de manter sempre atualizadas suas cl&aacute;usulas.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Aplicação do Instrumento Coletivo
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA TERCEIRA - APLICA&#199;&#195;O DA CONVEN&#199;&#195;O COLETIVA DE TRABALHO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">A presente Conven&ccedil;&atilde;o Coletiva de Trabalho se aplica somente &agrave;s academias de condicionamento f&iacute;sico, nata&ccedil;&atilde;o, escalada, artes marciais, treinamento funcional, dan&ccedil;a, pilates, etc.</p>
+<p style="text-align: justify;"><strong>Par&aacute;grafo &Uacute;nico </strong>- A presente CCT n&atilde;o se aplica aos profissionais de educa&ccedil;&atilde;o f&iacute;sica quando contratados para o exerc&iacute;cio das fun&ccedil;&otilde;es inerentes a essa forma&ccedil;&atilde;o, devido ao fato dos mesmos serem representados pelo Sindicato SINPEFEPAR.</p>
+                                                </label>
+                                                <br />
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Descumprimento do Instrumento Coletivo
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TRIG&#201;SIMA QUARTA - MULTA POR DESCUMPRIMENTO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;">Ser&aacute; devida multa, no valor de 30% (trinta por cento) do piso salarial da categoria, em favor da parte prejudicada no caso de descumprimento desta Conven&ccedil;&atilde;o Coletiva de Trabalho.</p>
+                                                </label>
+                                                <br />
+                                    }
+                                    <br />
+                                    <table border="0" cellpadding="0" cellspacing="0" align="center">
+                                        <tr>
+                                            <td align="center">
+                                                    <br />
+    <br />
+    <label class="textonome">
+        MARCELO DOS SANTOS
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SINDICATO DOS EMPREGADOS EM ENTIDADES CULTURAIS, RECREATIVAS, DE ASSISTENCIA SOCIAL, DE ORIENTACAO E FORMACAO PROFISSIONAL, NO ESTADO DO PARANA.
+        <br />
+        <br />
+    </label>
+
+    <br />
+    <br />
+    <label class="textonome">
+        ALI TARBINE
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SINDICATO DOS CLUBES ESPORTIVOS, DE CULTURA FISICA E HIPICOS DO ESTADO DO PARANA.
+        <br />
+        <br />
+    </label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                        <br />
+                                        <center>
+                                            <label class="textogrupo">
+                                                <b>ANEXOS </b>
+                                            </label>
+                                        </center>
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO I - ATA
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR039480_20252025_07_08T10_16_51.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                        <!--****************************************** FIM - Anexos ******************************************-->
+                                            <label class="texto">
+                                                &#160;&#160;&#160;&#160;A autenticidade deste documento poderá ser confirmada na
+                                                página do Ministerio do Trabalho e Emprego na Internet, no endereço http://www.mte.gov.br.
+                                            </label>
+                                            <br />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </div>
+</body>
+<script>
+    setTimeout(function () {
+        window.history.replaceState({}, '', window.location.pathname);
+    }, 0);
+</script>
+</html>

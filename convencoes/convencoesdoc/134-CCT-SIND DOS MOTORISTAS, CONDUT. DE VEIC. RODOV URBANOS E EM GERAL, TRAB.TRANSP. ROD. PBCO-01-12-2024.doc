@@ -1,0 +1,870 @@
+
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <title>
+        Mediador - Extrato Conven&#231;&#227;o Coletiva
+    </title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+    <script src="https://www.google.com/recaptcha/api.js?render=6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G"></script>
+
+    <script src='/sistemas/mediador/WebResource.axd?d=ls-JK0luimixBX3RtKP4OuM6Nbr55f1ikjLAMnxPrvPWRxDuzHsg65FphFc0YmwGvPuaSOvOnFNL4Mq2J7O55VkuvR-JNDegUEHaozvuG4GfYZuef32jriBr06lvlGac5F6-tkLMmrZoMutKUlmTDs6EfByvhBlqjoPaLqkzgWOQbhBdGIEvithrw3-5H5qk0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=Px3s_uYn4d177Bapr6UItVAG4ySRRwV1FTF9REvDumgGERVSCp8kyUryq_3KpZpUTfDe5TqxyIZGZxX5ozdMPUJbZ6hLNkyZcQs3Jq49Tq4elUn1XVD0J1HZdSLCj4u7lSEusPaT52P-dmmUW16Zx-F1DukKY3vEPHf0rDfBa2Ek1wHWv_TRP5IVvEToeq9-7oWzL-s-gnso82iAY4IHaA2&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=CjtT-uoLDoJdb4jgIJsBSRfL44ke78nKZN-T9Xh3VSuD7RX_5Bbo7zl2hrjZ0swKv3_WHboUwa3CrIc3r4fFnDK9--SThodGc3omd1KRkx-JcDZI56y8-pa3_jBuZ_Ja8EMw_zpGdh3c9iwxA6DgF6ADJueXAYnVerg4cx6Bv0PIW6hB8qDQX-29PZKYY9GD0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=hlEAjtYEwmyXvO53WOf3q1zm2M7vuEdUVyDiqXVCgKr5riw1ELy1ZRVj03iNlJYxSTquNrQZHsvSiEbqGSmz3MMcWp23BUlw4alWlNPe5NP81SNNQVIF6kR2DGagvrRoBfqFTWglcSdlZQtbZxa5nSJXuFFkjU7ovmwG9osuidcErpqwHbUr6Ngxm-jvdKpU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=NCcLU-zMz9clvVmV2ucp3Ot41YxhAEEnw1oODrj8U91mAFxGPkAkQeWXV5fcdwyy0mrLKva6KKMcHAaFm2jnwiusIA32tvo4e5f3N2JCWpIcY6qf8KJPLTTSkEYlrbyi5wATnAAhBkhIGD7thl1Lbyo0K8SYohjMh-git_nbtJv05RRshlEMjUi_DzdFBcqU0&t=639106604800000000' type='text/javascript'></script>
+<script src='/sistemas/mediador/WebResource.axd?d=1io6R1AjpcUezik5_qSigmQJFRbaB2L40L4rOH4MFKicVZMDTRO2C05XLVrubr29MfmMtziY_kIcjW_ZmQGmx7YNmW57PfPG1GkmCEILrEoNQLwRbo25stWZt8KVTCCGiLf2PdSQiW2RglNOyI0M__DHWfTq1HvMHualKSNfkpcafH4w3IeATgirTQJMa3Ry0&t=639106604800000000' type='text/javascript'></script>
+
+
+<script type="text/javascript">
+        var recaptchaSiteKey = '6LdPnewrAAAAADM60VqWAyvhreJD6Jpyr1tORg6G';
+        var pageLoadToken = '';
+        var isPageValidated = false;
+
+        function onRecaptchaLoad() {
+            console.log('reCAPTCHA carregado, validando página...');
+            executePageLoadRecaptcha();
+        }
+
+        function executePageLoadRecaptcha() {
+            if (typeof grecaptcha === 'undefined') {
+                console.error('reCAPTCHA não carregado');
+                return;
+            }
+
+            grecaptcha.ready(function() {
+                grecaptcha.execute(recaptchaSiteKey, {
+                    action: 'page_load_resumo'
+                }).then(function(token) {
+                    console.log('Token de página gerado');
+                    pageLoadToken = token;
+
+                    // Enviar o token para o servidor
+                    validatePageLoadToken(token);
+                }).catch(function(error) {
+                    console.error('Erro no reCAPTCHA de página:', error);
+                    // Em desenvolvimento, permitir continuar
+                });
+            });
+        }
+
+        function validatePageLoadToken(token) {
+            var currentUrl = window.location.href;
+            var queryString = window.location.search;
+            var nrSolicitacao = 'MR015130/2025';
+
+            $.ajax({
+                url: '/sistemas/mediador/Resumo/ValidateResumoPageLoad',
+                type: 'POST',
+                data: {
+                    recaptchaToken: token,
+                    currentUrl: currentUrl,
+                    queryString: queryString,
+                    nrSolicitacao: nrSolicitacao
+                },
+                success: function(response) {
+                    if (response.success) {
+                        console.log('Página validada com sucesso');
+                        isPageValidated = true;
+                        showPageContent();
+                    } else {
+                        console.warn('Validação de página falhou:', response.message);
+                        handleValidationFailed(response);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao validar página:', error);
+                    handleValidationFailed({ message: 'Erro de comunicação com o servidor' });
+                }
+            });
+        }
+
+        function showPageContent() {
+            // Remover overlay de loading se existir
+            $('#recaptcha-loading').remove();
+            console.log('Conteúdo da página liberado');
+        }
+
+        function handleValidationFailed(response) {
+            // Mostrar mensagem de erro
+            var errorHtml = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                    <div style="text-align: center; padding: 20px;">
+                        <h2 style="color: #d32f2f;">Validação de Segurança</h2>
+                        <p style="font-size: 16px; margin: 20px 0;">${response.message || 'Falha na validação de segurança.'}</p>
+                        <button onclick="window.location.reload()" style="padding: 10px 20px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Tentar Novamente
+                        </button>
+                        <br><br>
+                        <button onclick="window.location.href='/sistemas/mediador/'" style="padding: 8px 16px; background: #757575; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Voltar para Página Inicial
+                        </button>
+                    </div>
+                </div>
+            `;
+            $('body').prepend(errorHtml);
+        }
+
+        $(document).ready(function() {
+            console.log('Página carregada - ambiente de produção');
+
+            // Pular validação reCAPTCHA em produção
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.log('Produção - validando sem reCAPTCHA');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 1000);
+
+            // Timeout de segurança reduzido
+            setTimeout(function() {
+                if (!isPageValidated) {
+                    console.warn('Timeout na validação - liberando conteúdo');
+                    isPageValidated = true;
+                    showPageContent();
+                }
+            }, 5000); // Reduzido para 5 segundos
+        });
+
+        function Imprimir() {
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "none";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "none";
+            window.print();
+            document.getElementById("btnResumoVisualizarImprimir").style.display = "";
+            document.getElementById("btnResumoVisualizarSalvar").style.display = "";
+            return true;
+        }
+        $(function () {
+            var marcaDaguaHtml = $('.MarcaDagua').html();
+            var width = $('body').width();
+            var marcaW = $('.MarcaDagua').width();
+
+            var qtdNescessarios = Math.round((width / marcaW) + 0.4);
+            if (qtdNescessarios > 0)
+                for (var incrementador = 0; incrementador < qtdNescessarios; incrementador++) {
+                    $('.MarcaDagua').append("<br />");
+                    $('.MarcaDagua').append(marcaDaguaHtml);
+                }
+        });
+
+
+</script>
+    <style type="text/css">
+        .titulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .Subtitulo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 13px;
+        }
+        .texto
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .tituloClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .descricaoClausula
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .textogrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+        .textosubgrupo
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        .textonome
+        {
+            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .textofuncao
+        {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .pagebreak
+        {
+            page-break-after: always;
+        }
+        table.titulo
+        {
+            text-align: left;
+        }
+        @page Section2 {size:21cm 29.7cm ;mso-page-orientation:portrait;margin-top:2cm; margin-rigth:2cm; mso-paper-source:0;}
+        div.Section2 {page:Section2;}
+        pre
+        {
+            white-space: pre-wrap; /* css-3 */
+            white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+            white-space: -pre-wrap; /* Opera 4-6 */
+            white-space: -o-pre-wrap; /* Opera 7 */
+            word-wrap: break-word; /* Internet Explorer 5.5+ */
+            white-space: normal;
+        }
+    </style>
+    <!--[if gte mso 9]>
+    <xml>
+    <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+    </xml>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="Section2">
+
+        <center>
+            <table border="0" style="width: 18cm;" id="tblConteudo">
+                <tr>
+                    <td>
+                        <table style="width: 100%;" cellpadding="0" cellspacing="0">
+
+                                                            <tr>
+                                    <td align="center" class="titulo" style="text-transform: uppercase;">
+                                        <b>
+                                            Conven&#231;&#227;o Coletiva De Trabalho 2024/2026
+                                        </b>
+                                        <br />
+                                        <br />
+                                    </td>
+                                </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: left;">
+                                        <table border="0" class="titulo" cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <td>
+                                                        <b>NÚMERO DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        PR000807/2025
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DE REGISTRO NO MTE:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        03/04/2025
+                                                    </td>
+                                                </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>NÚMERO DA SOLICITAÇÃO:</b>
+                                                </td>
+                                                <td style="width: 10px">
+                                                </td>
+                                                <td>
+                                                    MR015130/2025
+                                                </td>
+                                            </tr>
+                                                                                            <tr>
+                                                    <td>
+                                                        <b>NÚMERO DO PROCESSO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+                                                        13068.202288/2025-89
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <b>DATA DO PROTOCOLO:</b>
+                                                    </td>
+                                                    <td style="width: 10px">
+                                                    </td>
+                                                    <td>
+02/04/2025                                                    </td>
+                                                </tr>
+                                        </table>
+                                        <br />
+
+                                                        <p>
+                                                            <label class="texto">
+                                                                <b>
+                                                                    Confira a autenticidade no endereço http://www3.mte.gov.br/sistemas/mediador/.
+                                                                </b>
+                                                            </label>
+                                                        </p>
+                                                    <br />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" class="texto">
+                                    <p align="justify">
+SIND DOS MOTORISTAS, CONDUT. DE VEIC. RODOV URBANOS E EM GERAL, TRAB.TRANSP. ROD. PBCO, CNPJ n. 80.869.894/0001-90, neste ato representado(a) por seu 
+
+Presidente, Sr(a). FERNANDO LUNARDI;
+    <br />
+&nbsp;
+    <br />
+                                        <label>
+                                            E
+                                        </label>
+                                        <br />
+                                        <br />
+SINDICATO PATRONAL DO COMERCIO VAREJISTA DE PATO BRANCO, CNPJ n. 75.616.805/0001-63, neste ato representado(a) por seu 
+
+Presidente, Sr(a). ULISSES PIVA;
+    <br />
+&nbsp;
+    <br />
+SIND.DAS EMP.DE TRANSP.COLET.ROD.DE PASSAG.INTERESTADUAIS INTERMUNICIPAIS,URBANO TURISMO E FRET.DO SUD.DO EST.DO PR, CNPJ n. 02.355.310/0001-54, neste ato representado(a) por seu 
+
+Presidente, Sr(a). LEANDRO PORTELA CATANI;
+    <br />
+&nbsp;
+    <br />
+SINDICATO DAS EMPRESAS DE TRANSPORTE DE CARGAS DO SUDOESTE DO PARANA - SETCSUPAR, CNPJ n. 81.266.074/0001-76, neste ato representado(a) por seu 
+
+Presidente, Sr(a). LUIZ CARLOS D AGOSTINI;
+    <br />
+&nbsp;
+    <br />
+                                                                                    celebram
+                                                                                    a
+                                         presente CONVEN&#199;&#195;O COLETIVA DE TRABALHO,
+ estipulando as condi&#231;&#245;es de trabalho previstas nas cl&#225;usulas seguintes:                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA PRIMEIRA - VIG&#202;NCIA E DATA-BASE
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    As partes fixam a vigência da presente Convenção Coletiva de Trabalho no período de 01º de dezembro de 2024 a 30 de novembro de 2026 e a data-base da categoria em 01º de dezembro.
+                                                </label>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        CL&#193;USULA SEGUNDA - ABRANG&#202;NCIA
+                                                        <br />
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula">
+                                                    A presente Convenção Coletiva de Trabalho abrangerá a(s) categoria(s) <b>Profissional dos Trabalhadores em empresas de Transportes Rodoviários do 2º grupo de trabalhadores em transportes rodoviários e anexos da Confederação Nacional dos Trabalhadores em Transportes Terrestres, previsto no quadro de atividades e profissões a que se refere o anexo do artigo 577 da CLT e de todos os motoristas em geral, inclusive como categoria profissional diferenciada, todos os condutores de veículos rodoviários, condutores de veículos em geral, condutores de veículos profissionais habilitados nas categorias A,B,C,D e E, a teor do Artigo 143, do Código Brasileiro de Trânsito, motoristas vendedores e/ou entregadores pracistas, motociclistas, manobristas, inclusive de estacionamentos, operadores de máquinas e/ou empilhadeiras, tratorista, inclusive como categoria diferenciada, condutores de trator de roda, trator de esteira, trator misto, condutores de equipamento automotor destinado a movimentação de cargas ou execução de trabalho agrícola, de terraplanagem, de construção ou pavimentação, habilitados nas categorias C,D e E do Artigo 144, do Código Brasileiro de Trânsito, ajudantes de motorista, como categoria similar, entendidos aqueles que, com exclusividade e em caráter permanente, auxiliam o motorista em cargas, descargas e manobras, com ele permanecendo durante o transporte. A representação da categoria também inclui: todos os empregados em empresas que fazem prestação de serviços, EMPRESAS DE TRANSPORTES RODOVIÁRIOS: de Passageiros (Municipais, Intermunicipais, Interestaduais, Internacionais), Transportes Rodoviários de Cargas (Municipal, Intermunicipal, Interestadual e Internacional) em Geral, Carregadores e Transportadores de Volumes, de Bagagens em Geral, Postos de Serviços, e os Empregados nas Empresas que tenham, por objetivo principal ou preponderante, a movimentação física de mercadorias e bens em geral, em vias públicas ou rodovias, mediante a utilização de veículos automotores, bem como aquelas voltadas à prestação de serviços de logística, armazenagem ou integração multimodal, Transportes Coletivos de Passageiros Urbanos, Metropolitanos, inclusive em Automóvel de Aluguel (Táxi), Guardadores de Automóveis, Empregados de Agências e Estações Rodoviárias, Transportes de Passageiros por Fretamento (Turismo e Escolares); EMPRESAS INDUSTRIAIS: Indústrias da Alimentação (Inclusive Indústrias do Açúcar, Álcool), Indústrias do Vestuário, Indústrias da Construção e do Mobiliário, Indústrias Urbanas (Inclusive Energia Elétrica, Água, Esgoto, Saneamento), Indústrias Extrativas, Indústrias de Fiação e Tecelagem, Indústrias de Artefatos de Couro, Indústrias de Artefatos de Borracha, Indústrias de Joalherias e Lapidação de Pedras Preciosas, Indústrias Químicas e Farmacêuticas (Inclusive da Fabricação do Álcool), Indústrias do Papel, Papelão e Cortiça, Indústrias Gráficas, Indústrias de Vidros, Cristais, Espelhos, Cerâmica de Louça e Porcelana, Indústrias de Instrumentos Musicais e de Brinquedos, Indústrias Cinematográficas, Indústrias de Beneficiamento, Indústrias de Artesanato em Geral e Indústrias Metalúrgicas, Mecânicas e do Material Elétrico; EMPRESAS DO COMÉRCIO E SERVIÇOS, Comércio Atacadista, Comércio Varejista, Agentes Autônomos do Comércio, Comércio Armazenador, Turismo e Hospitalidade, Empresas de Refeições Coletivas e Estabelecimentos de Serviços de Saúde; EMPRESAS DE COMUNICAÇÃO E PUBLICIDADE, Empresas de Comunicações, Empresas Jornalísticas, Empresas de Rádio e Televisão e Empresas de Publicidade; EMPRESAS DE CRÉDITO, Estabelecimentos Bancários, Empresas de Seguros Privados e Capitalização, Agentes Autônomos de Seguros Privados e de Crédito e Entidades de Previdência Privada; EMPRESAS DE EDUCAÇÃO E CULTURA, Estabelecimentos de Ensino, Empresa de Difusão Cultural e Artísticas, Estabelecimentos de Cultura Física e Estabelecimentos Hípicos, definidos na forma do quadro anexo do Art. 577 da CLT; EMPRESAS DE AGRICULTURA, Empregadores na Lavoura, Empregadores na Pecuária e Empregadores na Agroindústria e Produção Extrativa Rural, definidos na forma do Art. 1º das Portarias nºs 71 e 394 do MTPS; COOPERATIVAS EM GERAL, grupo constituído pelas Cooperativas de todos os setores econômicos</b>, com abrangência territorial em <b>Bom Sucesso do Sul/PR, Chopinzinho/PR, Clevelândia/PR, Coronel Domingos Soares/PR, Coronel Vivida/PR, Honório Serpa/PR, Itapejara d'Oeste/PR, Mangueirinha/PR, Mariópolis/PR, Palmas/PR, Pato Branco/PR, São João/PR, Saudade do Iguaçu/PR, Sulina/PR e Vitorino/PR</b>.
+                                                </label>
+                                                <br />
+                                    </p>
+
+                                        <center>
+                                            <br />
+                                            <b>
+                                                <label class="textogrupo">
+                                                    Disposições Gerais
+                                                    <br />
+                                                </label>
+                                            </b>
+                                        </center>
+                                            <center>
+                                                <b>
+                                                    <label class="textosubgrupo">
+                                                        Outras Disposições
+                                                        <br />
+                                                    </label>
+                                                </b>
+                                            </center>
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA TERCEIRA - COMISS&#195;O DE CONCILIA&#199;&#195;O PR&#201;VIA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p><span style="font-size: small;">3.1 - Fica Institu&iacute;da a Comiss&atilde;o de concilia&ccedil;&atilde;o Pr&eacute;via prevista na Lei 9.958/2000 formada no &acirc;mbito de suas representa&ccedil;&otilde;es e bases territoriais das entidades signat&aacute;rias.</span></p>
+<p><span style="font-size: small;">3.2 - A Comiss&atilde;o &eacute; organismo aut&ocirc;nomo em rela&ccedil;&atilde;o &agrave;s entidades sindicais e empresas, n&atilde;o possuindo personalidade jur&iacute;dica pr&oacute;pria, regendo-se pelas normas ora institu&iacute;das.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUARTA - ATRIBUI&#199;&#213;ES DA COMISS&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">4.1 - A Comiss&atilde;o de Concilia&ccedil;&atilde;o Pr&eacute;via tem por atribui&ccedil;&atilde;o, exclusivamente, a tentativa de concilia&ccedil;&atilde;o dos conflitos individuais do trabalho relacionados com os trabalhadores e as empresas representadas pelas entidades sindicais convenientes.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">4.2 - A Comiss&atilde;o n&atilde;o poder&aacute; adotar qualquer ju&iacute;zo de valor ou julgamento das quest&otilde;es debatidas entre as partes envolvidas.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">4.3 - A Comiss&atilde;o n&atilde;o tem poderes de arbitragem, limitando-se unicamente &agrave;s suas atribui&ccedil;&otilde;es conciliat&oacute;rias.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA QUINTA - COMPOSI&#199;&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">5.1 - A Comiss&atilde;o de concilia&ccedil;&atilde;o Pr&eacute;via ser&aacute; parit&aacute;ria, composta por pelo menos um representante indicado pela Diretoria do Sindicato Patronal e pelo menos um representante indicado pelo Presidente do Sindicato Profissional, com seus respectivos suplentes, mediante livre escolha de cada entidade sindical. Os representantes poder&atilde;o ser substitu&iacute;dos a qualquer tempo a crit&eacute;rio da entidade sindical que os representam.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA SEXTA - CONCILIADORES
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">6.1 - Os representantes indicados pelas entidades sindicais para comporem a Comiss&atilde;o de Concilia&ccedil;&atilde;o Pr&eacute;via ser&atilde;o denominados CONCILIADORES.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">6.2 -&nbsp;Os conciliadores poder&atilde;o ser remunerados pelas entidades sindicais que representam. Nesta hip&oacute;tese, a responsabilidade jur&iacute;dica ser&aacute; da entidade sindical respectiva, inclusive quanto a encargos fiscais e sociais.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">6.3 -&nbsp;Caso a comiss&atilde;o venha a ter recursos financeiros pr&oacute;prios para a remunera&ccedil;&atilde;o dos conciliadores, estes recursos ser&atilde;o repassados aos sindicatos convenientes para efetuar o pagamento da remunera&ccedil;&atilde;o.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA S&#201;TIMA - LOCAL DE FUNCIONAMENTO DA COMISS&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">7.1 - A comiss&atilde;o de concilia&ccedil;&atilde;o Pr&eacute;via ser&aacute; instalada na rua: Paran&aacute;, 502, 85501-074 Pato Branco - Paran&aacute;, local &nbsp;para sua exclusiva utiliza&ccedil;&atilde;o, e que permita seu funcionamento adequado.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">7.2 - A Comiss&atilde;o poder&aacute; realizar sess&otilde;es em outros locais, inclusive em outros Munic&iacute;pios das bases territoriais dos sindicatos convenientes, mediante acordo entre as partes.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">7.3 -&nbsp;Os sindicatos convenientes expedir&atilde;o editais comunicando aos seus representados e &agrave;s Autoridades competentes a constitui&ccedil;&atilde;o, finalidades, composi&ccedil;&atilde;o, local e hor&aacute;rio de funcionamento da Comiss&atilde;o.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA OITAVA - SESS&#213;ES DA COMISS&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">8.1 - As sess&otilde;es da comiss&atilde;o ser&atilde;o realizadas em dia e hora ajustados pelos seus conciliadores, dando-se ampla divulga&ccedil;&atilde;o aos trabalhadores e empresas interessados.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">8.2 - As sess&otilde;es ser&atilde;o destinadas exclusivamente &agrave;s partes envolvidas, facultando-se a presen&ccedil;a de dirigentes sindicais, advogados, assessores e demais pessoas credenciadas pelas entidades sindicais signat&aacute;rias.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">8.3 - A sess&atilde;o de concilia&ccedil;&atilde;o somente poder&aacute; ser realizada com a presen&ccedil;a parit&aacute;ria dos conciliadores.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">8.4 - No caso da aus&ecirc;ncia de conciliador a sess&atilde;o poder&aacute; ser adiada para data mais breve poss&iacute;vel, com a concord&acirc;ncia das partes interessadas.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">8.5 - A n&atilde;o realiza&ccedil;&atilde;o da sess&atilde;o dentro do prazo legal ou a frustra&ccedil;&atilde;o do acordo, gerar&aacute; uma declara&ccedil;&atilde;o de Concilia&ccedil;&atilde;o Frustrada, Artigo 625-D Par&aacute;grafo 2&ordm;.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA NONA - APRESENTA&#199;&#195;O DE DOCUMENTO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">13.1 - As partes poder&atilde;o apresentar documentos para exame da Comiss&atilde;o, como subs&iacute;dio ao procedimento conciliat&oacute;rio, ficando os mesmos &agrave; disposi&ccedil;&atilde;o das partes interessadas.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">13.2 - A procura&ccedil;&atilde;o, carta de preposto ou qualquer documento de representa&ccedil;&atilde;o ser&atilde;o arquivados pela comiss&atilde;o juntamente com a demanda e a ata da sess&atilde;o. A comiss&atilde;o, caso julgue necess&aacute;rio, poder&aacute; arquivar qualquer documento apresentado pelas partes.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA - CONCILIA&#199;&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">14.1 - A Comiss&atilde;o ter&aacute; ampla liberdade de conduzir os trabalhos de concilia&ccedil;&atilde;o entre as partes envolvidas, durante o prazo necess&aacute;rio ao bom desempenho de suas atribui&ccedil;&otilde;es.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">14.2 - No caso de &ecirc;xito da concilia&ccedil;&atilde;o, ser&aacute; lavrada Ata constando as condi&ccedil;&otilde;es do acordo, inclusive ressalvas. A Ata ser&aacute; assinada pelos membros da Comiss&atilde;o, empregado, empregador ou seu representante, advogados e dirigentes sindicais presentes. C&oacute;pia da Ata ser&aacute; entregue &agrave;s partes.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">14.3 - No termo de acordo dever&atilde;o ser consignadas multas e cl&aacute;usulas penais para o caso de seu descumprimento.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">14.4 - Poder&atilde;o ser consignadas na ata, resumidamente, observa&ccedil;&otilde;es solicitadas pelas partes, sobre os fatos da demanda.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA PRIMEIRA - ADVOGADO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">19.1 &ndash; Os empregados dever&atilde;o ser acompanhadas por advogado. O empregador poder&aacute; ser representado por preposto e poder&aacute; ser acompanhado por advogado com poderes expressos em procura&ccedil;&atilde;o, que possibilitem a efetiva&ccedil;&atilde;o de acordo.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">19.2 - O pagamento de honor&aacute;rios profissionais ser&aacute; de responsabilidade das partes, que os contrataram, sem a interfer&ecirc;ncia da Comiss&atilde;o, e ser&aacute; consignada na Ata, registrada a concord&acirc;ncia da parte interessada.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">19.3 - A empresa poder&aacute; se responsabilizar pelo pagamento dos honor&aacute;rios do advogado do trabalhador, como parte efetiva do acordo ou da transa&ccedil;&atilde;o.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA SEGUNDA - CONTRIBUI&#199;&#195;O DE DESPESAS E MANUTEN&#199;&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">20.1 - Sobre o valor estabelecido no acordo ser&aacute; pago pela empresa o percentual de 10% (dez por cento), limitado ao m&iacute;nimo de R$ 150,00 (cem e cinquenta reais) e ao m&aacute;ximo de R$ 500,00 (quinhentos reais), custeado integralmente pelo Empregador, a titulo de Contribui&ccedil;&atilde;o de Despesas e Manuten&ccedil;&atilde;o, em favor da Comiss&atilde;o MultiSindical de Concilia&ccedil;&atilde;o Pr&eacute;via de Pato Branco.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">20.2 - O valor da Contribui&ccedil;&atilde;o de Despesas e Manuten&ccedil;&atilde;o constar&aacute; da Ata e dever&aacute; ser pago no ato do acordo, mediante o fornecimento de recibo pela Comiss&atilde;o MultiSindical de Concilia&ccedil;&atilde;o Pr&eacute;via de Pato Branco.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">20.3 - Os valores de manuten&ccedil;&atilde;o previstos nesta cl&aacute;usula poder&atilde;o ser alterados a qualquer tempo, de comum acordo entre as partes.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA TERCEIRA - APRESENTA&#199;&#195;O DE DEMANDA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p>9.1 - A demanda ser&aacute; formulada por escrito pelo empregado interessado ou por advogado constitu&iacute;do, sempre com a assinatura do trabalhador ou seu procurador, entregue &agrave; comiss&atilde;o, que dar&aacute; recibo em c&oacute;pia.</p>
+<p style="text-align: justify;"><span style="font-size: small;">9.2 - A demanda ap&oacute;s ser protocolada, o empregado ou seu advogado constitu&iacute;do ficar&aacute; com c&oacute;pia da mesma.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">9.3 - O Sindicato Profissional disponibilizar&aacute; assessoria jur&iacute;dica ao empregado, para orientar e/ou elaborar o pedido, quando solicitado, aplicando-se a regra do item 19.2 da Cl&aacute;usula d&eacute;cima nona deste instrumento, quanto ao pagamento de honor&aacute;rios profissionais.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">9.4 - A demanda receber&aacute; n&uacute;mero de ordem e de ano, sendo registrada em arquivo especifico, com o nome endere&ccedil;o das partes.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">9.5 - O empregador, por si ou seu representante legal, poder&aacute; apresentar demanda, ap&oacute;s homologa&ccedil;&atilde;o da rescis&atilde;o do contrato de trabalho, inclusive em demiss&atilde;o por justa causa, na forma do Artigo 20 deste instrumento, aplicando-se, no que couberem, os procedimentos aqui previstos.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">9.6 - A consigna&ccedil;&atilde;o em pagamento poder&aacute; ser processada na Comiss&atilde;o de Concilia&ccedil;&atilde;o Pr&eacute;via, por&eacute;m o dep&oacute;sito referente dever&aacute; ser feito em ag&ecirc;ncia banc&aacute;ria, conforme previsto no C&oacute;digo de Processo Civil Brasileiro.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA QUARTA - REMESSA DA DEMANDA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">10.1 - A demanda ser&aacute; remetida pela Comiss&atilde;o &agrave; Empresa com aviso de recebimento postal, ou entregue diretamente mediante protocolo, atrav&eacute;s de notifica&ccedil;&atilde;o espec&iacute;fica, ou, ainda, por qualquer outro meio que comprove seu recebimento.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">10.2 -&nbsp;Caso a empresa n&atilde;o venha a ser localizada, n&atilde;o poder&aacute; ser notificada por edital, e ap&oacute;s dilig&ecirc;ncias realizadas pela comiss&atilde;o ser&aacute; expedindo a certid&atilde;o negativa para os fins previstos na Lei 9.958/2000.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA QUINTA - PRAZO PARA REALIZA&#199;&#195;O DA SESS&#195;O DE CONCILIA&#199;&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">11.1 - A sess&atilde;o de concilia&ccedil;&atilde;o ser&aacute; designada no prazo m&aacute;ximo de dez dias contados a partir do primeiro dia &uacute;til ap&oacute;s a apresenta&ccedil;&atilde;o da demanda &agrave; Comiss&atilde;o. No caso do &uacute;ltimo dia recair em S&aacute;bado, Domingo ou feriado, haver&aacute; prorroga&ccedil;&atilde;o autom&aacute;tica do prazo referido para o primeiro dia &uacute;til seguinte.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">11.2 -&nbsp;Os prazos iniciar&atilde;o sempre em dia &uacute;til na forma da Lei Processual.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA SEXTA - REALIZA&#199;&#195;O DA SESS&#195;O DE CONCILIA&#199;&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">12.1 - &Eacute; obrigat&oacute;ria a presen&ccedil;a parit&aacute;ria dos membros da Comiss&atilde;o para a realiza&ccedil;&atilde;o, da sess&atilde;o de concilia&ccedil;&atilde;o. Na qual dever&atilde;o estar presentes o trabalhador interessado, e seus representantes, com seu advogado constitu&iacute;do, se houver, e o empregador ou seus representantes, conforme cl&aacute;usula 18.1.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">12.2 - No caso de solicita&ccedil;&atilde;o de adiamento por parte do trabalhador ou do empregador, a Comiss&atilde;o poder&aacute; adiar a sess&atilde;o, desde que a parte contr&aacute;ria concorde expressamente.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">12.3 - No caso da aus&ecirc;ncia de ambas as partes, o pedido ser&aacute; arquivado. No caso de aus&ecirc;ncia do empregador ser&aacute; expedida ata negativa, declarando a frustra&ccedil;&atilde;o da tentativa conciliat&oacute;ria. E n&atilde;o comparecendo o empregado, a demanda ser&aacute; arquivada, devendo o mesmo formular novo pedido a fim de obter certid&atilde;o para ser juntada em eventual reclamat&oacute;ria trabalhista.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">12.4 - Ocorrendo motivo de for&ccedil;a maior, poder&aacute; a Comiss&atilde;o adiar a sess&atilde;o independente de consulta &agrave; parte presente.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA S&#201;TIMA - ALTERA&#199;&#213;ES
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">25.1 - As altera&ccedil;&otilde;es nesta Conven&ccedil;&atilde;o Coletiva de Trabalho poder&atilde;o ser efetivadas a qualquer tempo por consenso entre as entidades signat&aacute;rias, decorrentes de quest&otilde;es relativas ao funcionamento da Comiss&atilde;o de concilia&ccedil;&atilde;o Pr&eacute;via, mediante Termo Aditivo.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA OITAVA - COMISS&#195;O DE CONCILIA&#199;&#195;O PR&#201;VIA NA EMPRESA
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">26.1 - No caso de cria&ccedil;&atilde;o de Comiss&atilde;o de Concilia&ccedil;&atilde;o Pr&eacute;via no &acirc;mbito de qualquer das empresas representadas pelo Sindicato da Categoria Econ&ocirc;mica ser&aacute; a mesma constitu&iacute;da juntamente com o Sindicato Profissional, sendo estabelecidas as regras constitutivas em consenso pelas partes, observadas, no que couber, as normas da presente Conven&ccedil;&atilde;o. Garantido-se a estabilidade no emprego a teor par&aacute;grafo 1&ordm; do Artigo 625-A, da CLT, aos representantes dos empregados, por 01 (um) ano ap&oacute;s o vencimento da estabilidade legal.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA D&#201;CIMA NONA - IMPOSSIBILIDADE DE CONCILIA&#199;&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">15.1 - N&atilde;o sendo poss&iacute;vel a concilia&ccedil;&atilde;o, ser&aacute; lavrada Ata registrando a presen&ccedil;a das partes, ou a aus&ecirc;ncia de uma ou ambas, assim como outras observa&ccedil;&otilde;es que a Comiss&atilde;o julgar pertinentes. C&oacute;pia da Ata ser&aacute; entregue &agrave;s partes presentes.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA - CUMPRIMENTO DO ACORDO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">16.1 - Poder&atilde;o ser estabelecidas condi&ccedil;&otilde;es vincendas a serem cumpridas perante a Comiss&atilde;o, ficando fixadas as conseq&uuml;&ecirc;ncias pelo descumprimento da obriga&ccedil;&atilde;o assumida, inclusive prazo de cumprimento e forma de pagamento.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">16.2 - N&atilde;o sendo denunciado a falta do cumprimento da obriga&ccedil;&atilde;o no prazo estipulado em Ata, a mesma ser&aacute; tida como cumprida.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA PRIMEIRA - ARQUIVAMENTO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p><span style="font-size: small;">17.1 - Encerrado o procedimento da concilia&ccedil;&atilde;o, a Ata e demais documentos ser&atilde;o arquivados pela Comiss&atilde;o.&nbsp;</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA SEGUNDA - PRESEN&#199;A DE PREPOSTO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p><span style="font-size: small;">18.1 - O empregador poder&aacute; ser representado por preposto indicado em Carta de Preposi&ccedil;&atilde;o, com poderes expressos para realizar acordo e assumir demais obriga&ccedil;&otilde;es perante a Comiss&atilde;o.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA TERCEIRA - ASSINATURA E CONCLUS&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">27.1 - E por assim estarem justos e contratados assinam o presente instrumento de Conven&ccedil;&atilde;o Coletiva de Trabalho, em 03 (tr&ecirc;s) vias de igual teor e forma, comprometendo-se a depositar 02 (duas) via para fins de arquivo e registro na Delegacia Regional do Trabalho do Estado do Paran&aacute;, nos termos do artigo 614, da CLT. E de seu conte&uacute;do dar a mais ampla publicidade, para o perfeito e completo conhecimento dos empregados e empregadores abrangidos.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA QUARTA - REPRESENTA&#199;&#195;O SETCSUPAR PELO SINDI COM&#201;RCIO DE PATO BRANCO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">28.1 - O SINDICATO PATRONAL DO COM&Eacute;RCIO VAREJISTA DE PATO BRANCO SINDICOM&Eacute;RCIO ser&aacute; o representante do SINDICATO DAS EMPRESAS DE TRANSPORTE DE CARGAS DO SUDOESTE DO PARAN&Aacute; - SETCSUPAR na Comiss&atilde;o de Concilia&ccedil;&atilde;o Pr&eacute;via, inclusive na indica&ccedil;&atilde;o dos conciliadores, recep&ccedil;&atilde;o da taxa de manuten&ccedil;&atilde;o, e na ado&ccedil;&atilde;o de todas as medidas necess&aacute;rias para o regular funcionamento da mesma. Em concord&acirc;ncia &agrave; representa&ccedil;&atilde;o, o referido sindicato, por seu presidente, subscreve este instrumento na qualidade de anuente.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA QUINTA - FUNCIONAMENTO E MANUTEN&#199;&#195;O DA COMISS&#195;O
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">21.1 - A Comiss&atilde;o ter&aacute; seu funcionamento garantido pelas entidades signat&aacute;rias, atrav&eacute;s de normas fixadas em regimento ou normas internas, estabelecidas pelas partes convenientes.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA SEXTA - RESCIS&#213;ES DOS CONTRATOS DE TRABALHO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p><span style="font-size: small;">22.1 - A Comiss&atilde;o n&atilde;o tem poderes para rescindir contratos de trabalho, nem oferecer assist&ecirc;ncia ao ato rescis&oacute;rio, privativo da Entidade Sindical Profissional a teor do Artigo 477 da CLT.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA S&#201;TIMA - ARQUIVO E CADASTRO
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p><span style="font-size: small;">23.1 - A Comiss&atilde;o manter&aacute; arquivo dos Acordos e Conven&ccedil;&otilde;es Coletivas de Trabalho do setor econ&ocirc;mico/profissional dos &uacute;ltimos 05 (cinco) anos.</span></p>
+<p><span style="font-size: small;">23.2 - A Comiss&atilde;o manter&aacute; cadastro com a rela&ccedil;&atilde;o e endere&ccedil;o das empresas abrangidas.</span></p>
+                                                </label>
+                                                <br />
+                                                <label class="tituloClausula">
+                                                    <b>
+                                                        <br />
+                                                        CL&#193;USULA VIG&#201;SIMA OITAVA - PENALIDADES
+                                                        <br />
+                                                                                                                                                                                                                                                                                        
+                                                    </b>
+                                                </label>
+                                                <br />
+                                                <label class="descricaoClausula" >
+                                                    <p style="text-align: justify;"><span style="font-size: small;">24.1 - No caso de n&atilde;o cumprimento do acordo efetivado entre os litigantes perante a Comiss&atilde;o de Concilia&ccedil;&atilde;o Pr&eacute;via, a parte infringente pagar&aacute; uma multa em percentual a ser estipulado em comum acordo entre as partes envolvidas, sobre o valor do acordo, com vencimento antecipado das parcelas vincendas.</span></p>
+<p style="text-align: justify;"><span style="font-size: small;">24.2 - No caso da Empresa que foi comprovadamente notificada n&atilde;o comparecer na sess&atilde;o de concilia&ccedil;&atilde;o, fica estipulado o pagamento de uma multa em favor do empregado na quantia de 1 (um) sal&aacute;rio base da categoria a qual estiver o empregado registrado, em eventual a&ccedil;&atilde;o trabalhista a ser proposta.</span></p>
+                                                </label>
+                                                <br />
+                                    }
+                                    <br />
+                                    <table border="0" cellpadding="0" cellspacing="0" align="center">
+                                        <tr>
+                                            <td align="center">
+                                                    <br />
+    <br />
+    <label class="textonome">
+        FERNANDO LUNARDI
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SIND DOS MOTORISTAS, CONDUT. DE VEIC. RODOV URBANOS E EM GERAL, TRAB.TRANSP. ROD. PBCO
+        <br />
+        <br />
+    </label>
+
+    <br />
+    <br />
+    <label class="textonome">
+        ULISSES PIVA
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SINDICATO PATRONAL DO COMERCIO VAREJISTA DE PATO BRANCO
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        LEANDRO PORTELA CATANI
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SIND.DAS EMP.DE TRANSP.COLET.ROD.DE PASSAG.INTERESTADUAIS INTERMUNICIPAIS,URBANO TURISMO E FRET.DO SUD.DO EST.DO PR
+        <br />
+        <br />
+    </label>
+    <br />
+    <br />
+    <label class="textonome">
+        LUIZ CARLOS D AGOSTINI
+        <br style="height: 5px" />
+        Presidente
+        <br style="height: 5px" />
+        SINDICATO DAS EMPRESAS DE TRANSPORTE DE CARGAS DO SUDOESTE DO PARANA - SETCSUPAR
+        <br />
+        <br />
+    </label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                        <br />
+                                        <center>
+                                            <label class="textogrupo">
+                                                <b>ANEXOS </b>
+                                            </label>
+                                        </center>
+                                                        <label>
+                                                            <b>
+                                                                <center>
+                                                                    <label class="textogrupo">
+                                                                        ANEXO I - ATA ASSEMBLEIA DO SINDICATO DOS RODOVI&#193;RIOS DE PATO BRANCO
+                                                                    </label>
+                                                                </center>
+                                                                <label class="tituloClausula">
+                                                                                                                                    </label>
+                                                            </b>
+                                                        </label>
+                                                        <b>
+                                                            <label>
+
+                                                            </label>
+                                                        </b>
+                                                        <br />
+                                                        <label class="descricaoClausula" >
+                                                            <p><a href="https://www3.mte.gov.br/sistemas/mediador/imagemAnexo/MR072404_20242024_12_09T14_36_43.pdf" target="_blank">Anexo (PDF)</a></p>
+                                                        </label>
+                                                        <br />
+                                        <!--****************************************** FIM - Anexos ******************************************-->
+                                            <label class="texto">
+                                                &#160;&#160;&#160;&#160;A autenticidade deste documento poderá ser confirmada na
+                                                página do Ministerio do Trabalho e Emprego na Internet, no endereço http://www.mte.gov.br.
+                                            </label>
+                                            <br />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </div>
+</body>
+<script>
+    setTimeout(function () {
+        window.history.replaceState({}, '', window.location.pathname);
+    }, 0);
+</script>
+</html>

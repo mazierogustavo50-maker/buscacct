@@ -1,0 +1,130 @@
+{% extends "cctdashboard/base.html" %}
+{% block title %}{{ sindicato.nome }} - Sindicato{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:lista_sindicatos' %}">Sindicatos</a></li>
+        <li class="breadcrumb-item active">{{ sindicato.codigo }}</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white fw-bold">
+                <i class="bi bi-info-circle-fill me-2"></i>Detalhes do Sindicato
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Código</dt>
+                    <dd class="col-sm-7">{{ sindicato.codigo }}</dd>
+                    <dt class="col-sm-5">Nome</dt>
+                    <dd class="col-sm-7">{{ sindicato.nome }}</dd>
+                    <dt class="col-sm-5">CNPJ</dt>
+                    <dd class="col-sm-7">{{ sindicato.cnpj|default:"-" }}</dd>
+                    <dt class="col-sm-5">Documentos</dt>
+                    <dd class="col-sm-7">{{ sindicato.documentos.count }}</dd>
+                    <dt class="col-sm-5">Empresas</dt>
+                    <dd class="col-sm-7">{{ empresas|length }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-building me-2 text-success"></i>Empresas Vinculadas</span>
+                <span class="badge bg-secondary">{{ empresas|length }}</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Código</th>
+                                <th>Nome</th>
+                                <th class="text-end">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for empresa in empresas %}
+                            <tr>
+                                <td>{{ empresa.codigo }}</td>
+                                <td>{{ empresa.nome }}</td>
+                                <td class="text-end">
+                                    <a href="{% url 'cctdashboard:detalhe_empresa' empresa.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye me-1"></i>Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-3">Nenhuma empresa vinculada.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-files me-2 text-info"></i>Documentos CCT</span>
+                <span class="badge bg-secondary">{{ documentos.count }}</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Início Vigência</th>
+                                <th>Fim Vigência</th>
+                                <th>Status</th>
+                                <th class="text-end">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doc in documentos %}
+                            <tr>
+                                <td>
+                                    {% if doc.tipo == "CCT" %}
+                                        <span class="badge bg-primary">CCT</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">TA-CCT</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ doc.data_inicio_vigencia|date:"d/m/Y"|default:"-" }}</td>
+                                <td>{{ doc.data_fim_vigencia|date:"d/m/Y"|default:"-" }}</td>
+                                <td>
+                                    {% if doc.status_extracao == "EXTRAIDO" %}
+                                        <span class="badge bg-success">Extraído</span>
+                                    {% elif doc.status_extracao == "ERRO" %}
+                                        <span class="badge bg-danger">Erro</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Pendente</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'cctdashboard:detalhe_documento' doc.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye me-1"></i>Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-3">Nenhum documento encontrado.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
