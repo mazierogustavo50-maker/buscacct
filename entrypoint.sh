@@ -18,5 +18,8 @@ else:
     print('Superusuário já existe.')
 "
 
+# Cria diretórios necessários (incluindo data/ para o volume persistente)
+mkdir -p /app/data /app/media /app/convencoes /app/dados /app/temp_dl
+
 echo "Iniciando aplicação..."
 exec "$@"

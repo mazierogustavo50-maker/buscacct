@@ -7,7 +7,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./db.sqlite3:/app/db.sqlite3
+      - buscacct_data:/app/data
       - ./convencoes:/app/convencoes
       - ./dados:/app/dados
       - ./media:/app/media
@@ -15,4 +15,10 @@ services:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-django-insecure-change-me-in-production}
       - DJANGO_DEBUG=${DJANGO_DEBUG:-False}
       - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-*}
+      - DJANGO_CSRF_COOKIE_SECURE=${DJANGO_CSRF_COOKIE_SECURE:-True}
+      - DJANGO_SESSION_COOKIE_SECURE=${DJANGO_SESSION_COOKIE_SECURE:-True}
     restart: unless-stopped
+
+volumes:
+  buscacct_data:
+    driver: local
