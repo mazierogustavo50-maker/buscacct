@@ -13,8 +13,17 @@
 <div class="row g-4">
     <div class="col-lg-4">
         <div class="card shadow-sm h-100">
-            <div class="card-header bg-success text-white fw-bold">
-                <i class="bi bi-info-circle-fill me-2"></i>Detalhes da Empresa
+            <div class="card-header bg-success text-white fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-info-circle-fill me-2"></i>Detalhes da Empresa</span>
+                <div class="dropdown">
+                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Ações
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'cctdashboard:editar_empresa' empresa.pk %}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'cctdashboard:excluir_empresa' empresa.pk %}"><i class="bi bi-trash me-2"></i>Excluir</a></li>
+                    </ul>
+                </div>
             </div>
             <div class="card-body">
                 <dl class="row mb-0">
@@ -55,9 +64,6 @@
                                 <td class="text-end">
                                     <a href="{% url 'cctdashboard:detalhe_sindicato' sindicato.pk %}" class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-eye me-1"></i>Ver
-                                    </a>
-                                    <a href="{% url 'cctdashboard:lista_documentos' %}?sindicato={{ sindicato.pk }}" class="btn btn-sm btn-outline-info">
-                                        <i class="bi bi-files me-1"></i>Documentos
                                     </a>
                                 </td>
                             </tr>

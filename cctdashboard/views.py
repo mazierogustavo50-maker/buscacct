@@ -1,13 +1,16 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.http import FileResponse, Http404
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from pathlib import Path
+import pandas as pd
 
 from cctcore.models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT
 from cctbuscador.models import ExecucaoScraper
+from .forms import SindicatoForm, EmpresaForm, ImportarSindicatosForm, ImportarEmpresasForm
 
 
 @login_required
@@ -87,6 +90,108 @@ def detalhe_sindicato(request, pk):
 
 
 @login_required
+def criar_sindicato(request):
+    if request.method == "POST":
+        form = SindicatoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Sindicato cadastrado com sucesso.")
+            return redirect("cctdashboard:lista_sindicatos")
+    else:
+        form = SindicatoForm()
+    return render(request, "cctdashboard/form_sindicato.html", {"form": form, "titulo": "Novo Sindicato"})
+
+
+@login_required
+def editar_sindicato(request, pk):
+    sindicato = get_object_or_404(Sindicato, pk=pk)
+    if request.method == "POST":
+        form = SindicatoForm(request.POST, instance=sindicato)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Sindicato atualizado com sucesso.")
+            return redirect("cctdashboard:detalhe_sindicato", pk=pk)
+    else:
+        form = SindicatoForm(instance=sindicato)
+    return render(request, "cctdashboard/form_sindicato.html", {"form": form, "titulo": "Editar Sindicato", "sindicato": sindicato})
+
+
+@login_required
+def excluir_sindicato(request, pk):
+    sindicato = get_object_or_404(Sindicato, pk=pk)
+    if request.method == "POST":
+        sindicato.delete()
+        messages.success(request, "Sindicato excluído com sucesso.")
+        return redirect("cctdashboard:lista_sindicatos")
+    return render(request, "cctdashboard/confirmar_exclusao.html", {
+        "objeto": sindicato,
+        "tipo": "sindicato",
+        "voltar_url": "cctdashboard:detalhe_sindicato",
+        "voltar_pk": pk,
+    })
+
+
+@login_required
+def importar_sindicatos(request):
+    if request.method == "POST":
+        form = ImportarSindicatosForm(request.POST, request.FILES)
+        if form.is_valid():
+            arquivo = request.FILES["arquivo"]
+            try:
+                df = pd.read_excel(arquivo, dtype=str)
+                df.columns = [str(c).strip().lower().replace(" ", "").replace("_", "").replace("-", "") for c in df.columns]
+
+                # Mapeamento flexível de colunas
+                col_codigo = next((c for c in df.columns if c in ("codigo", "codigosindicato", "codsindicato", "cod")), None)
+                col_nome = next((c for c in df.columns if c in ("nome", "nomesindicato", "nomedosindicato", "sindicato")), None)
+                col_cnpj = next((c for c in df.columns if c in ("cnpj", "cnpjsindicato", "cnpjdosindicato")), None)
+
+                if not col_codigo or not col_nome:
+                    messages.error(request, "O arquivo deve conter as colunas: código e nome do sindicato.")
+                    return render(request, "cctdashboard/importar_sindicatos.html", {"form": form})
+
+                criados = 0
+                atualizados = 0
+                erros = []
+
+                for idx, row in df.iterrows():
+                    try:
+                        codigo = str(row[col_codigo]).strip() if pd.notna(row[col_codigo]) else ""
+                        nome = str(row[col_nome]).strip() if pd.notna(row[col_nome]) else ""
+                        cnpj = str(row[col_cnpj]).strip() if col_cnpj and pd.notna(row[col_cnpj]) else ""
+                        if not codigo or not nome:
+                            continue
+
+                        # Remove formatação do CNPJ
+                        cnpj = "".join(filter(str.isdigit, cnpj))
+
+                        obj, created = Sindicato.objects.update_or_create(
+                            codigo=codigo,
+                            defaults={"nome": nome, "cnpj": cnpj},
+                        )
+                        if created:
+                            criados += 1
+                        else:
+                            atualizados += 1
+                    except Exception as e:
+                        erros.append(f"Linha {idx + 2}: {e}")
+
+                msg = f"Importação concluída. Criados: {criados}, Atualizados: {atualizados}."
+                if erros:
+                    msg += f" Erros: {len(erros)}."
+                messages.success(request, msg)
+                if erros:
+                    for erro in erros[:10]:
+                        messages.warning(request, erro)
+                return redirect("cctdashboard:lista_sindicatos")
+            except Exception as e:
+                messages.error(request, f"Erro ao processar arquivo: {e}")
+    else:
+        form = ImportarSindicatosForm()
+    return render(request, "cctdashboard/importar_sindicatos.html", {"form": form})
+
+
+@login_required
 def lista_empresas(request):
     queryset = Empresa.objects.all()
     q = request.GET.get("q", "").strip()
@@ -120,6 +225,126 @@ def detalhe_empresa(request, pk):
         "sindicatos": sindicatos,
     }
     return render(request, "cctdashboard/detalhe_empresa.html", context)
+
+
+@login_required
+def criar_empresa(request):
+    if request.method == "POST":
+        form = EmpresaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Empresa cadastrada com sucesso.")
+            return redirect("cctdashboard:lista_empresas")
+    else:
+        form = EmpresaForm()
+    return render(request, "cctdashboard/form_empresa.html", {"form": form, "titulo": "Nova Empresa"})
+
+
+@login_required
+def editar_empresa(request, pk):
+    empresa = get_object_or_404(Empresa, pk=pk)
+    if request.method == "POST":
+        form = EmpresaForm(request.POST, instance=empresa)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Empresa atualizada com sucesso.")
+            return redirect("cctdashboard:detalhe_empresa", pk=pk)
+    else:
+        form = EmpresaForm(instance=empresa)
+    return render(request, "cctdashboard/form_empresa.html", {"form": form, "titulo": "Editar Empresa", "empresa": empresa})
+
+
+@login_required
+def excluir_empresa(request, pk):
+    empresa = get_object_or_404(Empresa, pk=pk)
+    if request.method == "POST":
+        empresa.delete()
+        messages.success(request, "Empresa excluída com sucesso.")
+        return redirect("cctdashboard:lista_empresas")
+    return render(request, "cctdashboard/confirmar_exclusao.html", {
+        "objeto": empresa,
+        "tipo": "empresa",
+        "voltar_url": "cctdashboard:detalhe_empresa",
+        "voltar_pk": pk,
+    })
+
+
+@login_required
+def importar_empresas(request):
+    if request.method == "POST":
+        form = ImportarEmpresasForm(request.POST, request.FILES)
+        if form.is_valid():
+            arquivo = request.FILES["arquivo"]
+            try:
+                df = pd.read_excel(arquivo, dtype=str)
+                df.columns = [str(c).strip().lower().replace(" ", "").replace("_", "").replace("-", "") for c in df.columns]
+
+                col_codempresa = next((c for c in df.columns if c in ("codempresa", "codigoempresa", "codigo", "codemp")), None)
+                col_nomeempresa = next((c for c in df.columns if c in ("nomeempresa", "nome", "empresa", "razaosocial")), None)
+                col_cods1 = next((c for c in df.columns if c in ("codsindicato", "codsindicato1", "sindicato1", "sindicato")), None)
+                col_cods2 = next((c for c in df.columns if c in ("codsindicato2", "sindicato2")), None)
+                col_cods3 = next((c for c in df.columns if c in ("codsindicato3", "sindicato3")), None)
+
+                if not col_codempresa or not col_nomeempresa:
+                    messages.error(request, "O arquivo deve conter as colunas: codempresa e nomeempresa.")
+                    return render(request, "cctdashboard/importar_empresas.html", {"form": form})
+
+                criados = 0
+                atualizados = 0
+                erros = []
+
+                for idx, row in df.iterrows():
+                    try:
+                        codigo = str(row[col_codempresa]).strip() if pd.notna(row[col_codempresa]) else ""
+                        nome = str(row[col_nomeempresa]).strip() if pd.notna(row[col_nomeempresa]) else ""
+                        if not codigo or not nome:
+                            continue
+
+                        empresa, created = Empresa.objects.update_or_create(
+                            codigo=codigo,
+                            defaults={"nome": nome},
+                        )
+                        if created:
+                            criados += 1
+                        else:
+                            atualizados += 1
+
+                        # Vínculos com sindicatos
+                        codigos_sind = []
+                        for col in (col_cods1, col_cods2, col_cods3):
+                            if col and pd.notna(row[col]):
+                                val = str(row[col]).strip()
+                                if val:
+                                    codigos_sind.append(val)
+
+                        # Remove duplicados mantendo ordem
+                        codigos_sind = list(dict.fromkeys(codigos_sind))
+
+                        # Sincroniza vínculos
+                        EmpresaSindicato.objects.filter(empresa=empresa).delete()
+                        for cod_sind in codigos_sind:
+                            try:
+                                sindicato = Sindicato.objects.get(codigo=cod_sind)
+                                EmpresaSindicato.objects.get_or_create(empresa=empresa, sindicato=sindicato)
+                            except Sindicato.DoesNotExist:
+                                erros.append(f"Linha {idx + 2}: sindicato código '{cod_sind}' não encontrado.")
+
+                    except Exception as e:
+                        erros.append(f"Linha {idx + 2}: {e}")
+
+                msg = f"Importação concluída. Criadas: {criados}, Atualizadas: {atualizados}."
+                if erros:
+                    msg += f" Avisos: {len(erros)}."
+                messages.success(request, msg)
+                if erros:
+                    for erro in erros[:10]:
+                        messages.warning(request, erro)
+                return redirect("cctdashboard:lista_empresas")
+            except Exception as e:
+                messages.error(request, f"Erro ao processar arquivo: {e}")
+    else:
+        form = ImportarEmpresasForm()
+    return render(request, "cctdashboard/importar_empresas.html", {"form": form})
 
 
 @login_required

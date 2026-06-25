@@ -13,8 +13,17 @@
 <div class="row g-4">
     <div class="col-lg-4">
         <div class="card shadow-sm h-100">
-            <div class="card-header bg-primary text-white fw-bold">
-                <i class="bi bi-info-circle-fill me-2"></i>Detalhes do Sindicato
+            <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-info-circle-fill me-2"></i>Detalhes do Sindicato</span>
+                <div class="dropdown">
+                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Ações
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'cctdashboard:editar_sindicato' sindicato.pk %}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'cctdashboard:excluir_sindicato' sindicato.pk %}"><i class="bi bi-trash me-2"></i>Excluir</a></li>
+                    </ul>
+                </div>
             </div>
             <div class="card-body">
                 <dl class="row mb-0">
