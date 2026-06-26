@@ -459,7 +459,7 @@ def executar_scraper(request):
 @login_required
 @require_POST
 def abortar_scraper(request, pk):
-    """Marca execução para abortar e tenta matar o processo."""
+    """Marca execução para abortar e mata o processo e todos os filhos (Chrome)."""
     execucao = get_object_or_404(ExecucaoScraper, pk=pk)
 
     if execucao.status != ExecucaoScraper.STATUS_EM_ANDAMENTO:
@@ -471,18 +471,61 @@ def abortar_scraper(request, pk):
 
     if execucao.pid:
         try:
+            import psutil
             import signal
-            os.kill(execucao.pid, signal.SIGTERM)
-            messages.success(request, f"Sinal de término enviado para o processo {execucao.pid}. O scraper será abortado no próximo ciclo de verificação.")
-        except ProcessLookupError:
+            parent = psutil.Process(execucao.pid)
+            # Mata todos os filhos primeiro (Chrome, chromedriver)
+            children = parent.children(recursive=True)
+            for child in children:
+                try:
+                    child.terminate()
+                except psutil.NoSuchProcess:
+                    pass
+            # Espera até 3s para os filhos morrerem
+            gone, alive = psutil.wait_procs(children, timeout=3)
+            for p in alive:
+                try:
+                    p.kill()
+                except psutil.NoSuchProcess:
+                    pass
+            # Manda SIGTERM para o processo pai
+            try:
+                parent.terminate()
+                parent.wait(timeout=3)
+            except psutil.TimeoutExpired:
+                parent.kill()
+                parent.wait(timeout=3)
+            except psutil.NoSuchProcess:
+                pass
+            # Atualiza status no banco já que o processo foi morto
+            execucao.status = ExecucaoScraper.STATUS_ABORTADO
+            execucao.data_fim = timezone.now()
+            execucao.save(update_fields=["status", "data_fim"])
+            messages.success(
+                request,
+                f"Execução #{execucao.id} abortada. Processo {execucao.pid} e {len(children)} filho(s) finalizado(s)."
+            )
+        except psutil.NoSuchProcess:
             # Processo já morreu
             execucao.status = ExecucaoScraper.STATUS_ABORTADO
             execucao.data_fim = timezone.now()
             execucao.save(update_fields=["status", "data_fim"])
             messages.warning(request, f"Processo {execucao.pid} já havia finalizado. Execução marcada como abortada.")
             return redirect("cctdashboard:detalhe_execucao", pk=pk)
+        except ImportError:
+            # Fallback sem psutil
+            import signal
+            try:
+                os.kill(execucao.pid, signal.SIGTERM)
+                messages.success(request, f"Sinal de término enviado para o processo {execucao.pid}.")
+            except ProcessLookupError:
+                execucao.status = ExecucaoScraper.STATUS_ABORTADO
+                execucao.data_fim = timezone.now()
+                execucao.save(update_fields=["status", "data_fim"])
+                messages.warning(request, f"Processo {execucao.pid} já havia finalizado. Execução marcada como abortada.")
+                return redirect("cctdashboard:detalhe_execucao", pk=pk)
         except Exception as e:
-            messages.error(request, f"Erro ao tentar matar o processo: {e}")
+            messages.error(request, f"Erro ao tentar abortar: {e}")
     else:
         messages.info(request, "Execução marcada para abortar. O processo será encerrado no próximo ciclo de verificação.")
 

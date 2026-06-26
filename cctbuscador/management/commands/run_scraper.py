@@ -103,9 +103,11 @@ def e_sindicato_ou_federacao(texto_parte):
     return False
 
 
-def aguardar_download(diretorio, timeout=40):
+def aguardar_download(diretorio, timeout=40, abortar_check=None):
     inicio = time.time()
     while time.time() - inicio < timeout:
+        if abortar_check and abortar_check():
+            return "__ABORTADO__"
         arquivos = [f for f in os.listdir(diretorio)
                     if not f.endswith('.crdownload') and not f.endswith('.tmp')]
         if arquivos:
@@ -200,6 +202,9 @@ def configurar_driver(headless=False):
     driver.execute_script(
         "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
     )
+    # Timeouts curtos para permitir abortamento rápido
+    driver.set_page_load_timeout(15)
+    driver.set_script_timeout(10)
     return driver
 
 
@@ -257,8 +262,8 @@ class Command(BaseCommand):
         try:
             execucao.log_texto = "\n".join(self.linhas_log)
             execucao.save(update_fields=["log_texto", "total_baixados", "total_ja_existentes", "total_nao_encontrados"])
-        except Exception:
-            pass
+        except Exception as e:
+            self.stdout.write(f"[AVISO] Falha ao salvar progresso: {e}")
 
     def handle(self, *args, **options):
         self.linhas_log = []
@@ -360,7 +365,7 @@ class Command(BaseCommand):
             # Acessar site
             try:
                 driver.get("https://www3.mte.gov.br/sistemas/mediador/ConsultarInstColetivo")
-                WebDriverWait(driver, 15).until(
+                WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.ID, "chkNRCNPJ"))
                 )
             except Exception as e:
@@ -415,7 +420,7 @@ class Command(BaseCommand):
             # Aguardar resultados
             encontrou_resultado = False
             try:
-                WebDriverWait(driver, 20).until(
+                WebDriverWait(driver, 10).until(
                     EC.visibility_of_element_located((By.ID, "divExibirConsultaDetalhada"))
                 )
                 encontrou_resultado = True
@@ -585,7 +590,13 @@ class Command(BaseCommand):
                         except Exception:
                             self.log("  Sem nova janela — download pode ser direto.")
 
-                        arq_baixado = aguardar_download(TEMP_DL_DIR, timeout=40)
+                        arq_baixado = aguardar_download(TEMP_DL_DIR, timeout=20, abortar_check=lambda: self._verificar_abortar(execucao))
+                        if arq_baixado == "__ABORTADO__":
+                            self.log("  [ABORTADO] Download interrompido por solicitação de abort.")
+                            execucao.status = ExecucaoScraper.STATUS_ABORTADO
+                            execucao.save(update_fields=["status"])
+                            driver.quit()
+                            return
                         if arq_baixado:
                             ext_arq = os.path.splitext(arq_baixado)[1].lower()
                             destino = os.path.join(DOWNLOAD_DIR, f"{nome_esperado}{ext_arq}")
@@ -680,9 +691,16 @@ class Command(BaseCommand):
                         num_pagina += 1
                         self.log(f"\n  [PAGINAÇÃO] Avançando para a página {num_pagina}...")
                         driver.execute_script("arguments[0].click();", btn_proxima)
-                        time.sleep(3)
+                        # Verifica abortar antes de dormir
+                        if self._verificar_abortar(execucao):
+                            self.log(f"\n[ABORTADO] Execução {execucao.id} marcada para abortar (paginação sleep). Encerrando...")
+                            execucao.status = ExecucaoScraper.STATUS_ABORTADO
+                            execucao.save(update_fields=["status"])
+                            driver.quit()
+                            return
+                        time.sleep(2)
                         try:
-                            WebDriverWait(driver, 15).until(
+                            WebDriverWait(driver, 10).until(
                                 EC.visibility_of_element_located((By.ID, "divExibirConsultaDetalhada"))
                             )
                         except Exception:
