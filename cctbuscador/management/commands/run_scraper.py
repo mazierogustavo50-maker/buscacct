@@ -238,26 +238,18 @@ class Command(BaseCommand):
         self.log(f"\nExecução {execucao.id} finalizada: {execucao.get_status_display()}")
 
     def processar(self, sindicato_codigo, headless, execucao):
-        # 1. Ler planilha CNPJs
-        try:
-            df = pd.read_excel(EXCEL_FILE)
-        except Exception as e:
-            self.log(f"[ERRO] Não foi possível ler {EXCEL_FILE}: {e}")
-            return
+        # 1. Buscar sindicatos do banco de dados
+        sindicatos = Sindicato.objects.all()
+        if sindicato_codigo:
+            sindicatos = sindicatos.filter(codigo=sindicato_codigo)
+            if not sindicatos.exists():
+                self.log(f"[AVISO] Nenhum sindicato encontrado com código '{sindicato_codigo}'.")
+                return
+            self.log(f"Filtrado por sindicato '{sindicato_codigo}': {sindicatos.count()} registro(s).")
+        else:
+            self.log(f"Sindicatos carregados do banco: {sindicatos.count()} registro(s).")
 
-        col_cnpj = next((c for c in df.columns if 'cnpj' in str(c).lower()), None)
-        col_sindicato = next((c for c in df.columns if 'sindicato' in str(c).lower()), None)
-
-        if not col_cnpj or not col_sindicato:
-            self.log("[ERRO] Colunas 'cnpj' ou 'sindicato' não encontradas.")
-            self.log(f"Colunas disponíveis: {df.columns.tolist()}")
-            return
-
-        self.log(f"Planilha lida com sucesso: {len(df)} linha(s).")
-        self.log(f"  Coluna CNPJ      : {col_cnpj}")
-        self.log(f"  Coluna Sindicato : {col_sindicato}\n")
-
-        # 1b. Carregar tabela de códigos
+        # 1b. Carregar tabela de códigos (fallback opcional)
         mapa_codigo = {}
         try:
             df_sis = pd.read_excel(SINDICATO_SIS_FILE)
@@ -274,14 +266,6 @@ class Command(BaseCommand):
         except Exception as e:
             self.log(f"[AVISO] Não foi possível ler sindicatosistema.xlsx: {e}")
 
-        # Se filtrar por sindicato, restringe DataFrame
-        if sindicato_codigo:
-            df = df[df[col_sindicato].astype(str).str.strip() == sindicato_codigo]
-            if df.empty:
-                self.log(f"[AVISO] Nenhum registro encontrado para sindicato '{sindicato_codigo}'.")
-                return
-            self.log(f"Filtrado por sindicato '{sindicato_codigo}': {len(df)} linha(s).")
-
         limpar_temp()
 
         rel_nao_encontrados = []
@@ -291,18 +275,17 @@ class Command(BaseCommand):
         self.log("Iniciando Chrome...")
         driver = configurar_driver(headless=headless)
 
-        for index, row in df.iterrows():
-            cnpj_raw = row[col_cnpj]
-            if pd.isna(cnpj_raw):
-                self.log(f"[LINHA {index}] CNPJ vazio — pulando.")
+        for index, sindicato in enumerate(sindicatos):
+            cnpj_digits = limpar_cnpj(sindicato.cnpj or "")
+            if not cnpj_digits or len(cnpj_digits) != 14:
+                self.log(f"[LINHA {index}] CNPJ inválido para '{sindicato.nome}' — pulando.")
                 continue
 
-            cnpj_digits = limpar_cnpj(cnpj_raw)
             cnpj_formatado = formatar_cnpj(cnpj_digits)
-            sindicato_esperado = str(row[col_sindicato]).strip()
+            sindicato_esperado = str(sindicato.codigo or sindicato.nome).strip()
 
             self.log(f"\n{'='*60}")
-            self.log(f"[LINHA {index}] CNPJ: {cnpj_formatado}  |  Sindicato: {sindicato_esperado}")
+            self.log(f"[{index}] CNPJ: {cnpj_formatado}  |  Sindicato: {sindicato_esperado}  |  Nome: {sindicato.nome}")
             self.log('='*60)
 
             # Acessar site
@@ -459,7 +442,7 @@ class Command(BaseCommand):
                             inicio_vigencia = m_data.group(1).replace('/', '-')
 
                         tipo_arq = "TA-CCT" if "TERMO ADITIVO" in tipo_check else "CCT"
-                        codigo_sind = mapa_codigo.get(cnpj_digits, "")
+                        codigo_sind = mapa_codigo.get(cnpj_digits, sindicato.codigo or "")
                         prefixo = f"{codigo_sind}-" if codigo_sind else ""
 
                         nome_esperado = formatar_nome_arquivo(
