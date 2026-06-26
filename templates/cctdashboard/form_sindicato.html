@@ -10,21 +10,21 @@
     </ol>
 </nav>
 
-<div class="flex justify-between items-center mb-6">
-    <h2 class="mb-0"><i class="bi bi-people-fill mr-2 text-blue-400"></i>{{ titulo }}</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="bi bi-people-fill me-2 text-primary"></i>{{ titulo }}</h2>
 </div>
 
 <div class="card shadow-sm">
     <div class="card-body">
         <form method="post" novalidate>
             {% csrf_token %}
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div class="row g-4">
                 {% for field in form %}
-                <div class="md:col-span-12">
+                <div class="col-md-12">
                     <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
                     {{ field }}
                     {% if field.errors %}
-                        <div class="text-red-400 text-sm mt-1">
+                        <div class="text-danger small mt-1">
                             {{ field.errors|join:", " }}
                         </div>
                     {% endif %}
@@ -36,10 +36,10 @@
             </div>
             <div class="mt-4 flex gap-2">
                 <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-lg mr-1"></i>Salvar
+                    <i class="bi bi-check-lg me-1"></i>Salvar
                 </button>
                 <a href="{% url 'cctdashboard:lista_sindicatos' %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-x-lg mr-1"></i>Cancelar
+                    <i class="bi bi-x-lg me-1"></i>Cancelar
                 </a>
             </div>
         </form>

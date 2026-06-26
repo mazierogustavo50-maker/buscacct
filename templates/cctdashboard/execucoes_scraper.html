@@ -2,9 +2,9 @@
 {% block title %}Execuções do Scraper - Mediador CCT{% endblock %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-    <h2 class="mb-0"><i class="bi bi-robot mr-2 text-amber-400"></i>Execuções do Scraper</h2>
-    <span class="text-gray-400">Total: {{ page_obj.paginator.count }}</span>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="bi bi-robot me-2 text-warning"></i>Execuções do Scraper</h2>
+    <span class="text-muted">Total: {{ page_obj.paginator.count }}</span>
 </div>
 
 <div class="card shadow-sm">
@@ -25,7 +25,7 @@
                 <tbody>
                     {% for exec in page_obj %}
                     <tr>
-                        <td class="font-mono">#{{ exec.id }}</td>
+                        <td class="font-monospace">#{{ exec.id }}</td>
                         <td>{{ exec.data_inicio|date:"d/m/Y H:i" }}</td>
                         <td>{{ exec.data_fim|date:"d/m/Y H:i"|default:"-" }}</td>
                         <td>
@@ -34,7 +34,7 @@
                             {% elif exec.status == "ERRO" %}
                                 <span class="badge bg-danger">Erro</span>
                             {% else %}
-                                <span class="badge bg-warning text-gray-100">Em andamento</span>
+                                <span class="badge bg-warning text-white">Em andamento</span>
                             {% endif %}
                         </td>
                         <td>{{ exec.total_baixados }}</td>
@@ -43,7 +43,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center text-gray-400 py-4">Nenhuma execução encontrada.</td>
+                        <td colspan="7" class="text-center text-muted py-4">Nenhuma execução encontrada.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -53,7 +53,7 @@
     {% if page_obj.has_other_pages %}
     <div class="card-footer">
         <nav aria-label="Paginação">
-            <ul class="pagination justify-center mb-0">
+            <ul class="pagination justify-content-center mb-0">
                 {% if page_obj.has_previous %}
                 <li class="page-item">
                     <a class="page-link" href="?page=1">&laquo;</a>

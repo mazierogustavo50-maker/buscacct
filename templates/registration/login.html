@@ -1,187 +1,56 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt-br" class="dark">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Mediador CCT</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            corePlugins: {
-                preflight: false
-            },
-            theme: {
-                extend: {
-                    colors: {
-                        dark: {
-                            950: '#000000',
-                            900: '#0a0a0a',
-                            800: '#111827',
-                            700: '#1f2937',
-                            600: '#374151',
-                            500: '#4b5563',
-                            400: '#6b7280',
-                            300: '#9ca3af',
-                            200: '#d1d5db',
-                            100: '#f3f4f6',
-                        },
-                        brand: {
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <style>
-        body {
-            background: #000000;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-        .login-card {
-            background: #1f2937;
-            border-radius: 1.25rem;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-            border: 1px solid #374151;
-            overflow: hidden;
-            width: 100%;
-            max-width: 420px;
-        }
-        .login-header {
-            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-            color: #fff;
-            padding: 2.5rem 2rem 2rem;
-            text-align: center;
-        }
-        .login-header .logo-icon {
-            width: 64px;
-            height: 64px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 1rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-        .login-body {
-            padding: 2rem;
-        }
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-        .form-control {
-            width: 100%;
-            background: #111827;
-            border: 1.5px solid #374151;
-            border-radius: 0.75rem;
-            padding: 0.875rem 1rem;
-            font-size: 0.95rem;
-            color: #f3f4f6;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .form-control::placeholder {
-            color: #6b7280;
-        }
-        .form-control:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
-        }
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #9ca3af;
-        }
-        .btn-login {
-            width: 100%;
-            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-            border: none;
-            border-radius: 0.75rem;
-            padding: 0.875rem;
-            font-weight: 600;
-            font-size: 0.95rem;
-            letter-spacing: 0.025em;
-            transition: all 0.2s;
-            color: #fff;
-            cursor: pointer;
-        }
-        .btn-login:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(59,130,246,0.3);
-        }
-        .alert-danger {
-            background: rgba(220, 38, 38, 0.15);
-            border: 1px solid rgba(220, 38, 38, 0.3);
-            color: #f87171;
-            border-radius: 0.75rem;
-            padding: 0.875rem 1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .alert-warning {
-            background: rgba(217, 119, 6, 0.15);
-            border: 1px solid rgba(217, 119, 6, 0.3);
-            color: #fbbf24;
-            border-radius: 0.75rem;
-            padding: 0.875rem 1rem;
-            margin-bottom: 1rem;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
+<body class="bg-light d-flex align-items-center justify-content-center min-vh-100">
     <div class="login-card">
         <div class="login-header">
             <div class="logo-icon"><i class="bi bi-shield-lock-fill"></i></div>
-            <h4 class="font-bold text-xl mb-1">Mediador CCT</h4>
-            <p class="mb-0 text-sm opacity-80">Acesso restrito ao sistema</p>
+            <h4 class="fw-bold mb-1">Mediador CCT</h4>
+            <p class="mb-0 small opacity-75">Acesso restrito ao sistema</p>
         </div>
         <div class="login-body">
             {% if form.errors %}
-                <div class="alert-danger" role="alert">
+                <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
                     <i class="bi bi-exclamation-triangle-fill"></i>
                     <div>Usuário ou senha inválidos.</div>
                 </div>
             {% endif %}
             {% if next %}
                 {% if user.is_authenticated %}
-                    <div class="alert-warning">Você não tem permissão para acessar esta página.</div>
+                    <div class="alert alert-warning">Você não tem permissão para acessar esta página.</div>
                 {% endif %}
             {% endif %}
             <form method="post" action="{% url 'login' %}">
                 {% csrf_token %}
-                <div class="form-group">
-                    <label for="id_username" class="form-label"><i class="bi bi-person mr-1"></i>Usuário</label>
+                <div class="mb-3">
+                    <label for="id_username" class="form-label"><i class="bi bi-person me-1"></i>Usuário</label>
                     <input type="text" name="username" class="form-control" id="id_username" placeholder="Digite seu usuário" autocomplete="username" required autofocus>
                 </div>
-                <div class="form-group">
-                    <label for="id_password" class="form-label"><i class="bi bi-key mr-1"></i>Senha</label>
+                <div class="mb-3">
+                    <label for="id_password" class="form-label"><i class="bi bi-key me-1"></i>Senha</label>
                     <input type="password" name="password" class="form-control" id="id_password" placeholder="Digite sua senha" autocomplete="current-password" required>
                 </div>
                 <input type="hidden" name="next" value="{{ next }}">
                 <button type="submit" class="btn-login">
-                    <i class="bi bi-box-arrow-in-right mr-2"></i>Entrar
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
                 </button>
             </form>
             <div class="text-center mt-4">
-                <a href="/admin/" class="text-sm text-gray-400 hover:text-gray-200 no-underline">
-                    <i class="bi bi-shield-shaded mr-1"></i>Acesso Administrativo
+                <a href="/admin/" class="small text-muted text-decoration-none">
+                    <i class="bi bi-shield-shaded me-1"></i>Acesso Administrativo
                 </a>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

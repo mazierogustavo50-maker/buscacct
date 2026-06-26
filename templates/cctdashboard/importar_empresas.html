@@ -10,13 +10,13 @@
     </ol>
 </nav>
 
-<div class="flex justify-between items-center mb-6">
-    <h2 class="mb-0"><i class="bi bi-upload mr-2 text-green-400"></i>Importar Empresas (Excel)</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="bi bi-upload me-2 text-success"></i>Importar Empresas (Excel)</h2>
 </div>
 
-<div class="card shadow-sm mb-6">
-    <div class="card-header bg-success text-white font-bold">
-        <i class="bi bi-info-circle-fill mr-2"></i>Instruções
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-success text-white fw-bold">
+        <i class="bi bi-info-circle-fill me-2"></i>Instruções
     </div>
     <div class="card-body">
         <p class="mb-1">O arquivo Excel deve conter as colunas:</p>
@@ -27,7 +27,7 @@
             <li><strong>codsindicato2</strong> — Código do 2º sindicato (opcional)</li>
             <li><strong>codsindicato3</strong> — Código do 3º sindicato (opcional)</li>
         </ul>
-        <p class="text-gray-400 text-sm mt-2 mb-0">Se o código da empresa já existir, ela será atualizada. Os vínculos com sindicatos serão recriados.</p>
+        <p class="text-muted small mt-2 mb-0">Se o código da empresa já existir, ela será atualizada. Os vínculos com sindicatos serão recriados.</p>
     </div>
 </div>
 
@@ -39,15 +39,15 @@
                 <label for="{{ form.arquivo.id_for_label }}" class="form-label">{{ form.arquivo.label }}</label>
                 {{ form.arquivo }}
                 {% if form.arquivo.errors %}
-                    <div class="text-red-400 text-sm mt-1">{{ form.arquivo.errors|join:", " }}</div>
+                    <div class="text-danger small mt-1">{{ form.arquivo.errors|join:", " }}</div>
                 {% endif %}
             </div>
-            <div class="flex gap-2">
+            <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-success">
-                    <i class="bi bi-upload mr-1"></i>Importar
+                    <i class="bi bi-upload me-1"></i>Importar
                 </button>
                 <a href="{% url 'cctdashboard:lista_empresas' %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-x-lg mr-1"></i>Cancelar
+                    <i class="bi bi-x-lg me-1"></i>Cancelar
                 </a>
             </div>
         </form>
