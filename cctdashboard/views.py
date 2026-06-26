@@ -491,3 +491,37 @@ def detalhe_execucao(request, pk):
         "execucao": execucao,
     }
     return render(request, "cctdashboard/detalhe_execucao.html", context)
+
+
+@login_required
+@require_POST
+def limpar_execucoes(request):
+    """Limpa execuções do scraper conforme opção selecionada."""
+    opcao = request.POST.get("opcao", "concluidas")
+
+    if opcao == "todas":
+        queryset = ExecucaoScraper.objects.all()
+        descricao = "todas as execuções"
+    elif opcao == "concluidas":
+        queryset = ExecucaoScraper.objects.filter(status=ExecucaoScraper.STATUS_CONCLUIDO)
+        descricao = "execuções concluídas"
+    elif opcao == "erro_abortado":
+        queryset = ExecucaoScraper.objects.filter(
+            status__in=[ExecucaoScraper.STATUS_ERRO, ExecucaoScraper.STATUS_ABORTADO]
+        )
+        descricao = "execuções com erro ou abortadas"
+    elif opcao == "mantem_andamento":
+        queryset = ExecucaoScraper.objects.exclude(status=ExecucaoScraper.STATUS_EM_ANDAMENTO)
+        descricao = "execuções finalizadas (mantendo as em andamento)"
+    else:
+        messages.warning(request, "Opção de limpeza inválida.")
+        return redirect("cctdashboard:execucoes_scraper")
+
+    total = queryset.count()
+    if total == 0:
+        messages.info(request, "Nenhuma execução encontrada para limpar.")
+        return redirect("cctdashboard:execucoes_scraper")
+
+    queryset.delete()
+    messages.success(request, f"Painel limpo com sucesso! {total} {descricao} foram removidas.")
+    return redirect("cctdashboard:execucoes_scraper")

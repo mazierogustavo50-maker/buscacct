@@ -36,6 +36,31 @@
     </div>
 </div>
 
+<div class="card shadow-sm mb-4">
+    <div class="card-header fw-bold d-flex align-items-center">
+        <i class="bi bi-trash me-2 text-danger"></i>Limpar Painel
+    </div>
+    <div class="card-body">
+        <form method="post" action="{% url 'cctdashboard:limpar_execucoes' %}" class="row g-3 align-items-end" onsubmit="return confirm('Tem certeza que deseja limpar o painel? Esta ação não pode ser desfeita.');">
+            {% csrf_token %}
+            <div class="col-md-6">
+                <label for="opcao" class="form-label">Opção de limpeza</label>
+                <select class="form-select" id="opcao" name="opcao">
+                    <option value="mantem_andamento">Apagar apenas finalizadas (mantém em andamento)</option>
+                    <option value="concluidas">Apagar apenas concluídas</option>
+                    <option value="erro_abortado">Apagar apenas erro / abortado</option>
+                    <option value="todas">Apagar TODAS as execuções</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-danger w-100">
+                    <i class="bi bi-trash-fill me-1"></i>Limpar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="card shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
