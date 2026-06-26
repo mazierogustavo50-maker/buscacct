@@ -427,11 +427,16 @@ def executar_scraper(request):
         cmd.extend(["--sindicato-codigo", sindicato_codigo])
 
     env = os.environ.copy()
-    # Garante que o Django settings seja encontrado no subprocess
     env.setdefault("DJANGO_SETTINGS_MODULE", "buscacct.settings")
 
+    # Cria registro da execução antes de iniciar o subprocess
+    execucao = ExecucaoScraper.objects.create(
+        status=ExecucaoScraper.STATUS_EM_ANDAMENTO,
+    )
+    cmd.extend(["--execucao-id", str(execucao.id)])
+
     try:
-        subprocess.Popen(
+        proc = subprocess.Popen(
             cmd,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -439,11 +444,43 @@ def executar_scraper(request):
             cwd=settings.BASE_DIR,
             env=env,
         )
-        messages.success(request, "Scraper iniciado em background. Acompanhe na lista de execuções.")
+        execucao.pid = proc.pid
+        execucao.save(update_fields=["pid"])
+        messages.success(request, f"Scraper iniciado em background (PID {proc.pid}). Acompanhe na lista de execuções.")
     except Exception as e:
+        execucao.status = ExecucaoScraper.STATUS_ERRO
+        execucao.save(update_fields=["status"])
         messages.error(request, f"Erro ao iniciar o scraper: {e}")
 
     return redirect("cctdashboard:execucoes_scraper")
+
+
+@login_required
+@require_POST
+def abortar_scraper(request, pk):
+    """Marca execução para abortar e tenta matar o processo."""
+    execucao = get_object_or_404(ExecucaoScraper, pk=pk)
+
+    if execucao.status != ExecucaoScraper.STATUS_EM_ANDAMENTO:
+        messages.warning(request, f"Execução #{execucao.id} não está em andamento.")
+        return redirect("cctdashboard:detalhe_execucao", pk=pk)
+
+    execucao.abortar = True
+    execucao.save(update_fields=["abortar"])
+
+    if execucao.pid:
+        try:
+            import signal
+            os.kill(execucao.pid, signal.SIGTERM)
+            messages.success(request, f"Sinal de término enviado para o processo {execucao.pid}.")
+        except ProcessLookupError:
+            messages.warning(request, f"Processo {execucao.pid} não encontrado. Pode já ter finalizado.")
+        except Exception as e:
+            messages.error(request, f"Erro ao tentar matar o processo: {e}")
+    else:
+        messages.info(request, "Execução marcada para abortar. O processo será encerrado no próximo ciclo de verificação.")
+
+    return redirect("cctdashboard:detalhe_execucao", pk=pk)
 
 
 @login_required

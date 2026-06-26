@@ -222,24 +222,51 @@ class Command(BaseCommand):
             action="store_true",
             help="Executa o Chrome em modo headless.",
         )
+        parser.add_argument(
+            "--execucao-id",
+            type=int,
+            help="ID da execução existente (usado pela interface web).",
+        )
 
     def log(self, msg):
         self.stdout.write(msg)
         self.linhas_log.append(msg)
 
+    def _verificar_abortar(self, execucao):
+        """Verifica se a execução foi marcada para abortar."""
+        try:
+            execucao.refresh_from_db(fields=["abortar"])
+            return execucao.abortar
+        except Exception:
+            return False
+
     def handle(self, *args, **options):
         self.linhas_log = []
-        execucao = ExecucaoScraper.objects.create(status=ExecucaoScraper.STATUS_EM_ANDAMENTO)
+        execucao_id = options.get("execucao_id")
+
+        if execucao_id:
+            try:
+                execucao = ExecucaoScraper.objects.get(pk=execucao_id)
+                execucao.status = ExecucaoScraper.STATUS_EM_ANDAMENTO
+                execucao.abortar = False
+                execucao.save(update_fields=["status", "abortar"])
+            except ExecucaoScraper.DoesNotExist:
+                self.stdout.write(f"[ERRO] Execução {execucao_id} não encontrada.")
+                return
+        else:
+            execucao = ExecucaoScraper.objects.create(status=ExecucaoScraper.STATUS_EM_ANDAMENTO)
 
         headless = options.get("headless", False)
         sindicato_codigo = options.get("sindicato_codigo")
 
         try:
             self.processar(sindicato_codigo, headless, execucao)
-            execucao.status = ExecucaoScraper.STATUS_CONCLUIDO
+            if execucao.status == ExecucaoScraper.STATUS_EM_ANDAMENTO:
+                execucao.status = ExecucaoScraper.STATUS_CONCLUIDO
         except Exception as e:
             self.log(f"[ERRO FATAL] {e}")
-            execucao.status = ExecucaoScraper.STATUS_ERRO
+            if execucao.status == ExecucaoScraper.STATUS_EM_ANDAMENTO:
+                execucao.status = ExecucaoScraper.STATUS_ERRO
             import traceback
             self.log(traceback.format_exc())
         finally:
@@ -288,6 +315,14 @@ class Command(BaseCommand):
         driver = configurar_driver(headless=headless)
 
         for index, sindicato in enumerate(sindicatos):
+            # Verifica abortamento a cada sindicato
+            if self._verificar_abortar(execucao):
+                self.log(f"\n[ABORTADO] Execução {execucao.id} marcada para abortar. Encerrando...")
+                execucao.status = ExecucaoScraper.STATUS_ABORTADO
+                execucao.save(update_fields=["status"])
+                driver.quit()
+                return
+
             cnpj_digits = limpar_cnpj(sindicato.cnpj or "")
             if not cnpj_digits or len(cnpj_digits) != 14:
                 self.log(f"[LINHA {index}] CNPJ inválido para '{sindicato.nome}' — pulando.")

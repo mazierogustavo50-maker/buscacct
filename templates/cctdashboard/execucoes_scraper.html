@@ -65,6 +65,8 @@
                                 <span class="badge bg-success">Concluído</span>
                             {% elif exec.status == "ERRO" %}
                                 <span class="badge bg-danger">Erro</span>
+                            {% elif exec.status == "ABORTADO" %}
+                                <span class="badge bg-secondary">Abortado</span>
                             {% else %}
                                 <span class="badge bg-warning text-white">Em andamento</span>
                             {% endif %}
@@ -76,6 +78,14 @@
                             <a href="{% url 'cctdashboard:detalhe_execucao' exec.pk %}" class="btn btn-sm btn-outline-primary" title="Ver log">
                                 <i class="bi bi-eye"></i>
                             </a>
+                            {% if exec.status == "EM_ANDAMENTO" %}
+                            <form method="post" action="{% url 'cctdashboard:abortar_scraper' exec.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Abortar" onclick="return confirm('Abortar execução #{{ exec.id }}?');">
+                                    <i class="bi bi-stop-fill"></i>
+                                </button>
+                            </form>
+                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}

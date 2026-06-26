@@ -27,6 +27,8 @@
                             <span class="badge bg-success">Concluído</span>
                         {% elif execucao.status == "ERRO" %}
                             <span class="badge bg-danger">Erro</span>
+                        {% elif execucao.status == "ABORTADO" %}
+                            <span class="badge bg-secondary">Abortado</span>
                         {% else %}
                             <span class="badge bg-warning text-white">Em andamento</span>
                         {% endif %}
@@ -48,10 +50,18 @@
                     <dd class="col-sm-7">{{ execucao.total_nao_encontrados }}</dd>
                 </dl>
             </div>
-            <div class="card-footer">
+            <div class="card-footer d-flex justify-content-between">
                 <a href="{% url 'cctdashboard:execucoes_scraper' %}" class="btn btn-sm btn-outline-secondary">
                     <i class="bi bi-arrow-left me-1"></i>Voltar
                 </a>
+                {% if execucao.status == "EM_ANDAMENTO" %}
+                <form method="post" action="{% url 'cctdashboard:abortar_scraper' execucao.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja abortar a execução #{{ execucao.id }}?');">
+                        <i class="bi bi-stop-fill me-1"></i>Abortar
+                    </button>
+                </form>
+                {% endif %}
             </div>
         </div>
     </div>

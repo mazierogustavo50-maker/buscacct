@@ -26,4 +26,5 @@ urlpatterns = [
     path("execucoes/", views.execucoes_scraper, name="execucoes_scraper"),
     path("execucoes/iniciar/", views.executar_scraper, name="executar_scraper"),
     path("execucoes/<int:pk>/", views.detalhe_execucao, name="detalhe_execucao"),
+    path("execucoes/<int:pk>/abortar/", views.abortar_scraper, name="abortar_scraper"),
 ]
