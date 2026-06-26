@@ -2,64 +2,76 @@
 {% block title %}Execuções do Scraper - Mediador CCT{% endblock %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-slate-800 mb-0"><i class="bi bi-robot mr-2 text-amber-500"></i>Execuções do Scraper</h2>
-    <span class="text-slate-500 text-sm">Total: {{ page_obj.paginator.count }}</span>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="bi bi-robot me-2 text-warning"></i>Execuções do Scraper</h2>
+    <span class="text-muted">Total: {{ page_obj.paginator.count }}</span>
 </div>
 
 <div class="card shadow-sm">
-    <div class="overflow-x-auto">
-        <table class="data-table mb-0">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Data Início</th>
-                    <th>Data Fim</th>
-                    <th>Status</th>
-                    <th>Baixados</th>
-                    <th>Já Existentes</th>
-                    <th>Não Encontrados</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for exec in page_obj %}
-                <tr>
-                    <td class="fw-mono text-slate-500">#{{ exec.id }}</td>
-                    <td>{{ exec.data_inicio|date:"d/m/Y H:i" }}</td>
-                    <td>{{ exec.data_fim|date:"d/m/Y H:i"|default:"-" }}</td>
-                    <td>
-                        {% if exec.status == "CONCLUIDO" %}
-                            <span class="badge bg-green-100 text-green-800">Concluído</span>
-                        {% elif exec.status == "ERRO" %}
-                            <span class="badge bg-red-100 text-red-800">Erro</span>
-                        {% else %}
-                            <span class="badge bg-amber-100 text-amber-800">Em andamento</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ exec.total_baixados }}</td>
-                    <td>{{ exec.total_ja_existentes }}</td>
-                    <td>{{ exec.total_nao_encontrados }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center text-slate-500 py-8">Nenhuma execução encontrada.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Data Início</th>
+                        <th>Data Fim</th>
+                        <th>Status</th>
+                        <th>Baixados</th>
+                        <th>Já Existentes</th>
+                        <th>Não Encontrados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exec in page_obj %}
+                    <tr>
+                        <td class="fw-mono">#{{ exec.id }}</td>
+                        <td>{{ exec.data_inicio|date:"d/m/Y H:i" }}</td>
+                        <td>{{ exec.data_fim|date:"d/m/Y H:i"|default:"-" }}</td>
+                        <td>
+                            {% if exec.status == "CONCLUIDO" %}
+                                <span class="badge bg-success">Concluído</span>
+                            {% elif exec.status == "ERRO" %}
+                                <span class="badge bg-danger">Erro</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Em andamento</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ exec.total_baixados }}</td>
+                        <td>{{ exec.total_ja_existentes }}</td>
+                        <td>{{ exec.total_nao_encontrados }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">Nenhuma execução encontrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
     {% if page_obj.has_other_pages %}
     <div class="card-footer bg-white">
-        <nav>
-            <ul class="pagination">
+        <nav aria-label="Paginação">
+            <ul class="pagination justify-content-center mb-0">
                 {% if page_obj.has_previous %}
-                <li><a href="?page=1">&laquo;</a></li>
-                <li><a href="?page={{ page_obj.previous_page_number }}">&lsaquo;</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">&laquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&lsaquo;</a>
+                </li>
                 {% endif %}
-                <li class="active"><span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
+                <li class="page-item active">
+                    <span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                </li>
                 {% if page_obj.has_next %}
-                <li><a href="?page={{ page_obj.next_page_number }}">&rsaquo;</a></li>
-                <li><a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">&rsaquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+                </li>
                 {% endif %}
             </ul>
         </nav>
