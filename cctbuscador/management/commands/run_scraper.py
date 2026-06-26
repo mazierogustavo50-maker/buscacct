@@ -2,10 +2,19 @@ import os
 import time
 import re
 import shutil
+import signal
 import unicodedata
 import pandas as pd
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
+
+# Flag global para sinal SIGTERM
+_sinal_abortar = False
+
+
+def _handler_sigterm(signum, frame):
+    global _sinal_abortar
+    _sinal_abortar = True
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -233,15 +242,28 @@ class Command(BaseCommand):
         self.linhas_log.append(msg)
 
     def _verificar_abortar(self, execucao):
-        """Verifica se a execução foi marcada para abortar."""
+        """Verifica se a execução foi marcada para abortar (banco ou sinal)."""
+        global _sinal_abortar
+        if _sinal_abortar:
+            return True
         try:
             execucao.refresh_from_db(fields=["abortar"])
             return execucao.abortar
         except Exception:
             return False
 
+    def _salvar_progresso(self, execucao):
+        """Persiste log e contadores no banco para acompanhamento em tempo real."""
+        try:
+            execucao.log_texto = "\n".join(self.linhas_log)
+            execucao.save(update_fields=["log_texto", "total_baixados", "total_ja_existentes", "total_nao_encontrados"])
+        except Exception:
+            pass
+
     def handle(self, *args, **options):
         self.linhas_log = []
+        # Registra handler de SIGTERM para capturar sinal da view web
+        signal.signal(signal.SIGTERM, _handler_sigterm)
         execucao_id = options.get("execucao_id")
 
         if execucao_id:
@@ -419,6 +441,13 @@ class Command(BaseCommand):
             num_pagina = 1
 
             while True:
+                # Verifica abortamento a cada página
+                if self._verificar_abortar(execucao):
+                    self.log(f"\n[ABORTADO] Execução {execucao.id} marcada para abortar (paginação). Encerrando...")
+                    execucao.status = ExecucaoScraper.STATUS_ABORTADO
+                    execucao.save(update_fields=["status"])
+                    driver.quit()
+                    return
                 self.log(f"\n  --- Página {num_pagina} de resultados ---")
 
                 try:
@@ -439,6 +468,13 @@ class Command(BaseCommand):
                 self.log(f"  Linhas encontradas: {len(linhas)}")
 
                 for i, linha in enumerate(linhas):
+                    # Verifica abortamento a cada linha
+                    if self._verificar_abortar(execucao):
+                        self.log(f"\n[ABORTADO] Execução {execucao.id} marcada para abortar (linha). Encerrando...")
+                        execucao.status = ExecucaoScraper.STATUS_ABORTADO
+                        execucao.save(update_fields=["status"])
+                        driver.quit()
+                        return
                     janela_original = driver.current_window_handle
                     try:
                         texto_linha = linha.text
@@ -661,6 +697,9 @@ class Command(BaseCommand):
             if not achou_match:
                 self.log("  [SEM MATCH] Nenhuma linha passou em todos os critérios para este CNPJ.")
                 rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+
+            # Persiste progresso a cada sindicato
+            self._salvar_progresso(execucao)
 
         driver.quit()
         self.log("\n" + "="*60)

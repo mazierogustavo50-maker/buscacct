@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from django.utils import timezone
 from pathlib import Path
 import pandas as pd
 import subprocess
@@ -472,9 +473,14 @@ def abortar_scraper(request, pk):
         try:
             import signal
             os.kill(execucao.pid, signal.SIGTERM)
-            messages.success(request, f"Sinal de término enviado para o processo {execucao.pid}.")
+            messages.success(request, f"Sinal de término enviado para o processo {execucao.pid}. O scraper será abortado no próximo ciclo de verificação.")
         except ProcessLookupError:
-            messages.warning(request, f"Processo {execucao.pid} não encontrado. Pode já ter finalizado.")
+            # Processo já morreu
+            execucao.status = ExecucaoScraper.STATUS_ABORTADO
+            execucao.data_fim = timezone.now()
+            execucao.save(update_fields=["status", "data_fim"])
+            messages.warning(request, f"Processo {execucao.pid} já havia finalizado. Execução marcada como abortada.")
+            return redirect("cctdashboard:detalhe_execucao", pk=pk)
         except Exception as e:
             messages.error(request, f"Erro ao tentar matar o processo: {e}")
     else:
