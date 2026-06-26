@@ -4,7 +4,18 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="mb-0"><i class="bi bi-files me-2 text-info"></i>Documentos CCT</h2>
-    <span class="text-muted">Total: {{ page_obj.paginator.count }}</span>
+    <div class="d-flex align-items-center gap-3">
+        {% if mostrar_inativos %}
+            <a href="?{% if tipo %}tipo={{ tipo }}&{% endif %}{% if status %}status={{ status }}&{% endif %}{% if sindicato_id %}sindicato={{ sindicato_id }}&{% endif %}{% if q %}q={{ q }}&{% endif %}" class="btn btn-outline-success btn-sm">
+                <i class="bi bi-eye-fill me-1"></i>Ver ativos
+            </a>
+        {% else %}
+            <a href="?{% if tipo %}tipo={{ tipo }}&{% endif %}{% if status %}status={{ status }}&{% endif %}{% if sindicato_id %}sindicato={{ sindicato_id }}&{% endif %}{% if q %}q={{ q }}&{% endif %}inativos=1" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-eye-slash-fill me-1"></i>Ver inativos
+            </a>
+        {% endif %}
+        <span class="text-muted">Total: {{ page_obj.paginator.count }}</span>
+    </div>
 </div>
 
 <div class="card shadow-sm mb-4">
@@ -83,6 +94,24 @@
                             <a href="{% url 'cctdashboard:detalhe_documento' doc.pk %}" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-eye me-1"></i>Ver
                             </a>
+                            {% if doc.ativo %}
+                                <form method="post" action="{% url 'cctdashboard:desativar_documento' doc.pk %}" class="d-inline" onsubmit="return confirm('Marcar este documento como NÃO UTILIZAR? Ele continuará no banco mas não aparecerá nas listas principais.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-warning">
+                                        <i class="bi bi-eye-slash me-1"></i>Não utilizar
+                                    </button>
+                                </form>
+                                <a href="{% url 'cctdashboard:excluir_documento' doc.pk %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash me-1"></i>Excluir
+                                </a>
+                            {% else %}
+                                <form method="post" action="{% url 'cctdashboard:reativar_documento' doc.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-check-circle me-1"></i>Reativar
+                                    </button>
+                                </form>
+                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}

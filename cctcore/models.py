@@ -78,6 +78,7 @@ class DocumentoCCT(models.Model):
     status_extracao = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDENTE
     )
+    ativo = models.BooleanField(default=True, db_index=True)
 
     class Meta:
         verbose_name = "Documento CCT"

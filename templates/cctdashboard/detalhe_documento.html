@@ -30,6 +30,11 @@
                     {% else %}
                         <span class="badge bg-secondary">Pendente</span>
                     {% endif %}
+                    {% if documento.ativo %}
+                        <span class="badge bg-success">Ativo</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Inativo</span>
+                    {% endif %}
                 </span>
             </div>
             <div class="card-body">
@@ -97,6 +102,24 @@
                     <a href="{% url 'cctdashboard:lista_documentos' %}?sindicato={{ documento.sindicato.pk }}" class="btn btn-outline-info">
                         <i class="bi bi-files me-2"></i>Documentos do Sindicato
                     </a>
+                    {% if documento.ativo %}
+                        <form method="post" action="{% url 'cctdashboard:desativar_documento' documento.pk %}" onsubmit="return confirm('Marcar este documento como NÃO UTILIZAR?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-warning w-100">
+                                <i class="bi bi-eye-slash me-2"></i>Não utilizar
+                            </button>
+                        </form>
+                        <a href="{% url 'cctdashboard:excluir_documento' documento.pk %}" class="btn btn-outline-danger">
+                            <i class="bi bi-trash me-2"></i>Excluir
+                        </a>
+                    {% else %}
+                        <form method="post" action="{% url 'cctdashboard:reativar_documento' documento.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-success w-100">
+                                <i class="bi bi-check-circle me-2"></i>Reativar
+                            </button>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
         </div>

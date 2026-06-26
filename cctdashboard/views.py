@@ -84,7 +84,7 @@ def detalhe_sindicato(request, pk):
         .distinct()
         .order_by("nome")
     )
-    documentos = sindicato.documentos.all()
+    documentos = sindicato.documentos.filter(ativo=True)
 
     context = {
         "sindicato": sindicato,
@@ -354,7 +354,13 @@ def importar_empresas(request):
 
 @login_required
 def lista_documentos(request):
+    # Por padrão mostra apenas ativos; ?inativos=1 mostra apenas inativos
+    mostrar_inativos = request.GET.get("inativos", "").strip() == "1"
     queryset = DocumentoCCT.objects.select_related("sindicato").all()
+    if mostrar_inativos:
+        queryset = queryset.filter(ativo=False)
+    else:
+        queryset = queryset.filter(ativo=True)
 
     tipo = request.GET.get("tipo", "").strip()
     status = request.GET.get("status", "").strip()
@@ -387,6 +393,7 @@ def lista_documentos(request):
         "sindicato_id": sindicato_id,
         "q": q,
         "sindicatos": sindicatos,
+        "mostrar_inativos": mostrar_inativos,
     }
     return render(request, "cctdashboard/lista_documentos.html", context)
 
@@ -574,3 +581,38 @@ def limpar_execucoes(request):
     queryset.delete()
     messages.success(request, f"Painel limpo com sucesso! {total} {descricao} foram removidas.")
     return redirect("cctdashboard:execucoes_scraper")
+
+
+@login_required
+def excluir_documento(request, pk):
+    documento = get_object_or_404(DocumentoCCT, pk=pk)
+    if request.method == "POST":
+        documento.delete()
+        messages.success(request, "Documento excluído com sucesso.")
+        return redirect("cctdashboard:lista_documentos")
+    return render(request, "cctdashboard/confirmar_exclusao.html", {
+        "objeto": documento,
+        "tipo": "documento",
+        "voltar_url": "cctdashboard:detalhe_documento",
+        "voltar_pk": pk,
+    })
+
+
+@login_required
+@require_POST
+def desativar_documento(request, pk):
+    documento = get_object_or_404(DocumentoCCT, pk=pk)
+    documento.ativo = False
+    documento.save(update_fields=["ativo"])
+    messages.success(request, "Documento marcado como 'não utilizar'. Ele não aparecerá mais nas listas principais.")
+    return redirect("cctdashboard:detalhe_documento", pk=pk)
+
+
+@login_required
+@require_POST
+def reativar_documento(request, pk):
+    documento = get_object_or_404(DocumentoCCT, pk=pk)
+    documento.ativo = True
+    documento.save(update_fields=["ativo"])
+    messages.success(request, "Documento reativado com sucesso.")
+    return redirect("cctdashboard:detalhe_documento", pk=pk)
