@@ -97,7 +97,16 @@
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span class="d-flex align-items-center"><i class="bi bi-robot me-2 text-warning"></i>Últimas Execuções do Scraper</span>
-                <a href="{% url 'cctdashboard:execucoes_scraper' %}" class="btn btn-sm btn-outline-primary">Ver todas</a>
+                <div>
+                    <a href="{% url 'cctdashboard:executar_scraper' %}" class="btn btn-sm btn-success me-2" onclick="event.preventDefault(); document.getElementById('form-exec-scraper').submit();">
+                        <i class="bi bi-play-fill me-1"></i>Executar
+                    </a>
+                    <form id="form-exec-scraper" method="post" action="{% url 'cctdashboard:executar_scraper' %}" class="d-none">
+                        {% csrf_token %}
+                        <input type="hidden" name="headless" value="on">
+                    </form>
+                    <a href="{% url 'cctdashboard:execucoes_scraper' %}" class="btn btn-sm btn-outline-primary">Ver todas</a>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">

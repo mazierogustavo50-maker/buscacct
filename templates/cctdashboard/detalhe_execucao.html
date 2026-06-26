@@ -1,0 +1,84 @@
+{% extends "cctdashboard/base.html" %}
+{% block title %}Execução #{{ execucao.id }} - Mediador CCT{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:execucoes_scraper' %}">Execuções</a></li>
+        <li class="breadcrumb-item active">#{{ execucao.id }}</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header fw-bold">
+                <i class="bi bi-info-circle me-2"></i>Detalhes
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">ID</dt>
+                    <dd class="col-sm-7 font-monospace">#{{ execucao.id }}</dd>
+
+                    <dt class="col-sm-5">Status</dt>
+                    <dd class="col-sm-7">
+                        {% if execucao.status == "CONCLUIDO" %}
+                            <span class="badge bg-success">Concluído</span>
+                        {% elif execucao.status == "ERRO" %}
+                            <span class="badge bg-danger">Erro</span>
+                        {% else %}
+                            <span class="badge bg-warning text-white">Em andamento</span>
+                        {% endif %}
+                    </dd>
+
+                    <dt class="col-sm-5">Início</dt>
+                    <dd class="col-sm-7">{{ execucao.data_inicio|date:"d/m/Y H:i" }}</dd>
+
+                    <dt class="col-sm-5">Fim</dt>
+                    <dd class="col-sm-7">{{ execucao.data_fim|date:"d/m/Y H:i"|default:"—" }}</dd>
+
+                    <dt class="col-sm-5">Baixados</dt>
+                    <dd class="col-sm-7">{{ execucao.total_baixados }}</dd>
+
+                    <dt class="col-sm-5">Já existentes</dt>
+                    <dd class="col-sm-7">{{ execucao.total_ja_existentes }}</dd>
+
+                    <dt class="col-sm-5">Não encontrados</dt>
+                    <dd class="col-sm-7">{{ execucao.total_nao_encontrados }}</dd>
+                </dl>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'cctdashboard:execucoes_scraper' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-terminal me-2"></i>Log de Execução</span>
+                {% if execucao.status == "EM_ANDAMENTO" %}
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                <pre class="m-0 p-3 bg-light text-dark small" style="max-height: 600px; overflow-y: auto;"><code>{% if execucao.log_texto %}{{ execucao.log_texto }}{% else %}Nenhum log registrado.{% endif %}</code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if execucao.status == "EM_ANDAMENTO" %}
+<script>
+    // Recarrega a página a cada 10 segundos enquanto estiver em andamento
+    setTimeout(function() {
+        window.location.reload();
+    }, 10000);
+</script>
+{% endif %}
+{% endblock %}

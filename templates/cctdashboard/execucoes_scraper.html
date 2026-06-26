@@ -7,6 +7,35 @@
     <span class="text-muted">Total: {{ page_obj.paginator.count }}</span>
 </div>
 
+<div class="card shadow-sm mb-4">
+    <div class="card-header fw-bold d-flex align-items-center">
+        <i class="bi bi-play-circle me-2 text-success"></i>Nova Execução
+    </div>
+    <div class="card-body">
+        <form method="post" action="{% url 'cctdashboard:executar_scraper' %}" class="row g-3 align-items-end">
+            {% csrf_token %}
+            <div class="col-md-4">
+                <label for="sindicato_codigo" class="form-label">Código do Sindicato (opcional)</label>
+                <input type="text" class="form-control" id="sindicato_codigo" name="sindicato_codigo" placeholder="Ex: 356">
+                <div class="form-text">Deixe em branco para processar todos.</div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="headless" name="headless" checked>
+                    <label class="form-check-label" for="headless">
+                        Modo headless
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="bi bi-play-fill me-1"></i>Iniciar Scraper
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="card shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -20,12 +49,15 @@
                         <th>Baixados</th>
                         <th>Já Existentes</th>
                         <th>Não Encontrados</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for exec in page_obj %}
                     <tr>
-                        <td class="font-monospace">#{{ exec.id }}</td>
+                        <td class="font-monospace">
+                            <a href="{% url 'cctdashboard:detalhe_execucao' exec.pk %}">#{{ exec.id }}</a>
+                        </td>
                         <td>{{ exec.data_inicio|date:"d/m/Y H:i" }}</td>
                         <td>{{ exec.data_fim|date:"d/m/Y H:i"|default:"-" }}</td>
                         <td>
@@ -40,10 +72,15 @@
                         <td>{{ exec.total_baixados }}</td>
                         <td>{{ exec.total_ja_existentes }}</td>
                         <td>{{ exec.total_nao_encontrados }}</td>
+                        <td>
+                            <a href="{% url 'cctdashboard:detalhe_execucao' exec.pk %}" class="btn btn-sm btn-outline-primary" title="Ver log">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">Nenhuma execução encontrada.</td>
+                        <td colspan="8" class="text-center text-muted py-4">Nenhuma execução encontrada.</td>
                     </tr>
                     {% endfor %}
                 </tbody>

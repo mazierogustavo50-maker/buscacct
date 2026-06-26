@@ -24,4 +24,6 @@ urlpatterns = [
     path("documentos/<int:pk>/", views.detalhe_documento, name="detalhe_documento"),
     # Execuções
     path("execucoes/", views.execucoes_scraper, name="execucoes_scraper"),
+    path("execucoes/iniciar/", views.executar_scraper, name="executar_scraper"),
+    path("execucoes/<int:pk>/", views.detalhe_execucao, name="detalhe_execucao"),
 ]

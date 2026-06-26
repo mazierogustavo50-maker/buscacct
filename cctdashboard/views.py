@@ -5,8 +5,12 @@ from django.http import FileResponse, Http404
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.views.decorators.http import require_POST
 from pathlib import Path
 import pandas as pd
+import subprocess
+import sys
+import os
 
 from cctcore.models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT
 from cctbuscador.models import ExecucaoScraper
@@ -406,3 +410,47 @@ def execucoes_scraper(request):
         "page_obj": page_obj,
     }
     return render(request, "cctdashboard/execucoes_scraper.html", context)
+
+
+@login_required
+@require_POST
+def executar_scraper(request):
+    """Inicia o scraper em background via subprocess."""
+    headless = request.POST.get("headless", "on") == "on"
+    sindicato_codigo = request.POST.get("sindicato_codigo", "").strip()
+
+    manage_py = os.path.join(settings.BASE_DIR, "manage.py")
+    cmd = [sys.executable, manage_py, "run_scraper"]
+    if headless:
+        cmd.append("--headless")
+    if sindicato_codigo:
+        cmd.extend(["--sindicato-codigo", sindicato_codigo])
+
+    env = os.environ.copy()
+    # Garante que o Django settings seja encontrado no subprocess
+    env.setdefault("DJANGO_SETTINGS_MODULE", "buscacct.settings")
+
+    try:
+        subprocess.Popen(
+            cmd,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL,
+            cwd=settings.BASE_DIR,
+            env=env,
+        )
+        messages.success(request, "Scraper iniciado em background. Acompanhe na lista de execuções.")
+    except Exception as e:
+        messages.error(request, f"Erro ao iniciar o scraper: {e}")
+
+    return redirect("cctdashboard:execucoes_scraper")
+
+
+@login_required
+def detalhe_execucao(request, pk):
+    """Exibe detalhes e logs de uma execução do scraper."""
+    execucao = get_object_or_404(ExecucaoScraper, pk=pk)
+    context = {
+        "execucao": execucao,
+    }
+    return render(request, "cctdashboard/detalhe_execucao.html", context)
