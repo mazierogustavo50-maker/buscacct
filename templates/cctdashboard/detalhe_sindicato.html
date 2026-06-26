@@ -2,60 +2,55 @@
 {% block title %}{{ sindicato.nome }} - Sindicato{% endblock %}
 
 {% block content %}
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:home' %}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:lista_sindicatos' %}">Sindicatos</a></li>
-        <li class="breadcrumb-item active">{{ sindicato.codigo }}</li>
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:home' %}">Home</a>
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:lista_sindicatos' %}">Sindicatos</a>
+        <li class="breadcrumb-item active">{{ sindicato.codigo }}
     </ol>
 </nav>
 
-<div class="row g-4">
-    <div class="col-lg-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-info-circle-fill me-2"></i>Detalhes do Sindicato</span>
-                <div class="dropdown">
-                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Ações
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{% url 'cctdashboard:editar_sindicato' sindicato.pk %}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
-                        <li><a class="dropdown-item text-danger" href="{% url 'cctdashboard:excluir_sindicato' sindicato.pk %}"><i class="bi bi-trash me-2"></i>Excluir</a></li>
-                    </ul>
-                </div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+    <div class="lg:col-span-4">
+        <div class="card shadow-sm h-full">
+            <div class="card-header bg-primary text-white font-bold flex justify-between items-center">
+                <span><i class="bi bi-info-circle-fill mr-2"></i>Detalhes do Sindicato</span>
+                <div class="flex gap-2">
+                        <a class="btn btn-sm btn-outline-primary no-underline" href="{% url 'cctdashboard:editar_sindicato' sindicato.pk %}"><i class="bi bi-pencil mr-2"></i>Editar</a>
+                        <a class="btn btn-sm btn-outline-danger no-underline" href="{% url 'cctdashboard:excluir_sindicato' sindicato.pk %}"><i class="bi bi-trash mr-2"></i>Excluir</a>
+                    </div>
             </div>
             <div class="card-body">
-                <dl class="row mb-0">
-                    <dt class="col-sm-5">Código</dt>
-                    <dd class="col-sm-7">{{ sindicato.codigo }}</dd>
-                    <dt class="col-sm-5">Nome</dt>
-                    <dd class="col-sm-7">{{ sindicato.nome }}</dd>
-                    <dt class="col-sm-5">CNPJ</dt>
-                    <dd class="col-sm-7">{{ sindicato.cnpj|default:"-" }}</dd>
-                    <dt class="col-sm-5">Documentos</dt>
-                    <dd class="col-sm-7">{{ sindicato.documentos.count }}</dd>
-                    <dt class="col-sm-5">Empresas</dt>
-                    <dd class="col-sm-7">{{ empresas|length }}</dd>
+                <dl class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-0">
+                    <dt class="sm:col-span-5">Código</dt>
+                    <dd class="sm:col-span-7">{{ sindicato.codigo }}</dd>
+                    <dt class="sm:col-span-5">Nome</dt>
+                    <dd class="sm:col-span-7">{{ sindicato.nome }}</dd>
+                    <dt class="sm:col-span-5">CNPJ</dt>
+                    <dd class="sm:col-span-7">{{ sindicato.cnpj|default:"-" }}</dd>
+                    <dt class="sm:col-span-5">Documentos</dt>
+                    <dd class="sm:col-span-7">{{ sindicato.documentos.count }}</dd>
+                    <dt class="sm:col-span-5">Empresas</dt>
+                    <dd class="sm:col-span-7">{{ empresas|length }}</dd>
                 </dl>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-8">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-building me-2 text-success"></i>Empresas Vinculadas</span>
+    <div class="lg:col-span-8">
+        <div class="card shadow-sm mb-6">
+            <div class="card-header font-bold flex justify-between items-center">
+                <span><i class="bi bi-building mr-2 text-green-400"></i>Empresas Vinculadas</span>
                 <span class="badge bg-secondary">{{ empresas|length }}</span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover table-striped mb-0">
-                        <thead class="table-light">
+                        <thead >
                             <tr>
                                 <th>Código</th>
                                 <th>Nome</th>
-                                <th class="text-end">Ações</th>
+                                <th class="text-right">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -63,15 +58,15 @@
                             <tr>
                                 <td>{{ empresa.codigo }}</td>
                                 <td>{{ empresa.nome }}</td>
-                                <td class="text-end">
+                                <td class="text-right">
                                     <a href="{% url 'cctdashboard:detalhe_empresa' empresa.pk %}" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye me-1"></i>Ver
+                                        <i class="bi bi-eye mr-1"></i>Ver
                                     </a>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="3" class="text-center text-muted py-3">Nenhuma empresa vinculada.</td>
+                                <td colspan="3" class="text-center text-gray-400 py-3">Nenhuma empresa vinculada.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -81,20 +76,20 @@
         </div>
 
         <div class="card shadow-sm">
-            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-files me-2 text-info"></i>Documentos CCT</span>
+            <div class="card-header font-bold flex justify-between items-center">
+                <span><i class="bi bi-files mr-2 text-cyan-400"></i>Documentos CCT</span>
                 <span class="badge bg-secondary">{{ documentos.count }}</span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover table-striped mb-0">
-                        <thead class="table-light">
+                        <thead >
                             <tr>
                                 <th>Tipo</th>
                                 <th>Início Vigência</th>
                                 <th>Fim Vigência</th>
                                 <th>Status</th>
-                                <th class="text-end">Ações</th>
+                                <th class="text-right">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -104,7 +99,7 @@
                                     {% if doc.tipo == "CCT" %}
                                         <span class="badge bg-primary">CCT</span>
                                     {% else %}
-                                        <span class="badge bg-warning text-dark">TA-CCT</span>
+                                        <span class="badge bg-warning text-gray-100">TA-CCT</span>
                                     {% endif %}
                                 </td>
                                 <td>{{ doc.data_inicio_vigencia|date:"d/m/Y"|default:"-" }}</td>
@@ -118,15 +113,15 @@
                                         <span class="badge bg-secondary">Pendente</span>
                                     {% endif %}
                                 </td>
-                                <td class="text-end">
+                                <td class="text-right">
                                     <a href="{% url 'cctdashboard:detalhe_documento' doc.pk %}" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye me-1"></i>Ver
+                                        <i class="bi bi-eye mr-1"></i>Ver
                                     </a>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-3">Nenhum documento encontrado.</td>
+                                <td colspan="5" class="text-center text-gray-400 py-3">Nenhum documento encontrado.</td>
                             </tr>
                             {% endfor %}
                         </tbody>

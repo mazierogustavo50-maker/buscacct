@@ -2,23 +2,23 @@
 {% block title %}Confirmar Exclusão - Mediador CCT{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow-sm border-danger">
-            <div class="card-header bg-danger text-white fw-bold">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Exclusão
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 justify-center">
+    <div class="md:col-span-6">
+        <div class="card shadow-sm border-red-500">
+            <div class="card-header bg-danger text-white font-bold">
+                <i class="bi bi-exclamation-triangle-fill mr-2"></i>Confirmar Exclusão
             </div>
             <div class="card-body text-center">
                 <p class="mb-1">Tem certeza que deseja excluir?</p>
-                <h5 class="mb-3">{{ objeto }}</h5>
+                <h5 class="mb-4">{{ objeto }}</h5>
                 <form method="post">
                     {% csrf_token %}
-                    <div class="d-flex justify-content-center gap-2">
+                    <div class="flex justify-center gap-2">
                         <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash-fill me-1"></i>Sim, excluir
+                            <i class="bi bi-trash-fill mr-1"></i>Sim, excluir
                         </button>
                         <a href="{% url voltar_url voltar_pk %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-lg me-1"></i>Cancelar
+                            <i class="bi bi-x-lg mr-1"></i>Cancelar
                         </a>
                     </div>
                 </form>

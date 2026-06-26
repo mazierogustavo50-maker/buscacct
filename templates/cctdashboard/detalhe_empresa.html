@@ -2,57 +2,52 @@
 {% block title %}{{ empresa.nome }} - Empresa{% endblock %}
 
 {% block content %}
-<nav aria-label="breadcrumb" class="mb-3">
+<nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:home' %}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:lista_empresas' %}">Empresas</a></li>
-        <li class="breadcrumb-item active">{{ empresa.codigo }}</li>
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:home' %}">Home</a>
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:lista_empresas' %}">Empresas</a>
+        <li class="breadcrumb-item active">{{ empresa.codigo }}
     </ol>
 </nav>
 
-<div class="row g-4">
-    <div class="col-lg-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-header bg-success text-white fw-bold d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-info-circle-fill me-2"></i>Detalhes da Empresa</span>
-                <div class="dropdown">
-                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Ações
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{% url 'cctdashboard:editar_empresa' empresa.pk %}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
-                        <li><a class="dropdown-item text-danger" href="{% url 'cctdashboard:excluir_empresa' empresa.pk %}"><i class="bi bi-trash me-2"></i>Excluir</a></li>
-                    </ul>
-                </div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+    <div class="lg:col-span-4">
+        <div class="card shadow-sm h-full">
+            <div class="card-header bg-success text-white font-bold flex justify-between items-center">
+                <span><i class="bi bi-info-circle-fill mr-2"></i>Detalhes da Empresa</span>
+                <div class="flex gap-2">
+                        <a class="btn btn-sm btn-outline-primary no-underline" href="{% url 'cctdashboard:editar_empresa' empresa.pk %}"><i class="bi bi-pencil mr-2"></i>Editar</a>
+                        <a class="btn btn-sm btn-outline-danger no-underline" href="{% url 'cctdashboard:excluir_empresa' empresa.pk %}"><i class="bi bi-trash mr-2"></i>Excluir</a>
+                    </div>
             </div>
             <div class="card-body">
-                <dl class="row mb-0">
-                    <dt class="col-sm-5">Código</dt>
-                    <dd class="col-sm-7">{{ empresa.codigo }}</dd>
-                    <dt class="col-sm-5">Nome</dt>
-                    <dd class="col-sm-7">{{ empresa.nome }}</dd>
-                    <dt class="col-sm-5">Sindicatos</dt>
-                    <dd class="col-sm-7">{{ sindicatos|length }}</dd>
+                <dl class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-0">
+                    <dt class="sm:col-span-5">Código</dt>
+                    <dd class="sm:col-span-7">{{ empresa.codigo }}</dd>
+                    <dt class="sm:col-span-5">Nome</dt>
+                    <dd class="sm:col-span-7">{{ empresa.nome }}</dd>
+                    <dt class="sm:col-span-5">Sindicatos</dt>
+                    <dd class="sm:col-span-7">{{ sindicatos|length }}</dd>
                 </dl>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-8">
+    <div class="lg:col-span-8">
         <div class="card shadow-sm">
-            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-people-fill me-2 text-primary"></i>Sindicatos Vinculados</span>
+            <div class="card-header font-bold flex justify-between items-center">
+                <span><i class="bi bi-people-fill mr-2 text-blue-400"></i>Sindicatos Vinculados</span>
                 <span class="badge bg-secondary">{{ sindicatos|length }}</span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover table-striped mb-0">
-                        <thead class="table-light">
+                        <thead >
                             <tr>
                                 <th>Código</th>
                                 <th>Nome</th>
                                 <th>CNPJ</th>
-                                <th class="text-end">Ações</th>
+                                <th class="text-right">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -61,15 +56,15 @@
                                 <td>{{ sindicato.codigo }}</td>
                                 <td>{{ sindicato.nome }}</td>
                                 <td>{{ sindicato.cnpj|default:"-" }}</td>
-                                <td class="text-end">
+                                <td class="text-right">
                                     <a href="{% url 'cctdashboard:detalhe_sindicato' sindicato.pk %}" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye me-1"></i>Ver
+                                        <i class="bi bi-eye mr-1"></i>Ver
                                     </a>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-3">Nenhum sindicato vinculado.</td>
+                                <td colspan="4" class="text-center text-gray-400 py-3">Nenhum sindicato vinculado.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
