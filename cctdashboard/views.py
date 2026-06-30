@@ -283,10 +283,16 @@ def detalhe_empresa(request, pk):
         .distinct()
         .order_by("nome")
     )
+    documentos_cct = (
+        DocumentoCCT.objects.filter(empresas_vinculadas__empresa=empresa, ativo=True)
+        .distinct()
+        .order_by("-data_inicio_vigencia")
+    )
 
     context = {
         "empresa": empresa,
         "sindicatos": sindicatos,
+        "documentos_cct": documentos_cct,
     }
     return render(request, "cctdashboard/detalhe_empresa.html", context)
 

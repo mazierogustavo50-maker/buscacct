@@ -1,5 +1,5 @@
 from django import forms
-from cctcore.models import Sindicato, Empresa, EmpresaSindicato
+from cctcore.models import Sindicato, Empresa, EmpresaSindicato, EmpresaDocumentoCCT, DocumentoCCT
 
 
 class SindicatoForm(forms.ModelForm):
@@ -25,6 +25,12 @@ class EmpresaForm(forms.ModelForm):
         widget=forms.SelectMultiple(attrs={"class": "form-select", "size": "6"}),
         label="Sindicatos vinculados",
     )
+    documentos_cct = forms.ModelMultipleChoiceField(
+        queryset=DocumentoCCT.objects.filter(ativo=True).select_related("sindicato").order_by("-data_inicio_vigencia"),
+        required=False,
+        widget=forms.SelectMultiple(attrs={"class": "form-select", "size": "6"}),
+        label="Convenções Coletivas (CCT) vinculadas",
+    )
 
     class Meta:
         model = Empresa
@@ -44,15 +50,24 @@ class EmpresaForm(forms.ModelForm):
             self.fields["sindicatos"].initial = Sindicato.objects.filter(
                 empresas__empresa=self.instance
             ).values_list("pk", flat=True)
+            self.fields["documentos_cct"].initial = DocumentoCCT.objects.filter(
+                empresas_vinculadas__empresa=self.instance
+            ).values_list("pk", flat=True)
 
     def save(self, commit=True):
         empresa = super().save(commit=commit)
         if commit:
             sindicatos = self.cleaned_data.get("sindicatos", [])
-            # Sincroniza vínculos
+            # Sincroniza vínculos sindicatos
             EmpresaSindicato.objects.filter(empresa=empresa).delete()
             for sindicato in sindicatos:
                 EmpresaSindicato.objects.get_or_create(empresa=empresa, sindicato=sindicato)
+
+            documentos = self.cleaned_data.get("documentos_cct", [])
+            # Sincroniza vínculos documentos CCT
+            EmpresaDocumentoCCT.objects.filter(empresa=empresa).delete()
+            for doc in documentos:
+                EmpresaDocumentoCCT.objects.get_or_create(empresa=empresa, documento=doc)
         return empresa
 
 

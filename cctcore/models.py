@@ -41,6 +41,19 @@ class EmpresaSindicato(models.Model):
         return f"{self.empresa} <> {self.sindicato}"
 
 
+class EmpresaDocumentoCCT(models.Model):
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name="documentos_cct")
+    documento = models.ForeignKey("DocumentoCCT", on_delete=models.CASCADE, related_name="empresas_vinculadas")
+
+    class Meta:
+        verbose_name = "CCT Vinculada à Empresa"
+        verbose_name_plural = "CCTs Vinculadas às Empresas"
+        unique_together = [["empresa", "documento"]]
+
+    def __str__(self):
+        return f"{self.empresa} <> {self.documento}"
+
+
 class DocumentoCCT(models.Model):
     TIPO_CCT = "CCT"
     TIPO_TA_CCT = "TA-CCT"

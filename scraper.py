@@ -464,7 +464,7 @@ def processar_mediador():
             else:
                 print("  [AVISO] Tabela não apareceu em 20s. Verifique manualmente.")
                 print(f"  Texto visível da página (primeiros 300 chars): {body_text[:300]}")
-            rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+            rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
             continue
 
         # 7. Percorrer TODAS as páginas de resultados
@@ -491,7 +491,7 @@ def processar_mediador():
             if not linhas:
                 if num_pagina == 1:
                     print("  [SEM RESULTADO] Tabela carregou mas não há linhas de dados.")
-                    rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+                    rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
                 break
 
             print(f"  Linhas encontradas: {len(linhas)}")
@@ -654,11 +654,11 @@ def processar_mediador():
                         print(f"  [OK] Arquivo final: {nome_final}")
                     else:
                         print("  [AVISO] Download não concluído.")
-                        rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+                        rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
 
                 except Exception as e:
                     print(f"  [ERRO] Pág {num_pagina} / Linha {i}: {e}")
-                    rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+                    rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
                 finally:
                     # Fecha janelas extras e volta para a principal
                     for h in driver.window_handles:
@@ -731,7 +731,7 @@ def processar_mediador():
 
         if not achou_match:
             print("  [SEM MATCH] Nenhuma linha passou em todos os critérios para este CNPJ.")
-            rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+            rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
 
     driver.quit()
     print("\n" + "="*60)
@@ -758,8 +758,11 @@ def processar_mediador():
     linhas_rel.append(f"1. NÃO ENCONTRADOS ({len(rel_nao_encontrados)} registro(s))")
     linhas_rel.append("-" * 70)
     if rel_nao_encontrados:
-        for cnpj_r, sind_r in rel_nao_encontrados:
-            linhas_rel.append(f"  CNPJ: {cnpj_r}")
+        for item in rel_nao_encontrados:
+            cnpj_r = item.get("cnpj", "")
+            sind_r = item.get("sindicato", "")
+            nome_r = item.get("nome", "")
+            linhas_rel.append(f"   - CNPJ: {cnpj_r} | Código: {sind_r} | Nome: {nome_r}")
             linhas_rel.append(f"  Sindicato: {sind_r}")
             linhas_rel.append("")
     else:

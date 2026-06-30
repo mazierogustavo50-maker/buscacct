@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT, ConfiguracaoSistema
+from .models import Sindicato, Empresa, EmpresaSindicato, EmpresaDocumentoCCT, DocumentoCCT, ConfiguracaoSistema
 
 
 @admin.register(Sindicato)
@@ -20,6 +20,13 @@ class EmpresaSindicatoAdmin(admin.ModelAdmin):
     list_display = ("empresa", "sindicato")
     list_filter = ("sindicato",)
     search_fields = ("empresa__nome", "sindicato__nome", "empresa__codigo", "sindicato__codigo")
+
+
+@admin.register(EmpresaDocumentoCCT)
+class EmpresaDocumentoCCTAdmin(admin.ModelAdmin):
+    list_display = ("empresa", "documento")
+    list_filter = ("documento__sindicato",)
+    search_fields = ("empresa__nome", "empresa__codigo", "documento__sindicato__nome")
 
 
 @admin.register(DocumentoCCT)

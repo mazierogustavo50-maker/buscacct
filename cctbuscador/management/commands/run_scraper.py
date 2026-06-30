@@ -556,7 +556,7 @@ class Command(BaseCommand):
                     self.log("  [SEM RESULTADO] Nenhum instrumento coletivo encontrado para este CNPJ.")
                 else:
                     self.log("  [AVISO] Tabela não apareceu em 20s. Verifique manualmente.")
-                self.rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+                self.rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
                 continue
 
             # Percorrer páginas
@@ -585,7 +585,7 @@ class Command(BaseCommand):
                 if not linhas:
                     if num_pagina == 1:
                         self.log("  [SEM RESULTADO] Tabela carregou mas não há linhas de dados.")
-                        self.rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+                        self.rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
                     break
 
                 self.log(f"  Linhas encontradas: {len(linhas)}")
@@ -874,7 +874,7 @@ class Command(BaseCommand):
 
             if not achou_match:
                 self.log("  [SEM MATCH] Nenhuma linha passou em todos os critérios para este CNPJ.")
-                self.rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+                self.rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
 
             # Persiste progresso a cada sindicato
             self._salvar_progresso(execucao)
