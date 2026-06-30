@@ -79,10 +79,10 @@
 
                 {% if documento.arquivo_pdf %}
                 <div class="mt-4">
-                    <a href="{{ documento.arquivo_pdf }}" target="_blank" class="btn btn-primary">
+                    <a href="{% url 'cctdashboard:ver_pdf' documento.pk %}" target="_blank" class="btn btn-primary">
                         <i class="bi bi-file-earmark-pdf-fill me-2"></i>Abrir PDF
                     </a>
-                    <a href="{{ documento.arquivo_pdf }}" download class="btn btn-outline-secondary">
+                    <a href="{% url 'cctdashboard:ver_pdf' documento.pk %}?download=1" download class="btn btn-outline-secondary">
                         <i class="bi bi-download me-2"></i>Baixar PDF
                     </a>
                 </div>

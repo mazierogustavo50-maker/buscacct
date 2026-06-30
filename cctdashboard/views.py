@@ -408,6 +408,24 @@ def detalhe_documento(request, pk):
 
 
 @login_required
+def ver_pdf(request, pk):
+    """Serve o arquivo PDF do documento via FileResponse."""
+    documento = get_object_or_404(DocumentoCCT, pk=pk)
+    if not documento.arquivo_pdf:
+        raise Http404("Documento não possui arquivo PDF.")
+
+    caminho = Path(documento.arquivo_pdf)
+    if not caminho.exists():
+        raise Http404("Arquivo PDF não encontrado no servidor.")
+
+    return FileResponse(
+        open(caminho, "rb"),
+        content_type="application/pdf",
+        as_attachment=False,
+    )
+
+
+@login_required
 def execucoes_scraper(request):
     queryset = ExecucaoScraper.objects.all()
     paginator = Paginator(queryset, 20)
