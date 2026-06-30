@@ -22,7 +22,6 @@ from .forms import SindicatoForm, EmpresaForm, ImportarSindicatosForm, ImportarE
 def home(request):
     total_sindicatos = Sindicato.objects.count()
     total_empresas = Empresa.objects.count()
-    total_documentos = DocumentoCCT.objects.count()
     total_cct = DocumentoCCT.objects.filter(tipo=DocumentoCCT.TIPO_CCT).count()
     total_ta_cct = DocumentoCCT.objects.filter(tipo=DocumentoCCT.TIPO_TA_CCT).count()
     execucoes_recentes = ExecucaoScraper.objects.all()[:5]
@@ -42,16 +41,22 @@ def home(request):
     sindicato_labels = [s.codigo for s in docs_por_sindicato]
     sindicato_data = [s.total_docs for s in docs_por_sindicato]
 
+    # Lista de não encontrados da execução mais recente (se houver)
+    ultima_execucao = ExecucaoScraper.objects.first()
+    nao_encontrados = []
+    if ultima_execucao and ultima_execucao.nao_encontrados_json:
+        nao_encontrados = ultima_execucao.nao_encontrados_json
+
     context = {
         "total_sindicatos": total_sindicatos,
         "total_empresas": total_empresas,
-        "total_documentos": total_documentos,
         "total_cct": total_cct,
         "total_ta_cct": total_ta_cct,
         "execucoes_recentes": execucoes_recentes,
         "documentos_por_tipo": documentos_por_tipo,
         "sindicato_labels": sindicato_labels,
         "sindicato_data": sindicato_data,
+        "nao_encontrados": nao_encontrados,
     }
     return render(request, "cctdashboard/home.html", context)
 

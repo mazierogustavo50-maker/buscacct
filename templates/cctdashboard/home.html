@@ -43,13 +43,13 @@
         <div class="card kpi-card bg-info h-100 shadow-sm">
             <div class="card-body d-flex align-items-center">
                 <div class="flex-grow-1">
-                    <div class="card-title">Documentos CCT</div>
-                    <h2 class="mb-0">{{ total_documentos }}</h2>
+                    <div class="card-title">Convenções</div>
+                    <h2 class="mb-0">{{ total_cct }}</h2>
                 </div>
                 <i class="bi bi-files fs-1 opacity-50"></i>
             </div>
             <div class="card-footer">
-                <a href="{% url 'cctdashboard:lista_documentos' %}" class="text-white text-decoration-none">Ver todos <i class="bi bi-arrow-right ms-1"></i></a>
+                <a href="{% url 'cctdashboard:lista_documentos' %}?tipo=CCT" class="text-white text-decoration-none">Ver todas <i class="bi bi-arrow-right ms-1"></i></a>
             </div>
         </div>
     </div>
@@ -153,6 +153,40 @@
         </div>
     </div>
 </div>
+
+{% if nao_encontrados %}
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                <span class="d-flex align-items-center"><i class="bi bi-x-circle-fill me-2"></i>Não Encontrados na Última Execução ({{ nao_encontrados|length }})</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>CNPJ</th>
+                                <th>Código Sindicato</th>
+                                <th>Nome Sindicato</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in nao_encontrados %}
+                            <tr>
+                                <td class="font-monospace">{{ item.cnpj }}</td>
+                                <td>{{ item.sindicato }}</td>
+                                <td>{{ item.nome }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}

@@ -377,7 +377,8 @@ class Command(BaseCommand):
         """Persiste log e contadores no banco para acompanhamento em tempo real."""
         try:
             execucao.log_texto = "\n".join(self.linhas_log)
-            execucao.save(update_fields=["log_texto", "total_baixados", "total_ja_existentes", "total_nao_encontrados"])
+            execucao.nao_encontrados_json = self.rel_nao_encontrados
+            execucao.save(update_fields=["log_texto", "total_baixados", "total_ja_existentes", "total_nao_encontrados", "nao_encontrados_json"])
         except Exception as e:
             self.stdout.write(f"[AVISO] Falha ao salvar progresso: {e}")
 
@@ -451,9 +452,9 @@ class Command(BaseCommand):
 
         limpar_temp()
 
-        rel_nao_encontrados = []
-        rel_ja_baixados = []
-        rel_baixados = []
+        self.rel_nao_encontrados = []
+        self.rel_ja_baixados = []
+        self.rel_baixados = []
 
         self.log("Iniciando Chrome...")
         driver = configurar_driver(headless=headless)
@@ -555,7 +556,7 @@ class Command(BaseCommand):
                     self.log("  [SEM RESULTADO] Nenhum instrumento coletivo encontrado para este CNPJ.")
                 else:
                     self.log("  [AVISO] Tabela não apareceu em 20s. Verifique manualmente.")
-                rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+                self.rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
                 continue
 
             # Percorrer páginas
@@ -584,7 +585,7 @@ class Command(BaseCommand):
                 if not linhas:
                     if num_pagina == 1:
                         self.log("  [SEM RESULTADO] Tabela carregou mas não há linhas de dados.")
-                        rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+                        self.rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
                     break
 
                 self.log(f"  Linhas encontradas: {len(linhas)}")
@@ -674,7 +675,7 @@ class Command(BaseCommand):
                             sindicato=sindicato_db, tipo=tipo_arq, data_inicio_vigencia=data_obj
                         ).exists())):
                             self.log(f"  [PULANDO] Arquivo já existe: {nome_esperado}")
-                            rel_ja_baixados.append((cnpj_formatado, sindicato_esperado, nome_esperado))
+                            self.rel_ja_baixados.append((cnpj_formatado, sindicato_esperado, nome_esperado))
                             continue
 
                         if forcar:
@@ -760,7 +761,7 @@ class Command(BaseCommand):
                                 destino_final = converter_para_pdf(destino_final)
 
                             nome_final = os.path.basename(destino_final)
-                            rel_baixados.append((cnpj_formatado, sindicato_esperado, nome_final))
+                            self.rel_baixados.append((cnpj_formatado, sindicato_esperado, nome_final))
                             self.log(f"  [OK] Arquivo final: {nome_final}")
 
                             # Converte caminho absoluto para relativo ao BASE_DIR (funciona em Docker e local)
@@ -795,15 +796,19 @@ class Command(BaseCommand):
                                 doc.status_extracao = DocumentoCCT.STATUS_EXTRAIDO
                                 doc.save()
 
-                            execucao.total_baixados += 1
-                            execucao.save()
+                            # Contabiliza corretamente: novo baixado vs já existente
+                            if created:
+                                execucao.total_baixados += 1
+                            else:
+                                execucao.total_ja_existentes += 1
+                            execucao.save(update_fields=["total_baixados", "total_ja_existentes"])
                         else:
                             self.log("  [AVISO] Download não concluído.")
-                            rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+                            self.rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
 
                     except Exception as e:
                         self.log(f"  [ERRO] Pág {num_pagina} / Linha {i}: {e}")
-                        rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+                        self.rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
                     finally:
                         # Garante que sempre volta para a janela principal
                         try:
@@ -866,7 +871,7 @@ class Command(BaseCommand):
 
             if not achou_match:
                 self.log("  [SEM MATCH] Nenhuma linha passou em todos os critérios para este CNPJ.")
-                rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
+                self.rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
 
             # Persiste progresso a cada sindicato
             self._salvar_progresso(execucao)
@@ -878,9 +883,10 @@ class Command(BaseCommand):
         self.log("="*60)
 
         # Resumo
-        execucao.total_baixados = len(rel_baixados)
-        execucao.total_ja_existentes = len(rel_ja_baixados)
-        execucao.total_nao_encontrados = len(rel_nao_encontrados)
+        execucao.total_baixados = len(self.rel_baixados)
+        execucao.total_ja_existentes = len(self.rel_ja_baixados)
+        execucao.total_nao_encontrados = len(self.rel_nao_encontrados)
+        execucao.nao_encontrados_json = self.rel_nao_encontrados
         execucao.save()
 
-        self.log(f"\nRESUMO: {len(rel_baixados)} baixado(s) | {len(rel_ja_baixados)} já existia(m) | {len(rel_nao_encontrados)} não encontrado(s)")
+        self.log(f"\nRESUMO: {len(self.rel_baixados)} baixado(s) | {len(self.rel_ja_baixados)} já existia(m) | {len(self.rel_nao_encontrados)} não encontrado(s)")

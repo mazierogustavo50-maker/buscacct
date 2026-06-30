@@ -22,6 +22,7 @@ class ExecucaoScraper(models.Model):
     log_texto = models.TextField(blank=True)
     pid = models.IntegerField(null=True, blank=True)
     abortar = models.BooleanField(default=False)
+    nao_encontrados_json = models.JSONField(default=list, blank=True)
 
     class Meta:
         verbose_name = "Execução do Scraper"
