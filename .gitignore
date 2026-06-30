@@ -52,3 +52,12 @@ Thumbs.db
 *.crdownload
 *.tmp
 temp_dl/
+
+# Dados do scraper (não versionar PDFs, DOCs e planilhas de dados)
+convencoes/*.pdf
+convencoes/*.doc
+convencoes/*.docx
+convencoesdoc/
+sindicatosistema.xlsx
+cnpjs.xlsx
+empresasindicato.xlsx
