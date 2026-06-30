@@ -8,9 +8,9 @@ services:
       - "8000:8000"
     volumes:
       - buscacct_data:/app/data
-      - ./convencoes:/app/convencoes
-      - ./dados:/app/dados
-      - ./media:/app/media
+      - buscacct_convencoes:/app/convencoes
+      - buscacct_dados:/app/dados
+      - buscacct_media:/app/media
     environment:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-django-insecure-change-me-in-production}
       - DJANGO_DEBUG=${DJANGO_DEBUG:-False}
@@ -21,4 +21,10 @@ services:
 
 volumes:
   buscacct_data:
+    driver: local
+  buscacct_convencoes:
+    driver: local
+  buscacct_dados:
+    driver: local
+  buscacct_media:
     driver: local
