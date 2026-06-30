@@ -53,24 +53,29 @@ def analisar_cct_com_ia(texto_cct: str, model_id: str = None) -> dict:
         "informações solicitadas de forma estruturada. Responda SEMPRE em JSON válido."
     )
 
-    prompt_usuario = (
-        "Analise a seguinte Convenção Coletiva de Trabalho (CCT) e extraia:\n"
-        "1. data_base (data-base da negociação)\n"
-        "2. vigencia_inicio (início da vigência)\n"
-        "3. vigencia_fim (fim da vigência)\n"
-        "4. reajuste_percentual (percentual de reajuste salarial, se houver)\n"
-        "5. contribuicao_sindical_empregado (valor ou percentual da contribuição sindical/negocial dos empregados)\n"
-        "6. contribuicao_sindical_patronal (valor ou percentual da contribuição patronal, se houver)\n"
-        "7. pisos_salariais (lista de funções e seus respectivos pisos salariais)\n"
-        "8. beneficios (lista de benefícios mencionados com breve descrição)\n"
-        "9. jornada (informações sobre jornada de trabalho, se houver algo específico)\n"
-        "10. aviso_previo (regras de aviso prévio, se houver algo específico)\n"
-        "11. multa (regras de multa, se houver algo específico)\n"
-        "12. outras_clausulas_relevantes (outras cláusulas que considerar importantes)\n\n"
-        "Responda em JSON com EXATAMENTE essas chaves. Use null quando não encontrar a informação. "
-        "No campo 'resumo', faça um breve resumo de 3 a 5 linhas da CCT.\n\n"
-        f"TEXTO DA CCT:\n{texto_cct[:15000]}"
-    )
+    # Usa o prompt configurável do admin; fallback para o padrão se estiver vazio
+    prompt_template = config.prompt_analise_cct.strip() if config.prompt_analise_cct else ""
+    if not prompt_template:
+        prompt_template = (
+            "Analise a seguinte Convenção Coletiva de Trabalho (CCT) e extraia:\n"
+            "1. data_base (data-base da negociação)\n"
+            "2. vigencia_inicio (início da vigência)\n"
+            "3. vigencia_fim (fim da vigência)\n"
+            "4. reajuste_percentual (percentual de reajuste salarial, se houver)\n"
+            "5. contribuicao_sindical_empregado (valor ou percentual da contribuição sindical/negocial dos empregados)\n"
+            "6. contribuicao_sindical_patronal (valor ou percentual da contribuição patronal, se houver)\n"
+            "7. pisos_salariais (lista de funções e seus respectivos pisos salariais)\n"
+            "8. beneficios (lista de benefícios mencionados com breve descrição)\n"
+            "9. jornada (informações sobre jornada de trabalho, se houver algo específico)\n"
+            "10. aviso_previo (regras de aviso prévio, se houver algo específico)\n"
+            "11. multa (regras de multa, se houver algo específico)\n"
+            "12. outras_clausulas_relevantes (outras cláusulas que considerar importantes)\n\n"
+            "Responda em JSON com EXATAMENTE essas chaves. Use null quando não encontrar a informação. "
+            "No campo 'resumo', faça um breve resumo de 3 a 5 linhas da CCT.\n\n"
+            "TEXTO DA CCT:\n{texto_cct}"
+        )
+
+    prompt_usuario = prompt_template.replace("{texto_cct}", texto_cct[:15000])
 
     headers = {
         "Authorization": f"Bearer {api_key}",
