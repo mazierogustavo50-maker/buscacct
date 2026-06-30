@@ -67,6 +67,22 @@
                     <dt class="col-sm-4">Status Extração</dt>
                     <dd class="col-sm-8">{{ documento.get_status_extracao_display }}</dd>
 
+                    <dt class="col-sm-4">Status Análise IA</dt>
+                    <dd class="col-sm-8">
+                        {% if documento.status_analise_ia == "CONCLUIDO" %}
+                            <span class="badge bg-success">Concluído</span>
+                        {% elif documento.status_analise_ia == "ERRO" %}
+                            <span class="badge bg-danger">Erro</span>
+                        {% elif documento.status_analise_ia == "EM_ANDAMENTO" %}
+                            <span class="badge bg-warning text-dark">Em andamento</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Pendente</span>
+                        {% endif %}
+                        {% if documento.data_analise_ia %}
+                            <small class="text-muted ms-1">({{ documento.data_analise_ia|date:"d/m/Y H:i" }})</small>
+                        {% endif %}
+                    </dd>
+
                     <dt class="col-sm-4">Arquivo PDF</dt>
                     <dd class="col-sm-8">
                         {% if documento.arquivo_pdf %}
@@ -102,6 +118,14 @@
                     <a href="{% url 'cctdashboard:lista_documentos' %}?sindicato={{ documento.sindicato.pk }}" class="btn btn-outline-info">
                         <i class="bi bi-files me-2"></i>Documentos do Sindicato
                     </a>
+                    {% if documento.arquivo_pdf %}
+                        <form method="post" action="{% url 'cctdashboard:analisar_documento_ia' documento.pk %}" onsubmit="return confirm('Iniciar análise com IA? Isso pode levar alguns segundos.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-info w-100" {% if documento.status_analise_ia == 'EM_ANDAMENTO' %}disabled{% endif %}>
+                                <i class="bi bi-robot me-2"></i>Analisar com IA
+                            </button>
+                        </form>
+                    {% endif %}
                     {% if documento.ativo %}
                         <form method="post" action="{% url 'cctdashboard:desativar_documento' documento.pk %}" onsubmit="return confirm('Marcar este documento como NÃO UTILIZAR?');">
                             {% csrf_token %}
@@ -125,4 +149,47 @@
         </div>
     </div>
 </div>
+
+{% if documento.analise_ia_texto %}
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-robot me-2 text-info"></i>Resultado da Análise com IA</span>
+                <span class="badge bg-secondary">{{ documento.get_status_analise_ia_display }}</span>
+            </div>
+            <div class="card-body">
+                {% if documento.analise_ia_json %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped table-bordered">
+                            <tbody>
+                                {% for chave, valor in documento.analise_ia_json.items %}
+                                    <tr>
+                                        <th class="text-nowrap" style="width: 25%;">{{ chave|title }}</th>
+                                        <td>
+                                            {% if valor is None %}
+                                                <span class="text-muted">-</span>
+                                            {% elif valor is True %}
+                                                Sim
+                                            {% elif valor is False %}
+                                                Não
+                                            {% elif valor|stringformat:"s"|length > 200 %}
+                                                <pre class="mb-0" style="white-space: pre-wrap;">{{ valor|stringformat:"s" }}</pre>
+                                            {% else %}
+                                                {{ valor }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <pre class="mb-0" style="white-space: pre-wrap;">{{ documento.analise_ia_texto }}</pre>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

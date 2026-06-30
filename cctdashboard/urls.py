@@ -27,6 +27,8 @@ urlpatterns = [
     path("documentos/<int:pk>/reativar/", views.reativar_documento, name="reativar_documento"),
     # PDF
     path("documentos/<int:pk>/pdf/", views.ver_pdf, name="ver_pdf"),
+    # Análise IA
+    path("documentos/<int:pk>/analisar-ia/", views.analisar_documento_ia, name="analisar_documento_ia"),
     # Execuções
     path("execucoes/", views.execucoes_scraper, name="execucoes_scraper"),
     path("execucoes/iniciar/", views.executar_scraper, name="executar_scraper"),

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT
+from .models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT, ConfiguracaoSistema
 
 
 @admin.register(Sindicato)
@@ -30,8 +30,20 @@ class DocumentoCCTAdmin(admin.ModelAdmin):
         "data_inicio_vigencia",
         "data_fim_vigencia",
         "status_extracao",
+        "status_analise_ia",
         "arquivo_pdf",
     )
-    list_filter = ("tipo", "status_extracao", "sindicato")
+    list_filter = ("tipo", "status_extracao", "status_analise_ia", "sindicato")
     search_fields = ("sindicato__nome", "sindicato__codigo", "arquivo_pdf")
     date_hierarchy = "data_inicio_vigencia"
+
+
+@admin.register(ConfiguracaoSistema)
+class ConfiguracaoSistemaAdmin(admin.ModelAdmin):
+    list_display = ("chave_api_opencode", "modelo_padrao_opencode")
+    
+    def has_add_permission(self, request):
+        # Permite apenas 1 registro
+        if ConfiguracaoSistema.objects.exists():
+            return False
+        return super().has_add_permission(request)

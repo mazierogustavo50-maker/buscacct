@@ -85,5 +85,59 @@ class DocumentoCCT(models.Model):
         verbose_name_plural = "Documentos CCT"
         ordering = ["-data_inicio_vigencia", "sindicato", "tipo"]
 
+    # Campos para análise com IA
+    STATUS_ANALISE_PENDENTE = "PENDENTE"
+    STATUS_ANALISE_EM_ANDAMENTO = "EM_ANDAMENTO"
+    STATUS_ANALISE_CONCLUIDO = "CONCLUIDO"
+    STATUS_ANALISE_ERRO = "ERRO"
+    STATUS_ANALISE_CHOICES = [
+        (STATUS_ANALISE_PENDENTE, "Pendente"),
+        (STATUS_ANALISE_EM_ANDAMENTO, "Em andamento"),
+        (STATUS_ANALISE_CONCLUIDO, "Concluído"),
+        (STATUS_ANALISE_ERRO, "Erro"),
+    ]
+
+    status_analise_ia = models.CharField(
+        max_length=20, choices=STATUS_ANALISE_CHOICES, default=STATUS_ANALISE_PENDENTE, blank=True
+    )
+    analise_ia_json = models.JSONField(null=True, blank=True)
+    analise_ia_texto = models.TextField(blank=True)
+    data_analise_ia = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Documento CCT"
+        verbose_name_plural = "Documentos CCT"
+        ordering = ["-data_inicio_vigencia", "sindicato", "tipo"]
+
     def __str__(self):
         return f"{self.tipo} - {self.sindicato} ({self.data_inicio_vigencia or 'sem data'})"
+
+
+class ConfiguracaoSistema(models.Model):
+    """Configurações globais do sistema (singleton)."""
+
+    chave_api_opencode = models.CharField(
+        max_length=255, blank=True, verbose_name="Chave API OpenCode Go"
+    )
+    modelo_padrao_opencode = models.CharField(
+        max_length=50, default="kimi-k2.6", verbose_name="Modelo padrão OpenCode Go"
+    )
+
+    class Meta:
+        verbose_name = "Configuração do Sistema"
+        verbose_name_plural = "Configurações do Sistema"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    @classmethod
+    def get_config(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return "Configuração do Sistema"

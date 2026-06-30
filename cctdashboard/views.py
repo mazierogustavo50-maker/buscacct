@@ -12,10 +12,12 @@ import pandas as pd
 import subprocess
 import sys
 import os
+import json
 
 from cctcore.models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT
 from cctbuscador.models import ExecucaoScraper
 from .forms import SindicatoForm, EmpresaForm, ImportarSindicatosForm, ImportarEmpresasForm
+from cctcore.services import extrair_texto_pdf, analisar_cct_com_ia
 
 
 @login_required
@@ -666,4 +668,48 @@ def reativar_documento(request, pk):
     documento.ativo = True
     documento.save(update_fields=["ativo"])
     messages.success(request, "Documento reativado com sucesso.")
+    return redirect("cctdashboard:detalhe_documento", pk=pk)
+
+
+@login_required
+@require_POST
+def analisar_documento_ia(request, pk):
+    """Executa análise de CCT via IA (OpenCode Go)."""
+    documento = get_object_or_404(DocumentoCCT, pk=pk)
+
+    if not documento.arquivo_pdf:
+        messages.error(request, "Documento não possui arquivo PDF para análise.")
+        return redirect("cctdashboard:detalhe_documento", pk=pk)
+
+    # Atualiza status
+    documento.status_analise_ia = DocumentoCCT.STATUS_ANALISE_EM_ANDAMENTO
+    documento.save(update_fields=["status_analise_ia"])
+
+    try:
+        texto = extrair_texto_pdf(documento.arquivo_pdf)
+        if not texto or texto.startswith("[ERRO"):
+            raise ValueError(texto or "Não foi possível extrair texto do PDF.")
+
+        resultado = analisar_cct_com_ia(texto)
+
+        if "erro" in resultado:
+            documento.status_analise_ia = DocumentoCCT.STATUS_ANALISE_ERRO
+            documento.analise_ia_texto = resultado["erro"]
+            documento.save(update_fields=["status_analise_ia", "analise_ia_texto"])
+            messages.error(request, f"Falha na análise: {resultado['erro']}")
+        else:
+            documento.status_analise_ia = DocumentoCCT.STATUS_ANALISE_CONCLUIDO
+            documento.analise_ia_json = resultado.get("resultado")
+            # Monta resumo textual para exibição rápida
+            resumo = resultado.get("resultado", {}).get("resumo", "")
+            documento.analise_ia_texto = json.dumps(resultado.get("resultado"), ensure_ascii=False, indent=2)
+            documento.data_analise_ia = timezone.now()
+            documento.save(update_fields=["status_analise_ia", "analise_ia_json", "analise_ia_texto", "data_analise_ia"])
+            messages.success(request, "Análise com IA concluída com sucesso!")
+    except Exception as e:
+        documento.status_analise_ia = DocumentoCCT.STATUS_ANALISE_ERRO
+        documento.analise_ia_texto = str(e)
+        documento.save(update_fields=["status_analise_ia", "analise_ia_texto"])
+        messages.error(request, f"Erro durante análise: {e}")
+
     return redirect("cctdashboard:detalhe_documento", pk=pk)
