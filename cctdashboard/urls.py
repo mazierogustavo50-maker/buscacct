@@ -19,6 +19,9 @@ urlpatterns = [
     path("empresas/<int:pk>/", views.detalhe_empresa, name="detalhe_empresa"),
     path("empresas/<int:pk>/editar/", views.editar_empresa, name="editar_empresa"),
     path("empresas/<int:pk>/excluir/", views.excluir_empresa, name="excluir_empresa"),
+    # Filtro de empresas por sindicato + relatório PDF
+    path("relatorio/empresas-por-sindicato/", views.filtrar_empresas_por_sindicato, name="filtro_empresas_por_sindicato"),
+    path("relatorio/empresas-por-sindicato/pdf/", views.relatorio_empresas_sindicato_pdf, name="relatorio_empresas_sindicato_pdf"),
     # Documentos
     path("documentos/", views.lista_documentos, name="lista_documentos"),
     path("documentos/<int:pk>/", views.detalhe_documento, name="detalhe_documento"),
@@ -35,6 +38,11 @@ urlpatterns = [
     path("execucoes/<int:pk>/", views.detalhe_execucao, name="detalhe_execucao"),
     path("execucoes/<int:pk>/abortar/", views.abortar_scraper, name="abortar_scraper"),
     path("execucoes/limpar/", views.limpar_execucoes, name="limpar_execucoes"),
+    # Agendamentos
+    path("agendamentos/", views.lista_agendamentos, name="lista_agendamentos"),
+    path("agendamentos/novo/", views.criar_agendamento, name="criar_agendamento"),
+    path("agendamentos/<int:pk>/editar/", views.editar_agendamento, name="editar_agendamento"),
+    path("agendamentos/<int:pk>/excluir/", views.excluir_agendamento, name="excluir_agendamento"),
     # Relatório
     path("relatorio/", views.relatorio_execucoes, name="relatorio_execucoes"),
 ]

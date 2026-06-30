@@ -1,0 +1,105 @@
+{% extends "cctdashboard/base.html" %}
+{% block title %}{{ titulo }} - Mediador CCT{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:lista_agendamentos' %}">Agendamentos</a></li>
+        <li class="breadcrumb-item active">{{ titulo }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="bi bi-calendar-plus me-2 text-primary"></i>{{ titulo }}</h2>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="horario" class="form-label">Horário <span class="text-danger">*</span></label>
+                    <input type="time" name="horario" id="horario" class="form-control" required
+                        value="{% if agendamento %}{{ agendamento.horario|time:'H:i' }}{% else %}08:00{% endif %}">
+                </div>
+                <div class="col-md-3">
+                    <label for="recorrencia" class="form-label">Recorrência <span class="text-danger">*</span></label>
+                    <select name="recorrencia" id="recorrencia" class="form-select" onchange="toggleCamposRecorrencia()">
+                        <option value="DIARIA" {% if agendamento and agendamento.recorrencia == "DIARIA" %}selected{% endif %}>Diária</option>
+                        <option value="SEMANAL" {% if agendamento and agendamento.recorrencia == "SEMANAL" %}selected{% endif %}>Semanal</option>
+                        <option value="MENSAL" {% if agendamento and agendamento.recorrencia == "MENSAL" %}selected{% endif %}>Mensal</option>
+                    </select>
+                </div>
+                <div class="col-md-3" id="campo-dia-semana" style="display: {% if agendamento and agendamento.recorrencia == 'SEMANAL' %}block{% else %}none{% endif %};">
+                    <label for="dia_semana" class="form-label">Dia da Semana</label>
+                    <select name="dia_semana" id="dia_semana" class="form-select">
+                        <option value="">-- Selecione --</option>
+                        <option value="0" {% if agendamento and agendamento.dia_semana == 0 %}selected{% endif %}>Segunda</option>
+                        <option value="1" {% if agendamento and agendamento.dia_semana == 1 %}selected{% endif %}>Terça</option>
+                        <option value="2" {% if agendamento and agendamento.dia_semana == 2 %}selected{% endif %}>Quarta</option>
+                        <option value="3" {% if agendamento and agendamento.dia_semana == 3 %}selected{% endif %}>Quinta</option>
+                        <option value="4" {% if agendamento and agendamento.dia_semana == 4 %}selected{% endif %}>Sexta</option>
+                        <option value="5" {% if agendamento and agendamento.dia_semana == 5 %}selected{% endif %}>Sábado</option>
+                        <option value="6" {% if agendamento and agendamento.dia_semana == 6 %}selected{% endif %}>Domingo</option>
+                    </select>
+                </div>
+                <div class="col-md-3" id="campo-dia-mes" style="display: {% if agendamento and agendamento.recorrencia == 'MENSAL' %}block{% else %}none{% endif %};">
+                    <label for="dia_mes" class="form-label">Dia do Mês (1-31)</label>
+                    <input type="number" name="dia_mes" id="dia_mes" class="form-control" min="1" max="31"
+                        value="{% if agendamento and agendamento.dia_mes %}{{ agendamento.dia_mes }}{% else %}1{% endif %}">
+                </div>
+            </div>
+
+            <div class="row g-3 mt-1">
+                <div class="col-md-6">
+                    <label for="sindicato_codigo" class="form-label">Sindicato (opcional)</label>
+                    <select name="sindicato_codigo" id="sindicato_codigo" class="form-select">
+                        <option value="">-- Todos os sindicatos --</option>
+                        {% for s in sindicatos %}
+                        <option value="{{ s.codigo }}" {% if agendamento and agendamento.sindicato_codigo == s.codigo %}selected{% endif %}>
+                            {{ s.codigo }} - {{ s.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">Deixe em branco para processar todos os sindicatos.</div>
+                </div>
+                <div class="col-md-6 d-flex align-items-center gap-4 pt-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="headless" id="headless" {% if not agendamento or agendamento.headless %}checked{% endif %}>
+                        <label class="form-check-label" for="headless">Headless</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="forcar" id="forcar" {% if agendamento and agendamento.forcar %}checked{% endif %}>
+                        <label class="form-check-label" for="forcar">Forçar re-download</label>
+                    </div>
+                    {% if agendamento %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="ativo" id="ativo" {% if agendamento.ativo %}checked{% endif %}>
+                        <label class="form-check-label" for="ativo">Ativo</label>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-lg me-1"></i>Salvar
+                </button>
+                <a href="{% url 'cctdashboard:lista_agendamentos' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-lg me-1"></i>Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleCamposRecorrencia() {
+    const rec = document.getElementById('recorrencia').value;
+    document.getElementById('campo-dia-semana').style.display = rec === 'SEMANAL' ? 'block' : 'none';
+    document.getElementById('campo-dia-mes').style.display = rec === 'MENSAL' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

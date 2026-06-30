@@ -46,6 +46,20 @@
                             <i class="bi bi-robot me-1"></i>Execuções
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if request.resolver_match.url_name == 'lista_agendamentos' or request.resolver_match.url_name == 'criar_agendamento' or request.resolver_match.url_name == 'editar_agendamento' %} active{% endif %}" href="{% url 'cctdashboard:lista_agendamentos' %}">
+                            <i class="bi bi-calendar-check me-1"></i>Agendamentos
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle{% if request.resolver_match.url_name == 'relatorio_execucoes' or request.resolver_match.url_name == 'filtro_empresas_por_sindicato' %} active{% endif %}" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-file-text me-1"></i>Relatórios
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'cctdashboard:relatorio_execucoes' %}"><i class="bi bi-robot me-2 text-primary"></i>Execuções do Scraper</a></li>
+                            <li><a class="dropdown-item" href="{% url 'cctdashboard:filtro_empresas_por_sindicato' %}"><i class="bi bi-building me-2 text-success"></i>Empresas por Sindicato</a></li>
+                        </ul>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle me-1"></i>{{ request.user.username|default:"Usuário" }}

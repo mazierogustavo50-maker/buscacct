@@ -1,0 +1,93 @@
+{% extends "cctdashboard/base.html" %}
+{% block title %}Agendamentos do Scraper - Mediador CCT{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:home' %}">Home</a></li>
+        <li class="breadcrumb-item active">Agendamentos</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="bi bi-calendar-check me-2 text-primary"></i>Agendamentos do Scraper</h2>
+    <a href="{% url 'cctdashboard:criar_agendamento' %}" class="btn btn-success">
+        <i class="bi bi-plus-lg me-1"></i>Novo Agendamento
+    </a>
+</div>
+
+<div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>
+    <strong>Como funciona:</strong> Configure agendamentos com recorrência (diária, semanal ou mensal). 
+    Para executar automaticamente, configure um cron no servidor para rodar 
+    <code>python manage.py executar_agendamentos</code> a cada minuto.
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Horário</th>
+                        <th>Recorrência</th>
+                        <th>Sindicato</th>
+                        <th>Headless</th>
+                        <th>Forçar</th>
+                        <th>Última Execução</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ag in agendamentos %}
+                    <tr>
+                        <td>
+                            {% if ag.ativo %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td class="font-monospace">{{ ag.horario|time:"H:i" }}</td>
+                        <td>
+                            {{ ag.get_recorrencia_display }}
+                            {% if ag.recorrencia == "SEMANAL" and ag.dia_semana is not None %}
+                                <small class="text-muted">({{ ag.get_dia_semana_display }})</small>
+                            {% elif ag.recorrencia == "MENSAL" and ag.dia_mes %}
+                                <small class="text-muted">(dia {{ ag.dia_mes }})</small>
+                            {% endif %}
+                        </td>
+                        <td>{{ ag.sindicato_codigo|default:"<span class='text-muted'>Todos</span>"|safe }}</td>
+                        <td>{% if ag.headless %}<i class="bi bi-check-lg text-success"></i>{% else %}<i class="bi bi-x-lg text-danger"></i>{% endif %}</td>
+                        <td>{% if ag.forcar %}<i class="bi bi-check-lg text-success"></i>{% else %}<i class="bi bi-x-lg text-danger"></i>{% endif %}</td>
+                        <td>
+                            {% if ag.ultima_execucao %}
+                                {{ ag.ultima_execucao|date:"d/m/Y H:i" }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'cctdashboard:editar_agendamento' ag.pk %}" class="btn btn-sm btn-outline-warning">
+                                <i class="bi bi-pencil me-1"></i>Editar
+                            </a>
+                            <form method="post" action="{% url 'cctdashboard:excluir_agendamento' ag.pk %}" class="d-inline" onsubmit="return confirm('Excluir este agendamento?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash me-1"></i>Excluir
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">Nenhum agendamento configurado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

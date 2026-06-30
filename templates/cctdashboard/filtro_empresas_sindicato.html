@@ -1,0 +1,93 @@
+{% extends "cctdashboard/base.html" %}
+{% block title %}Empresas por Sindicato - Mediador CCT{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:home' %}">Home</a></li>
+        <li class="breadcrumb-item active">Empresas por Sindicato</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0"><i class="bi bi-filter-circle me-2 text-primary"></i>Empresas por Sindicato</h2>
+        <p class="text-muted small mb-0">Selecione um sindicato para filtrar as empresas vinculadas</p>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-8">
+                <label for="sindicato" class="form-label">Sindicato</label>
+                <select name="sindicato" id="sindicato" class="form-select">
+                    <option value="">-- Selecione um sindicato --</option>
+                    {% for s in sindicatos %}
+                    <option value="{{ s.pk }}" {% if s.pk|stringformat:"i" == sindicato_id %}selected{% endif %}>
+                        {{ s.codigo }} - {{ s.nome }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search me-1"></i>Filtrar
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'cctdashboard:filtro_empresas_por_sindicato' %}" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-x-lg me-1"></i>Limpar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if sindicato_selecionado %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4 class="mb-1">{{ sindicato_selecionado.codigo }} - {{ sindicato_selecionado.nome }}</h4>
+        <p class="text-muted mb-0">Total de empresas vinculadas: <strong>{{ total_empresas }}</strong></p>
+    </div>
+    <a href="{% url 'cctdashboard:relatorio_empresas_sindicato_pdf' %}?sindicato={{ sindicato_selecionado.pk }}" class="btn btn-danger" target="_blank">
+        <i class="bi bi-file-earmark-pdf-fill me-1"></i>Gerar PDF
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Código da Empresa</th>
+                        <th>Nome da Empresa</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empresa in empresas %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td class="font-monospace">{{ empresa.codigo }}</td>
+                        <td>{{ empresa.nome }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'cctdashboard:detalhe_empresa' empresa.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye me-1"></i>Ver
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">Nenhuma empresa vinculada a este sindicato.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -15,7 +15,7 @@ import os
 import json
 
 from cctcore.models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT
-from cctbuscador.models import ExecucaoScraper
+from cctbuscador.models import ExecucaoScraper, AgendamentoScraper
 from .forms import SindicatoForm, EmpresaForm, ImportarSindicatosForm, ImportarEmpresasForm
 from cctcore.services import extrair_texto_pdf, analisar_cct_com_ia
 
@@ -771,3 +771,175 @@ def analisar_documento_ia(request, pk):
         messages.error(request, f"Erro durante análise: {e}")
 
     return redirect("cctdashboard:detalhe_documento", pk=pk)
+
+
+# ============================================================
+# FILTRO DE EMPRESAS POR SINDICATO + RELATÓRIO PDF
+# ============================================================
+
+@login_required
+def filtrar_empresas_por_sindicato(request):
+    sindicatos = Sindicato.objects.order_by("nome")
+    sindicato_id = request.GET.get("sindicato", "").strip()
+    empresas = []
+    sindicato_selecionado = None
+
+    if sindicato_id:
+        sindicato_selecionado = get_object_or_404(Sindicato, pk=sindicato_id)
+        empresas = (
+            Empresa.objects.filter(sindicatos__sindicato=sindicato_selecionado)
+            .distinct()
+            .order_by("nome")
+        )
+
+    context = {
+        "sindicatos": sindicatos,
+        "sindicato_selecionado": sindicato_selecionado,
+        "empresas": empresas,
+        "sindicato_id": sindicato_id,
+        "total_empresas": len(empresas),
+    }
+    return render(request, "cctdashboard/filtro_empresas_sindicato.html", context)
+
+
+@login_required
+def relatorio_empresas_sindicato_pdf(request):
+    """Gera PDF com as empresas vinculadas ao sindicato selecionado."""
+    from xhtml2pdf import pisa
+    from django.template.loader import render_to_string
+
+    sindicato_id = request.GET.get("sindicato", "").strip()
+    if not sindicato_id:
+        messages.error(request, "Selecione um sindicato para gerar o relatório.")
+        return redirect("cctdashboard:filtro_empresas_por_sindicato")
+
+    sindicato = get_object_or_404(Sindicato, pk=sindicato_id)
+    empresas = (
+        Empresa.objects.filter(sindicatos__sindicato=sindicato)
+        .distinct()
+        .order_by("nome")
+    )
+
+    html_string = render_to_string("cctdashboard/relatorio_empresas_pdf.html", {
+        "sindicato": sindicato,
+        "empresas": empresas,
+        "total_empresas": empresas.count(),
+        "data_geracao": timezone.now().strftime("%d/%m/%Y %H:%M:%S"),
+    })
+
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="relatorio_empresas_{sindicato.codigo}.pdf"'
+    pisa.CreatePDF(html_string, dest=response)
+    return response
+
+
+# ============================================================
+# AGENDAMENTO DO SCRAPER
+# ============================================================
+
+@login_required
+def lista_agendamentos(request):
+    agendamentos = AgendamentoScraper.objects.all()
+    context = {
+        "agendamentos": agendamentos,
+    }
+    return render(request, "cctdashboard/lista_agendamentos.html", context)
+
+
+@login_required
+def criar_agendamento(request):
+    if request.method == "POST":
+        horario = request.POST.get("horario", "").strip()
+        recorrencia = request.POST.get("recorrencia", "DIARIA").strip()
+        dia_semana = request.POST.get("dia_semana", "").strip() or None
+        dia_mes = request.POST.get("dia_mes", "").strip() or None
+        headless = request.POST.get("headless") == "on"
+        forcar = request.POST.get("forcar") == "on"
+        sindicato_codigo = request.POST.get("sindicato_codigo", "").strip()
+
+        if not horario:
+            messages.error(request, "Informe o horário.")
+            return render(request, "cctdashboard/form_agendamento.html", {"sindicatos": Sindicato.objects.order_by("nome")})
+
+        try:
+            from datetime import datetime
+            horario_obj = datetime.strptime(horario, "%H:%M").time()
+        except ValueError:
+            messages.error(request, "Horário inválido. Use o formato HH:MM.")
+            return render(request, "cctdashboard/form_agendamento.html", {"sindicatos": Sindicato.objects.order_by("nome")})
+
+        dia_semana_int = int(dia_semana) if dia_semana is not None else None
+        dia_mes_int = int(dia_mes) if dia_mes is not None else None
+
+        AgendamentoScraper.objects.create(
+            horario=horario_obj,
+            recorrencia=recorrencia,
+            dia_semana=dia_semana_int,
+            dia_mes=dia_mes_int,
+            headless=headless,
+            forcar=forcar,
+            sindicato_codigo=sindicato_codigo,
+            ativo=True,
+        )
+        messages.success(request, "Agendamento criado com sucesso!")
+        return redirect("cctdashboard:lista_agendamentos")
+
+    context = {
+        "sindicatos": Sindicato.objects.order_by("nome"),
+        "titulo": "Novo Agendamento",
+    }
+    return render(request, "cctdashboard/form_agendamento.html", context)
+
+
+@login_required
+def editar_agendamento(request, pk):
+    agendamento = get_object_or_404(AgendamentoScraper, pk=pk)
+    if request.method == "POST":
+        horario = request.POST.get("horario", "").strip()
+        recorrencia = request.POST.get("recorrencia", "DIARIA").strip()
+        dia_semana = request.POST.get("dia_semana", "").strip() or None
+        dia_mes = request.POST.get("dia_mes", "").strip() or None
+        headless = request.POST.get("headless") == "on"
+        forcar = request.POST.get("forcar") == "on"
+        sindicato_codigo = request.POST.get("sindicato_codigo", "").strip()
+        ativo = request.POST.get("ativo") == "on"
+
+        if not horario:
+            messages.error(request, "Informe o horário.")
+            return render(request, "cctdashboard/form_agendamento.html", {"agendamento": agendamento, "sindicatos": Sindicato.objects.order_by("nome")})
+
+        try:
+            from datetime import datetime
+            horario_obj = datetime.strptime(horario, "%H:%M").time()
+        except ValueError:
+            messages.error(request, "Horário inválido. Use o formato HH:MM.")
+            return render(request, "cctdashboard/form_agendamento.html", {"agendamento": agendamento, "sindicatos": Sindicato.objects.order_by("nome")})
+
+        agendamento.horario = horario_obj
+        agendamento.recorrencia = recorrencia
+        agendamento.dia_semana = int(dia_semana) if dia_semana is not None else None
+        agendamento.dia_mes = int(dia_mes) if dia_mes is not None else None
+        agendamento.headless = headless
+        agendamento.forcar = forcar
+        agendamento.sindicato_codigo = sindicato_codigo
+        agendamento.ativo = ativo
+        agendamento.save()
+
+        messages.success(request, "Agendamento atualizado com sucesso!")
+        return redirect("cctdashboard:lista_agendamentos")
+
+    context = {
+        "agendamento": agendamento,
+        "sindicatos": Sindicato.objects.order_by("nome"),
+        "titulo": "Editar Agendamento",
+    }
+    return render(request, "cctdashboard/form_agendamento.html", context)
+
+
+@login_required
+@require_POST
+def excluir_agendamento(request, pk):
+    agendamento = get_object_or_404(AgendamentoScraper, pk=pk)
+    agendamento.delete()
+    messages.success(request, "Agendamento excluído com sucesso.")
+    return redirect("cctdashboard:lista_agendamentos")

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Empresas - {{ sindicato.codigo }}</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 2cm;
+        }
+        body {
+            font-family: "Helvetica", "Arial", sans-serif;
+            font-size: 12px;
+            color: #333;
+        }
+        .header {
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 18px;
+            color: #0d6efd;
+            margin: 0 0 5px 0;
+        }
+        .header p {
+            font-size: 11px;
+            color: #666;
+            margin: 0;
+        }
+        .info-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .info-box table {
+            width: 100%;
+        }
+        .info-box td {
+            padding: 3px 0;
+        }
+        .info-box .label {
+            font-weight: bold;
+            width: 30%;
+        }
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table.data-table th {
+            background: #0d6efd;
+            color: white;
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #0d6efd;
+        }
+        table.data-table td {
+            padding: 6px 8px;
+            border: 1px solid #dee2e6;
+        }
+        table.data-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #dee2e6;
+            padding-top: 10px;
+        }
+        .total-box {
+            text-align: right;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Relatório de Empresas Vinculadas ao Sindicato</h1>
+        <p>Gerado em {{ data_geracao }}</p>
+    </div>
+
+    <div class="info-box">
+        <table>
+            <tr>
+                <td class="label">Código do Sindicato:</td>
+                <td>{{ sindicato.codigo }}</td>
+            </tr>
+            <tr>
+                <td class="label">Nome do Sindicato:</td>
+                <td>{{ sindicato.nome }}</td>
+            </tr>
+            <tr>
+                <td class="label">CNPJ:</td>
+                <td>{{ sindicato.cnpj|default:"Não informado" }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 8%;">#</th>
+                <th style="width: 25%;">Código da Empresa</th>
+                <th>Nome da Empresa</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empresa in empresas %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ empresa.codigo }}</td>
+                <td>{{ empresa.nome }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" style="text-align: center; color: #666;">Nenhuma empresa vinculada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-box">
+        Total de empresas vinculadas: {{ total_empresas }}
+    </div>
+
+    <div class="footer">
+        <p>Mediador CCT - Sistema de Gestão de Convenções Coletivas</p>
+    </div>
+</body>
+</html>
