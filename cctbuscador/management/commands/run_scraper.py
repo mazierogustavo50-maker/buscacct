@@ -651,8 +651,11 @@ class Command(BaseCommand):
                         codigo_sind = mapa_codigo.get(cnpj_digits, sindicato.codigo or "")
                         prefixo = f"{codigo_sind}-" if codigo_sind else ""
 
+                        # Usa o NOME do sindicato no arquivo, nunca o código (evita duplicação com o prefixo)
+                        nome_sindicato_arquivo = sindicato.nome or sindicato_esperado
+
                         nome_esperado = formatar_nome_arquivo(
-                            f"{prefixo}{tipo_arq}", sindicato_esperado, inicio_vigencia
+                            f"{prefixo}{tipo_arq}", nome_sindicato_arquivo, inicio_vigencia
                         )
 
                         # Verifica se já existe no disco (ignora se --forcar)
@@ -882,11 +885,8 @@ class Command(BaseCommand):
         self.log(f"Arquivos salvos em: {DOWNLOAD_DIR}")
         self.log("="*60)
 
-        # Resumo
-        execucao.total_baixados = len(self.rel_baixados)
-        execucao.total_ja_existentes = len(self.rel_ja_baixados)
-        execucao.total_nao_encontrados = len(self.rel_nao_encontrados)
+        # Resumo — mantém os contadores incrementados fielmente no loop (não sobrescreve com len das listas)
         execucao.nao_encontrados_json = self.rel_nao_encontrados
-        execucao.save()
+        execucao.save(update_fields=["total_baixados", "total_ja_existentes", "total_nao_encontrados", "nao_encontrados_json"])
 
-        self.log(f"\nRESUMO: {len(self.rel_baixados)} baixado(s) | {len(self.rel_ja_baixados)} já existia(m) | {len(self.rel_nao_encontrados)} não encontrado(s)")
+        self.log(f"\nRESUMO: {execucao.total_baixados} baixado(s) | {execucao.total_ja_existentes} já existia(m) | {execucao.total_nao_encontrados} não encontrado(s)")
