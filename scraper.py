@@ -118,7 +118,9 @@ def limpar_temp():
 
 def converter_para_pdf(caminho_doc):
     """
-    Converte um arquivo .doc/.docx para .pdf usando o Microsoft Word.
+    Converte um arquivo .doc/.docx para .pdf.
+    - No Windows: usa Microsoft Word (win32com).
+    - No Linux/Docker: usa LibreOffice (soffice --headless).
     - O PDF fica na pasta 'convencoes' (mesma pasta do .doc original).
     - O .doc original e movido para a subpasta 'convencoesdoc' (nao e excluido).
     Retorna o caminho do PDF gerado (ou o .doc se a conversao falhar).
@@ -136,7 +138,11 @@ def converter_para_pdf(caminho_doc):
     # .doc vai para convencoesdoc/
     destino_doc = os.path.join(DOC_DIR, os.path.basename(caminho_doc))
 
+    os.makedirs(DOC_DIR, exist_ok=True)
+
     print(f"  Convertendo para PDF: {os.path.basename(caminho_doc)} ...")
+
+    # Tentativa 1: Microsoft Word (Windows)
     try:
         import win32com.client
         word = win32com.client.Dispatch("Word.Application")
@@ -145,7 +151,7 @@ def converter_para_pdf(caminho_doc):
             doc = word.Documents.Open(abs_doc)
             doc.SaveAs(abs_pdf, FileFormat=17)  # 17 = wdFormatPDF
             doc.Close(False)
-            print(f"  [OK] PDF gerado: {os.path.basename(abs_pdf)}")
+            print(f"  [OK] PDF gerado via Word: {os.path.basename(abs_pdf)}")
 
             # Move o .doc original para convencoesdoc (sem excluir)
             try:
@@ -158,19 +164,44 @@ def converter_para_pdf(caminho_doc):
 
             return abs_pdf
         except Exception as e:
-            print(f"  [ERRO] Falha ao converter {os.path.basename(caminho_doc)}: {e}")
-            return caminho_doc  # retorna o .doc mesmo assim
+            print(f"  [ERRO] Falha ao converter via Word {os.path.basename(caminho_doc)}: {e}")
+            return caminho_doc
         finally:
             try:
                 word.Quit()
             except:
                 pass
     except ImportError:
-        print("  [AVISO] pywin32 nao instalado - arquivo mantido como .doc")
-        print("          Instale com: python -m pip install pywin32")
-        return caminho_doc
+        pass  # Fallback para LibreOffice
     except Exception as e:
-        print(f"  [ERRO] Nao foi possivel iniciar o Microsoft Word: {e}")
+        print(f"  [AVISO] Word indisponivel: {e}")
+
+    # Tentativa 2: LibreOffice (Linux / Docker)
+    try:
+        import subprocess
+        cmd = [
+            "soffice",
+            "--headless",
+            "--convert-to", "pdf",
+            "--outdir", os.path.dirname(abs_doc),
+            abs_doc
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        if result.returncode == 0 and os.path.exists(abs_pdf):
+            print(f"  [OK] PDF gerado via LibreOffice: {os.path.basename(abs_pdf)}")
+            try:
+                if os.path.exists(destino_doc):
+                    os.remove(destino_doc)
+                shutil.move(abs_doc, destino_doc)
+                print(f"  [OK] .doc movido para convencoesdoc: {os.path.basename(destino_doc)}")
+            except Exception as e_mv:
+                print(f"  [AVISO] Nao foi possivel mover o .doc original: {e_mv}")
+            return abs_pdf
+        else:
+            print(f"  [AVISO] LibreOffice nao conseguiu converter: {result.stderr or result.stdout}")
+            return caminho_doc
+    except Exception as e:
+        print(f"  [AVISO] LibreOffice indisponivel: {e}")
         return caminho_doc
 
 

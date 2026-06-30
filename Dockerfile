@@ -22,6 +22,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg \
     unzip \
     curl \
+    libreoffice-writer \
+    libreoffice-common \
     && rm -rf /var/lib/apt/lists/*
 
 # Instala Google Chrome (necessário para o scraper)
