@@ -722,6 +722,13 @@ class Command(BaseCommand):
                             rel_baixados.append((cnpj_formatado, sindicato_esperado, nome_final))
                             self.log(f"  [OK] Arquivo final: {nome_final}")
 
+                            # Converte caminho absoluto para relativo ao BASE_DIR (funciona em Docker e local)
+                            caminho_relativo = destino_final
+                            try:
+                                caminho_relativo = os.path.relpath(destino_final, BASE_DIR)
+                            except ValueError:
+                                pass  # mantém absoluto se não conseguir relativizar
+
                             # Registra no banco
                             if not sindicato_db:
                                 codigo_busca = mapa_codigo.get(cnpj_digits, cnpj_digits)
@@ -738,12 +745,13 @@ class Command(BaseCommand):
                                 tipo=tipo_arq,
                                 data_inicio_vigencia=data_obj,
                                 defaults={
-                                    "arquivo_pdf": destino_final,
-                                    "status_extracao": DocumentoCCT.STATUS_PENDENTE,
+                                    "arquivo_pdf": caminho_relativo,
+                                    "status_extracao": DocumentoCCT.STATUS_EXTRAIDO,
                                 }
                             )
                             if not created:
-                                doc.arquivo_pdf = destino_final
+                                doc.arquivo_pdf = caminho_relativo
+                                doc.status_extracao = DocumentoCCT.STATUS_EXTRAIDO
                                 doc.save()
 
                             execucao.total_baixados += 1

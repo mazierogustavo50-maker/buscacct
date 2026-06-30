@@ -191,15 +191,20 @@ class Command(BaseCommand):
                     sindicato=sindicato,
                     tipo=tipo,
                     data_inicio_vigencia=data_vigencia,
-                    arquivo_pdf=caminho_relativo,
                     defaults={
-                        "status_extracao": DocumentoCCT.STATUS_PENDENTE,
+                        "arquivo_pdf": caminho_relativo,
+                        "status_extracao": DocumentoCCT.STATUS_EXTRAIDO,
                     },
                 )
-                if created:
-                    docs_criados += 1
-                else:
+                if not created:
+                    # Já existe: atualiza caminho e status se necessário
+                    doc.arquivo_pdf = caminho_relativo
+                    if doc.status_extracao == DocumentoCCT.STATUS_PENDENTE:
+                        doc.status_extracao = DocumentoCCT.STATUS_EXTRAIDO
+                    doc.save()
                     docs_existentes += 1
+                else:
+                    docs_criados += 1
 
         self.stdout.write(
             self.style.SUCCESS(
