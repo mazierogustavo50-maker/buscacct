@@ -414,15 +414,40 @@ def ver_pdf(request, pk):
     if not documento.arquivo_pdf:
         raise Http404("Documento não possui arquivo PDF.")
 
-    caminho = Path(documento.arquivo_pdf)
-    if not caminho.exists():
-        raise Http404("Arquivo PDF não encontrado no servidor.")
+    # Resolve o caminho absoluto a partir do BASE_DIR (funciona em Docker e local)
+    caminho_relativo = documento.arquivo_pdf
+    if os.path.isabs(caminho_relativo):
+        caminho = Path(caminho_relativo)
+    else:
+        caminho = Path(settings.BASE_DIR) / caminho_relativo
 
-    return FileResponse(
-        open(caminho, "rb"),
+    if not caminho.exists():
+        raise Http404(f"Arquivo PDF não encontrado: {caminho}")
+
+    # Verifica se é realmente um PDF (pelo header)
+    try:
+        with caminho.open("rb") as f:
+            header = f.read(5)
+            if header != b"%PDF-":
+                raise Http404("Arquivo não é um PDF válido.")
+    except Exception:
+        raise Http404("Não foi possível ler o arquivo PDF.")
+
+    as_attachment = request.GET.get("download") == "1"
+
+    response = FileResponse(
+        caminho.open("rb"),
         content_type="application/pdf",
-        as_attachment=False,
+        as_attachment=as_attachment,
+        filename=caminho.name if as_attachment else None,
     )
+
+    # Headers para forçar visualização inline correta no navegador
+    response["Content-Length"] = caminho.stat().st_size
+    response["Accept-Ranges"] = "bytes"
+    response["X-Content-Type-Options"] = "nosniff"
+
+    return response
 
 
 @login_required
