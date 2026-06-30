@@ -4,9 +4,11 @@ import re
 import shutil
 import signal
 import unicodedata
+import requests
 import pandas as pd
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
+from urllib.parse import urljoin
 
 # Flag global para sinal SIGTERM
 _sinal_abortar = False
@@ -222,6 +224,85 @@ def parse_data_br(data_str):
 # ==========================================
 # MANAGEMENT COMMAND
 # ==========================================
+
+def baixar_arquivo_direto(driver, link_element, destino_path, log_func=None):
+    """
+    Baixa o arquivo diretamente via requests usando os cookies da sessão Selenium.
+    Evita abrir nova janela/popup e salva diretamente no destino final.
+    Retorna True se conseguiu, False caso contrário.
+    """
+    try:
+        href = link_element.get_attribute("href")
+        if not href or href.strip() in ("", "#", "javascript:void(0)"):
+            # Tenta extrair onclick ou data attribute
+            onclick = link_element.get_attribute("onclick") or ""
+            m = re.search(r"window\.open\(['\"](.+?)['\"]", onclick)
+            if m:
+                href = m.group(1)
+            else:
+                if log_func:
+                    log_func("  [AVISO] Link sem href válido, tentando fluxo legado...")
+                return False
+
+        # Resolve URL relativo
+        base_url = driver.current_url
+        if href.startswith("/"):
+            from urllib.parse import urljoin
+            href = urljoin(base_url, href)
+
+        # Monta cookies da sessão Selenium
+        cookies = driver.get_cookies()
+        session = requests.Session()
+        for c in cookies:
+            session.cookies.set(c["name"], c["value"])
+
+        headers = {
+            "User-Agent": driver.execute_script("return navigator.userAgent;"),
+            "Accept": "application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,*/*",
+        }
+
+        if log_func:
+            log_func(f"  [DOWNLOAD DIRETO] Baixando: {href[:100]}...")
+
+        resp = session.get(href, headers=headers, timeout=60, allow_redirects=True)
+        resp.raise_for_status()
+
+        # Determina extensão pelo Content-Type ou URL
+        content_type = resp.headers.get("Content-Type", "").lower()
+        if "pdf" in content_type:
+            ext = ".pdf"
+        elif "word" in content_type or "officedocument" in content_type:
+            ext = ".docx"
+        elif "msword" in content_type:
+            ext = ".doc"
+        else:
+            # Tenta pela URL
+            if ".pdf" in href.lower():
+                ext = ".pdf"
+            elif ".docx" in href.lower():
+                ext = ".docx"
+            elif ".doc" in href.lower():
+                ext = ".doc"
+            else:
+                ext = ".pdf"  # fallback
+
+        # Garante que o destino tenha a extensão correta
+        destino_com_ext = os.path.splitext(destino_path)[0] + ext
+        os.makedirs(os.path.dirname(destino_com_ext), exist_ok=True)
+
+        with open(destino_com_ext, "wb") as f:
+            f.write(resp.content)
+
+        if log_func:
+            log_func(f"  [OK] Download direto concluído: {os.path.basename(destino_com_ext)} ({len(resp.content)} bytes)")
+        return destino_com_ext
+
+    except Exception as e:
+        if log_func:
+            log_func(f"  [AVISO] Download direto falhou: {e}. Tentando fluxo legado...")
+        return False
+
+
 class Command(BaseCommand):
     help = "Executa o scraper do Mediador MTE e registra documentos no banco."
 
@@ -560,62 +641,89 @@ class Command(BaseCommand):
 
                         limpar_temp()
 
-                        # Clica no link de download
-                        try:
-                            link = linha.find_element(By.TAG_NAME, "a")
-                            driver.execute_script("arguments[0].click();", link)
-                        except Exception as e:
-                            self.log(f"  [ERRO] Clique no link: {e}")
-                            continue
+                        # ==========================================
+                        # DOWNLOAD DO ARQUIVO (direto primeiro, legado como fallback)
+                        # ==========================================
+                        destino_final = None
+                        link = linha.find_element(By.TAG_NAME, "a")
 
-                        # Aguarda nova janela
-                        try:
-                            WebDriverWait(driver, 10).until(lambda d: len(d.window_handles) > 1)
+                        # TENTATIVA 1: Download direto via requests (mais rápido e confiável)
+                        destino_base = os.path.join(DOWNLOAD_DIR, nome_esperado)
+                        destino_final = baixar_arquivo_direto(
+                            driver, link, destino_base, log_func=self.log
+                        )
+
+                        # TENTATIVA 2: Fluxo legado com Selenium (nova janela)
+                        if not destino_final:
+                            limpar_temp()
+                            driver.execute_script("arguments[0].click();", link)
+
+                            try:
+                                WebDriverWait(driver, 10).until(lambda d: len(d.window_handles) > 1)
+                                for h in driver.window_handles:
+                                    if h != janela_original:
+                                        driver.switch_to.window(h)
+                                        break
+                                self.log("  Nova janela aberta. Aguardando download...")
+                                time.sleep(2)
+                                try:
+                                    btn_dl = WebDriverWait(driver, 5).until(
+                                        EC.element_to_be_clickable((By.XPATH,
+                                            "//*[contains(translate(text(),'DOWNLOAD','download'),'download')] | "
+                                            "//input[contains(translate(@value,'DOWNLOAD','download'),'download')]"
+                                        ))
+                                    )
+                                    btn_dl.click()
+                                except Exception:
+                                    pass
+                            except Exception:
+                                self.log("  Sem nova janela — download pode ser direto.")
+
+                            arq_baixado = aguardar_download(TEMP_DL_DIR, timeout=20, abortar_check=lambda: self._verificar_abortar(execucao))
+                            if arq_baixado == "__ABORTADO__":
+                                self.log("  [ABORTADO] Download interrompido por solicitação de abort.")
+                                execucao.status = ExecucaoScraper.STATUS_ABORTADO
+                                execucao.save(update_fields=["status"])
+                                driver.quit()
+                                return
+                            if arq_baixado:
+                                ext_arq = os.path.splitext(arq_baixado)[1].lower()
+                                destino = os.path.join(DOWNLOAD_DIR, f"{nome_esperado}{ext_arq}")
+                                if os.path.exists(destino):
+                                    os.remove(destino)
+                                shutil.move(arq_baixado, destino)
+                                self.log(f"  [OK] Salvo (legado): {nome_esperado}{ext_arq}")
+                                destino_final = destino
+                            else:
+                                self.log("  [AVISO] Arquivo não capturado em 20s.")
+
+                            # Fecha janelas extras
                             for h in driver.window_handles:
                                 if h != janela_original:
-                                    driver.switch_to.window(h)
-                                    break
-                            self.log("  Nova janela aberta. Aguardando download...")
-                            time.sleep(2)
+                                    try:
+                                        driver.switch_to.window(h)
+                                        driver.close()
+                                    except Exception:
+                                        pass
                             try:
-                                btn_dl = WebDriverWait(driver, 5).until(
-                                    EC.element_to_be_clickable((By.XPATH,
-                                        "//*[contains(translate(text(),'DOWNLOAD','download'),'download')] | "
-                                        "//input[contains(translate(@value,'DOWNLOAD','download'),'download')]"
-                                    ))
-                                )
-                                btn_dl.click()
+                                driver.switch_to.window(janela_original)
                             except Exception:
                                 pass
-                        except Exception:
-                            self.log("  Sem nova janela — download pode ser direto.")
 
-                        arq_baixado = aguardar_download(TEMP_DL_DIR, timeout=20, abortar_check=lambda: self._verificar_abortar(execucao))
-                        if arq_baixado == "__ABORTADO__":
-                            self.log("  [ABORTADO] Download interrompido por solicitação de abort.")
-                            execucao.status = ExecucaoScraper.STATUS_ABORTADO
-                            execucao.save(update_fields=["status"])
-                            driver.quit()
-                            return
-                        if arq_baixado:
-                            ext_arq = os.path.splitext(arq_baixado)[1].lower()
-                            destino = os.path.join(DOWNLOAD_DIR, f"{nome_esperado}{ext_arq}")
-                            if os.path.exists(destino):
-                                os.remove(destino)
-                            shutil.move(arq_baixado, destino)
-                            self.log(f"  [OK] Salvo: {nome_esperado}{ext_arq}")
-
+                        # ==========================================
+                        # PÓS-DOWNLOAD: converte e registra no banco
+                        # ==========================================
+                        if destino_final:
+                            ext_arq = os.path.splitext(destino_final)[1].lower()
                             if ext_arq in ('.doc', '.docx'):
-                                destino_final = converter_para_pdf(destino)
-                            else:
-                                destino_final = destino
+                                destino_final = converter_para_pdf(destino_final)
 
                             nome_final = os.path.basename(destino_final)
                             rel_baixados.append((cnpj_formatado, sindicato_esperado, nome_final))
+                            self.log(f"  [OK] Arquivo final: {nome_final}")
 
                             # Registra no banco
                             if not sindicato_db:
-                                # Tenta criar ou buscar pelo código se houver
                                 codigo_busca = mapa_codigo.get(cnpj_digits, cnpj_digits)
                                 sindicato_db, _ = Sindicato.objects.get_or_create(
                                     cnpj=cnpj_digits,
@@ -641,19 +749,14 @@ class Command(BaseCommand):
                             execucao.total_baixados += 1
                             execucao.save()
                         else:
-                            self.log("  [AVISO] Arquivo não capturado em 40s.")
+                            self.log("  [AVISO] Download não concluído.")
                             rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
 
                     except Exception as e:
                         self.log(f"  [ERRO] Pág {num_pagina} / Linha {i}: {e}")
+                        rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
                     finally:
-                        for h in driver.window_handles:
-                            if h != janela_original:
-                                try:
-                                    driver.switch_to.window(h)
-                                    driver.close()
-                                except Exception:
-                                    pass
+                        # Garante que sempre volta para a janela principal
                         try:
                             driver.switch_to.window(janela_original)
                         except Exception:

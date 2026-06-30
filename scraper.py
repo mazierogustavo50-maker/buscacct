@@ -9,7 +9,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import shutil
+import requests
 import unicodedata
+from urllib.parse import urljoin
 
 # ==========================================
 # CONFIGURAÇÕES DE DIRETÓRIOS E ARQUIVOS
@@ -170,6 +172,78 @@ def converter_para_pdf(caminho_doc):
     except Exception as e:
         print(f"  [ERRO] Nao foi possivel iniciar o Microsoft Word: {e}")
         return caminho_doc
+
+
+def baixar_arquivo_direto(driver, link_element, destino_path, log_print=True):
+    """
+    Baixa o arquivo diretamente via requests usando os cookies da sessão Selenium.
+    Evita abrir nova janela/popup e salva diretamente no destino final.
+    Retorna o caminho do arquivo se conseguiu, False caso contrário.
+    """
+    try:
+        href = link_element.get_attribute("href")
+        if not href or href.strip() in ("", "#", "javascript:void(0)"):
+            onclick = link_element.get_attribute("onclick") or ""
+            m = re.search(r"window\.open\(['\"](.+?)['\"]", onclick)
+            if m:
+                href = m.group(1)
+            else:
+                if log_print:
+                    print("  [AVISO] Link sem href válido, tentando fluxo legado...")
+                return False
+
+        base_url = driver.current_url
+        if href.startswith("/"):
+            href = urljoin(base_url, href)
+
+        cookies = driver.get_cookies()
+        session = requests.Session()
+        for c in cookies:
+            session.cookies.set(c["name"], c["value"])
+
+        headers = {
+            "User-Agent": driver.execute_script("return navigator.userAgent;"),
+            "Accept": "application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,*/*",
+        }
+
+        if log_print:
+            print(f"  [DOWNLOAD DIRETO] Baixando: {href[:100]}...")
+
+        resp = session.get(href, headers=headers, timeout=60, allow_redirects=True)
+        resp.raise_for_status()
+
+        content_type = resp.headers.get("Content-Type", "").lower()
+        if "pdf" in content_type:
+            ext = ".pdf"
+        elif "word" in content_type or "officedocument" in content_type:
+            ext = ".docx"
+        elif "msword" in content_type:
+            ext = ".doc"
+        else:
+            if ".pdf" in href.lower():
+                ext = ".pdf"
+            elif ".docx" in href.lower():
+                ext = ".docx"
+            elif ".doc" in href.lower():
+                ext = ".doc"
+            else:
+                ext = ".pdf"
+
+        destino_com_ext = os.path.splitext(destino_path)[0] + ext
+        os.makedirs(os.path.dirname(destino_com_ext), exist_ok=True)
+
+        with open(destino_com_ext, "wb") as f:
+            f.write(resp.content)
+
+        if log_print:
+            print(f"  [OK] Download direto concluído: {os.path.basename(destino_com_ext)} ({len(resp.content)} bytes)")
+        return destino_com_ext
+
+    except Exception as e:
+        if log_print:
+            print(f"  [AVISO] Download direto falhou: {e}. Tentando fluxo legado...")
+        return False
+
 
 # ==========================================
 # CONFIGURAÇÃO DO SELENIUM E CHROME
@@ -473,59 +547,87 @@ def processar_mediador():
 
                     limpar_temp()
 
-                    # Clica no link de download
-                    try:
-                        link = linha.find_element(By.TAG_NAME, "a")
-                        driver.execute_script("arguments[0].click();", link)
-                    except Exception as e:
-                        print(f"  [ERRO] Clique no link: {e}")
-                        continue
+                    # ==========================================
+                    # DOWNLOAD DO ARQUIVO (direto primeiro, legado como fallback)
+                    # ==========================================
+                    destino_final = None
+                    link = linha.find_element(By.TAG_NAME, "a")
 
-                    # Aguarda nova janela
-                    try:
-                        WebDriverWait(driver, 10).until(lambda d: len(d.window_handles) > 1)
+                    # TENTATIVA 1: Download direto via requests (mais rápido e confiável)
+                    destino_base = os.path.join(DOWNLOAD_DIR, nome_esperado)
+                    destino_final = baixar_arquivo_direto(
+                        driver, link, destino_base, log_print=True
+                    )
+
+                    # TENTATIVA 2: Fluxo legado com Selenium (nova janela)
+                    if not destino_final:
+                        limpar_temp()
+                        driver.execute_script("arguments[0].click();", link)
+
+                        try:
+                            WebDriverWait(driver, 10).until(lambda d: len(d.window_handles) > 1)
+                            for h in driver.window_handles:
+                                if h != janela_original:
+                                    driver.switch_to.window(h)
+                                    break
+                            print("  Nova janela aberta. Aguardando download...")
+                            time.sleep(2)
+                            try:
+                                btn_dl = WebDriverWait(driver, 5).until(
+                                    EC.element_to_be_clickable((By.XPATH,
+                                        "//*[contains(translate(text(),'DOWNLOAD','download'),'download')] | "
+                                        "//input[contains(translate(@value,'DOWNLOAD','download'),'download')]"
+                                    ))
+                                )
+                                btn_dl.click()
+                            except:
+                                pass
+                        except:
+                            print("  Sem nova janela — download pode ser direto.")
+
+                        arq_baixado = aguardar_download(TEMP_DL_DIR, timeout=40)
+                        if arq_baixado:
+                            ext_arq = os.path.splitext(arq_baixado)[1].lower()
+                            destino = os.path.join(DOWNLOAD_DIR, f"{nome_esperado}{ext_arq}")
+                            if os.path.exists(destino):
+                                os.remove(destino)
+                            shutil.move(arq_baixado, destino)
+                            print(f"  [OK] Salvo (legado): {nome_esperado}{ext_arq}")
+                            destino_final = destino
+                        else:
+                            print("  [AVISO] Arquivo não capturado em 40s.")
+
+                        # Fecha janelas extras
                         for h in driver.window_handles:
                             if h != janela_original:
-                                driver.switch_to.window(h)
-                                break
-                        print("  Nova janela aberta. Aguardando download...")
-                        time.sleep(2)
+                                try:
+                                    driver.switch_to.window(h)
+                                    driver.close()
+                                except:
+                                    pass
                         try:
-                            btn_dl = WebDriverWait(driver, 5).until(
-                                EC.element_to_be_clickable((By.XPATH,
-                                    "//*[contains(translate(text(),'DOWNLOAD','download'),'download')] | "
-                                    "//input[contains(translate(@value,'DOWNLOAD','download'),'download')]"
-                                ))
-                            )
-                            btn_dl.click()
+                            driver.switch_to.window(janela_original)
                         except:
                             pass
-                    except:
-                        print("  Sem nova janela — download pode ser direto.")
 
-                    arq_baixado = aguardar_download(TEMP_DL_DIR, timeout=40)
-                    if arq_baixado:
-                        ext_arq = os.path.splitext(arq_baixado)[1].lower()
-                        destino  = os.path.join(DOWNLOAD_DIR, f"{nome_esperado}{ext_arq}")
-                        if os.path.exists(destino):
-                            os.remove(destino)
-                        shutil.move(arq_baixado, destino)
-                        print(f"  [OK] Salvo: {nome_esperado}{ext_arq}")
-
-                        # Converte .doc/.docx para PDF imediatamente
+                    # ==========================================
+                    # PÓS-DOWNLOAD: converte e registra
+                    # ==========================================
+                    if destino_final:
+                        ext_arq = os.path.splitext(destino_final)[1].lower()
                         if ext_arq in ('.doc', '.docx'):
-                            destino_final = converter_para_pdf(destino)
-                        else:
-                            destino_final = destino
+                            destino_final = converter_para_pdf(destino_final)
 
                         nome_final = os.path.basename(destino_final)
                         rel_baixados.append((cnpj_formatado, sindicato_esperado, nome_final))
+                        print(f"  [OK] Arquivo final: {nome_final}")
                     else:
-                        print("  [AVISO] Arquivo não capturado em 40s.")
+                        print("  [AVISO] Download não concluído.")
                         rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
 
                 except Exception as e:
                     print(f"  [ERRO] Pág {num_pagina} / Linha {i}: {e}")
+                    rel_nao_encontrados.append((cnpj_formatado, sindicato_esperado))
                 finally:
                     # Fecha janelas extras e volta para a principal
                     for h in driver.window_handles:
