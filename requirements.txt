@@ -6,6 +6,7 @@ pdfplumber>=0.10
 selenium>=4.15
 webdriver-manager>=4.0
 requests>=2.31
+whitenoise>=6.6
 Pillow>=10.0
 python-dateutil>=2.8
 psutil>=5.9
