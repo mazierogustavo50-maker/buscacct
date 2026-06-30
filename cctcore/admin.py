@@ -30,10 +30,9 @@ class DocumentoCCTAdmin(admin.ModelAdmin):
         "data_inicio_vigencia",
         "data_fim_vigencia",
         "status_extracao",
-        "status_analise_ia",
         "arquivo_pdf",
     )
-    list_filter = ("tipo", "status_extracao", "status_analise_ia", "sindicato")
+    list_filter = ("tipo", "status_extracao", "sindicato")
     search_fields = ("sindicato__nome", "sindicato__codigo", "arquivo_pdf")
     date_hierarchy = "data_inicio_vigencia"
 

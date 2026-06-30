@@ -35,4 +35,6 @@ urlpatterns = [
     path("execucoes/<int:pk>/", views.detalhe_execucao, name="detalhe_execucao"),
     path("execucoes/<int:pk>/abortar/", views.abortar_scraper, name="abortar_scraper"),
     path("execucoes/limpar/", views.limpar_execucoes, name="limpar_execucoes"),
+    # Relatório
+    path("relatorio/", views.relatorio_execucoes, name="relatorio_execucoes"),
 ]

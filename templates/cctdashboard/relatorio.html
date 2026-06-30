@@ -1,0 +1,113 @@
+{% extends "cctdashboard/base.html" %}
+{% block title %}Relatório de Execuções - Mediador CCT{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">Relatório de Execuções do Scraper</h4>
+        <p class="text-muted small mb-0">Histórico completo com não encontrados</p>
+    </div>
+    <a href="{% url 'cctdashboard:home' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Voltar ao Dashboard
+    </a>
+</div>
+
+<!-- Cards de Resumo -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="card bg-primary text-white shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Total Execuções</h5>
+                <h2 class="mb-0">{{ total_execucoes }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card bg-success text-white shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Baixados</h5>
+                <h2 class="mb-0">{{ total_baixados }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card bg-info text-white shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Já Existentes</h5>
+                <h2 class="mb-0">{{ total_ja_existentes }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card bg-danger text-white shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Não Encontrados</h5>
+                <h2 class="mb-0">{{ total_nao_encontrados }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for item in execucoes_norm %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center bg-light">
+        <div class="d-flex align-items-center gap-3">
+            <span class="font-monospace text-muted">#{{ item.execucao.id }}</span>
+            <span class="badge
+                {% if item.execucao.status == 'CONCLUIDO' %}bg-success
+                {% elif item.execucao.status == 'ERRO' %}bg-danger
+                {% elif item.execucao.status == 'ABORTADO' %}bg-secondary
+                {% else %}bg-warning text-dark{% endif %}">
+                {{ item.execucao.get_status_display }}
+            </span>
+            <span class="text-muted small">
+                {{ item.execucao.data_inicio|date:"d/m/Y H:i" }}
+                {% if item.execucao.data_fim %} — {{ item.execucao.data_fim|date:"d/m/Y H:i" }}{% endif %}
+            </span>
+        </div>
+        <div class="small text-muted">
+            <span class="me-3"><i class="bi bi-download me-1 text-success"></i>{{ item.execucao.total_baixados }}</span>
+            <span class="me-3"><i class="bi bi-check-circle me-1 text-info"></i>{{ item.execucao.total_ja_existentes }}</span>
+            <span><i class="bi bi-x-circle me-1 text-danger"></i>{{ item.execucao.total_nao_encontrados }}</span>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if item.nao_encontrados %}
+        <h6 class="text-danger fw-bold mb-3">
+            <i class="bi bi-x-circle-fill me-2"></i>Não Encontrados ({{ item.nao_encontrados|length }})
+        </h6>
+        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+            <table class="table table-sm table-hover table-bordered mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>CNPJ</th>
+                        <th>Código Sindicato</th>
+                        <th>Nome Sindicato</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ne in item.nao_encontrados %}
+                    <tr>
+                        <td class="text-muted">{{ forloop.counter }}</td>
+                        <td class="font-monospace">{{ ne.cnpj|default:"—" }}</td>
+                        <td>{{ ne.sindicato|default:"—" }}</td>
+                        <td>{{ ne.nome|default:"—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">
+            <i class="bi bi-check-lg me-1 text-success"></i>Nenhum registro não encontrado nesta execução.
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% empty %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>Nenhuma execução do scraper registrada no sistema.
+</div>
+{% endfor %}
+{% endblock %}

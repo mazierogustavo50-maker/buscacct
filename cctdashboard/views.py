@@ -47,7 +47,17 @@ def home(request):
     ultima_execucao = ExecucaoScraper.objects.first()
     nao_encontrados = []
     if ultima_execucao and ultima_execucao.nao_encontrados_json:
-        nao_encontrados = ultima_execucao.nao_encontrados_json
+        for item in ultima_execucao.nao_encontrados_json:
+            if isinstance(item, dict):
+                nao_encontrados.append(item)
+            elif isinstance(item, (list, tuple)):
+                nao_encontrados.append({
+                    "cnpj": item[0] if len(item) > 0 else "",
+                    "sindicato": item[1] if len(item) > 1 else "",
+                    "nome": item[1] if len(item) > 1 else "",
+                })
+            else:
+                nao_encontrados.append({"cnpj": str(item), "sindicato": "", "nome": ""})
 
     context = {
         "total_sindicatos": total_sindicatos,
@@ -61,6 +71,48 @@ def home(request):
         "nao_encontrados": nao_encontrados,
     }
     return render(request, "cctdashboard/home.html", context)
+
+
+@login_required
+def relatorio_execucoes(request):
+    """Relatório completo de execuções do scraper com não encontrados."""
+    execucoes = ExecucaoScraper.objects.all()
+
+    # Normaliza nao_encontrados_json para cada execução
+    execucoes_norm = []
+    for execucao in execucoes:
+        nao_encontrados = []
+        if execucao.nao_encontrados_json:
+            for item in execucao.nao_encontrados_json:
+                if isinstance(item, dict):
+                    nao_encontrados.append(item)
+                elif isinstance(item, (list, tuple)):
+                    nao_encontrados.append({
+                        "cnpj": item[0] if len(item) > 0 else "",
+                        "sindicato": item[1] if len(item) > 1 else "",
+                        "nome": item[1] if len(item) > 1 else "",
+                    })
+                else:
+                    nao_encontrados.append({"cnpj": str(item), "sindicato": "", "nome": ""})
+        execucoes_norm.append({
+            "execucao": execucao,
+            "nao_encontrados": nao_encontrados,
+        })
+
+    # Totais gerais
+    total_execucoes = execucoes.count()
+    total_baixados = sum(e.total_baixados for e in execucoes)
+    total_ja_existentes = sum(e.total_ja_existentes for e in execucoes)
+    total_nao_encontrados = sum(e.total_nao_encontrados for e in execucoes)
+
+    context = {
+        "execucoes_norm": execucoes_norm,
+        "total_execucoes": total_execucoes,
+        "total_baixados": total_baixados,
+        "total_ja_existentes": total_ja_existentes,
+        "total_nao_encontrados": total_nao_encontrados,
+    }
+    return render(request, "cctdashboard/relatorio.html", context)
 
 
 @login_required
