@@ -322,6 +322,11 @@ class Command(BaseCommand):
             type=int,
             help="ID da execução existente (usado pela interface web).",
         )
+        parser.add_argument(
+            "--forcar",
+            action="store_true",
+            help="Força o re-download mesmo se o arquivo já existir no disco ou no banco.",
+        )
 
     def log(self, msg):
         self.stdout.write(msg)
@@ -366,9 +371,10 @@ class Command(BaseCommand):
 
         headless = options.get("headless", False)
         sindicato_codigo = options.get("sindicato_codigo")
+        forcar = options.get("forcar", False)
 
         try:
-            self.processar(sindicato_codigo, headless, execucao)
+            self.processar(sindicato_codigo, headless, execucao, forcar)
             if execucao.status == ExecucaoScraper.STATUS_EM_ANDAMENTO:
                 execucao.status = ExecucaoScraper.STATUS_CONCLUIDO
         except Exception as e:
@@ -384,7 +390,7 @@ class Command(BaseCommand):
 
         self.log(f"\nExecução {execucao.id} finalizada: {execucao.get_status_display()}")
 
-    def processar(self, sindicato_codigo, headless, execucao):
+    def processar(self, sindicato_codigo, headless, execucao, forcar=False):
         # 1. Buscar sindicatos do banco de dados
         sindicatos = Sindicato.objects.all()
         if sindicato_codigo:
@@ -618,13 +624,15 @@ class Command(BaseCommand):
                             f"{prefixo}{tipo_arq}", sindicato_esperado, inicio_vigencia
                         )
 
-                        # Verifica se já existe no disco
-                        ja_existe = any(
-                            os.path.exists(os.path.join(DOWNLOAD_DIR, f"{nome_esperado}{ext}"))
-                            for ext in ['.pdf', '.doc', '.docx']
-                        )
+                        # Verifica se já existe no disco (ignora se --forcar)
+                        ja_existe = False
+                        if not forcar:
+                            ja_existe = any(
+                                os.path.exists(os.path.join(DOWNLOAD_DIR, f"{nome_esperado}{ext}"))
+                                for ext in ['.pdf', '.doc', '.docx']
+                            )
 
-                        # Também verifica no banco por DocumentoCCT já existente para o mesmo sindicato/tipo/data
+                        # Também verifica no banco por DocumentoCCT já existente para o mesmo sindicato/tipo/data (ignora se --forcar)
                         data_obj = parse_data_br(inicio_vigencia)
                         sindicato_db = None
                         try:
@@ -632,12 +640,15 @@ class Command(BaseCommand):
                         except Sindicato.DoesNotExist:
                             pass
 
-                        if ja_existe or (sindicato_db and DocumentoCCT.objects.filter(
+                        if not forcar and (ja_existe or (sindicato_db and DocumentoCCT.objects.filter(
                             sindicato=sindicato_db, tipo=tipo_arq, data_inicio_vigencia=data_obj
-                        ).exists()):
+                        ).exists())):
                             self.log(f"  [PULANDO] Arquivo já existe: {nome_esperado}")
                             rel_ja_baixados.append((cnpj_formatado, sindicato_esperado, nome_esperado))
                             continue
+
+                        if forcar:
+                            self.log(f"  [FORÇAR] Re-download ativado. Baixando mesmo se existir: {nome_esperado}")
 
                         limpar_temp()
 

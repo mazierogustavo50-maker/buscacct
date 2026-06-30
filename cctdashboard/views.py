@@ -468,12 +468,15 @@ def execucoes_scraper(request):
 def executar_scraper(request):
     """Inicia o scraper em background via subprocess."""
     headless = request.POST.get("headless", "on") == "on"
+    forcar = request.POST.get("forcar") == "on"
     sindicato_codigo = request.POST.get("sindicato_codigo", "").strip()
 
     manage_py = os.path.join(settings.BASE_DIR, "manage.py")
     cmd = [sys.executable, manage_py, "run_scraper"]
     if headless:
         cmd.append("--headless")
+    if forcar:
+        cmd.append("--forcar")
     if sindicato_codigo:
         cmd.extend(["--sindicato-codigo", sindicato_codigo])
 
