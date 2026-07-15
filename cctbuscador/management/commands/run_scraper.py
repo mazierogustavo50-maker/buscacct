@@ -310,7 +310,7 @@ def baixar_arquivo_direto(driver, link_element, destino_path, log_func=None):
         if log_func:
             log_func(f"  [DOWNLOAD DIRETO] Baixando: {href[:100]}...")
 
-        resp = session.get(href, headers=headers, timeout=60, allow_redirects=True)
+        resp = session.get(href, headers=headers, timeout=60, allow_redirects=True, verify=False)
         resp.raise_for_status()
 
         # Determina extensão pelo Content-Type ou URL
