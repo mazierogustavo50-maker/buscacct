@@ -493,6 +493,14 @@ class Command(BaseCommand):
         else:
             self.log(f"Sindicatos carregados do banco: {sindicatos.count()} registro(s).")
 
+        # Filtra sindicatos sem documentos (a menos que --forcar)
+        if not forcar:
+            sindicatos_com_doc = sindicatos.filter(sem_documentos=False)
+            pulados = sindicatos.filter(sem_documentos=True).count()
+            if pulados:
+                self.log(f"[INFO] Pulando {pulados} sindicato(s) marcados como 'sem documentos' na última busca. Use --forcar para reprocessar.")
+            sindicatos = sindicatos_com_doc
+
         # 1b. Carregar códigos do sistema a partir do banco Django (elimina dependência do sindicatosistema.xlsx)
         mapa_codigo = {}
         try:
@@ -641,6 +649,14 @@ class Command(BaseCommand):
                 else:
                     self.log("  [AVISO] Tabela não apareceu em 20s. Verifique manualmente.")
                 self.rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
+                execucao.total_nao_encontrados += 1
+                # Marca sindicato como sem documentos
+                try:
+                    sindicato.sem_documentos = True
+                    sindicato.data_ultima_busca = timezone.now()
+                    sindicato.save(update_fields=["sem_documentos", "data_ultima_busca"])
+                except Exception:
+                    pass
                 continue
 
             # Percorrer páginas
@@ -670,6 +686,13 @@ class Command(BaseCommand):
                     if num_pagina == 1:
                         self.log("  [SEM RESULTADO] Tabela carregou mas não há linhas de dados.")
                         self.rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
+                        execucao.total_nao_encontrados += 1
+                        try:
+                            sindicato.sem_documentos = True
+                            sindicato.data_ultima_busca = timezone.now()
+                            sindicato.save(update_fields=["sem_documentos", "data_ultima_busca"])
+                        except Exception:
+                            pass
                     break
 
                 self.log(f"  Linhas encontradas: {len(linhas)}")
@@ -725,11 +748,33 @@ class Command(BaseCommand):
                         achou_match = True
                         self.log(f"  [MATCH] Pág {num_pagina} / Linha {i}. Baixando...")
 
-                        # Data de início de vigência
+                        # Extrai datas de vigência (início e fim)
                         inicio_vigencia = "DATA_DESCONHECIDA"
+                        fim_vigencia = None
                         m_data = re.search(r'(\d{2}/\d{2}/\d{4})', texto_linha)
                         if m_data:
                             inicio_vigencia = m_data.group(1).replace('/', '-')
+                        # Tenta extrair intervalo de vigência
+                        m_vigencia = re.search(r'VIGENCIA.*?DE\s*(\d{2}/\d{2}/\d{4})\s*A\s*(\d{2}/\d{2}/\d{4})', texto_norm, re.IGNORECASE)
+                        if not m_vigencia:
+                            m_vigencia = re.search(r'(\d{2}/\d{2}/\d{4})\s*A\s*(\d{2}/\d{2}/\d{4})', texto_norm, re.IGNORECASE)
+                        if m_vigencia:
+                            inicio_vigencia = m_vigencia.group(1).replace('/', '-')
+                            fim_vigencia = m_vigencia.group(2).replace('/', '-')
+                        else:
+                            # Tenta achar segunda data no texto como fim
+                            datas = re.findall(r'(\d{2}/\d{2}/\d{4})', texto_linha)
+                            if len(datas) >= 2:
+                                inicio_vigencia = datas[0].replace('/', '-')
+                                fim_vigencia = datas[1].replace('/', '-')
+
+                        # Extrai data de registro no MTE
+                        data_registro_mte = None
+                        m_reg = re.search(r'DATA\s*DE\s*REGISTRO.*?([\d]{2}/[\d]{2}/[\d]{4})', texto_norm, re.IGNORECASE)
+                        if not m_reg:
+                            m_reg = re.search(r'REGISTRO.*?([\d]{2}/[\d]{2}/[\d]{4})', texto_norm, re.IGNORECASE)
+                        if m_reg:
+                            data_registro_mte = m_reg.group(1).replace('/', '-')
 
                         tipo_arq = "TA-CCT" if "TERMO ADITIVO" in tipo_check else "CCT"
                         codigo_sind = mapa_codigo.get(cnpj_digits, sindicato.codigo or "")
@@ -752,6 +797,8 @@ class Command(BaseCommand):
 
                         # Também verifica no banco por DocumentoCCT já existente para o mesmo sindicato/tipo/data (ignora se --forcar)
                         data_obj = parse_data_br(inicio_vigencia)
+                        data_fim_obj = parse_data_br(fim_vigencia) if fim_vigencia else None
+                        data_reg_obj = parse_data_br(data_registro_mte) if data_registro_mte else None
                         sindicato_db = None
                         try:
                             sindicato_db = Sindicato.objects.get(cnpj=cnpj_digits)
@@ -763,6 +810,7 @@ class Command(BaseCommand):
                         ).exists())):
                             self.log(f"  [PULANDO] Arquivo já existe: {nome_esperado}")
                             self.rel_ja_baixados.append((cnpj_formatado, sindicato_esperado, nome_esperado))
+                            execucao.total_ja_existentes += 1
                             continue
 
                         if forcar:
@@ -876,12 +924,27 @@ class Command(BaseCommand):
                                 defaults={
                                     "arquivo_pdf": caminho_relativo,
                                     "status_extracao": DocumentoCCT.STATUS_EXTRAIDO,
+                                    "data_fim_vigencia": data_fim_obj,
+                                    "data_registro_mte": data_reg_obj,
                                 }
                             )
                             if not created:
                                 doc.arquivo_pdf = caminho_relativo
                                 doc.status_extracao = DocumentoCCT.STATUS_EXTRAIDO
+                                if data_fim_obj:
+                                    doc.data_fim_vigencia = data_fim_obj
+                                if data_reg_obj:
+                                    doc.data_registro_mte = data_reg_obj
                                 doc.save()
+
+                            # Marca sindicato como tendo documentos
+                            if sindicato.sem_documentos:
+                                try:
+                                    sindicato.sem_documentos = False
+                                    sindicato.data_ultima_busca = timezone.now()
+                                    sindicato.save(update_fields=["sem_documentos", "data_ultima_busca"])
+                                except Exception:
+                                    pass
 
                             # Contabiliza corretamente: novo baixado vs já existente
                             if created:
@@ -892,10 +955,12 @@ class Command(BaseCommand):
                         else:
                             self.log("  [AVISO] Download não concluído.")
                             self.rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
+                            execucao.total_nao_encontrados += 1
 
                     except Exception as e:
                         self.log(f"  [ERRO] Pág {num_pagina} / Linha {i}: {e}")
                         self.rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
+                        execucao.total_nao_encontrados += 1
                     finally:
                         # Garante que sempre volta para a janela principal
                         try:
@@ -959,6 +1024,13 @@ class Command(BaseCommand):
             if not achou_match:
                 self.log("  [SEM MATCH] Nenhuma linha passou em todos os critérios para este CNPJ.")
                 self.rel_nao_encontrados.append({"cnpj": cnpj_formatado, "sindicato": sindicato_esperado, "nome": sindicato.nome})
+                execucao.total_nao_encontrados += 1
+                try:
+                    sindicato.sem_documentos = True
+                    sindicato.data_ultima_busca = timezone.now()
+                    sindicato.save(update_fields=["sem_documentos", "data_ultima_busca"])
+                except Exception:
+                    pass
 
             # Persiste progresso a cada sindicato
             self._salvar_progresso(execucao)

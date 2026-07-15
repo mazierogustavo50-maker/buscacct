@@ -1,21 +1,12 @@
 {% extends "cctdashboard/base.html" %}
-{% block title %}Documentos CCT - Mediador CCT{% endblock %}
+{% block title %}Documentos Expirados - Mediador CCT{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0"><i class="bi bi-files me-2 text-info"></i>Documentos CCT</h2>
+    <h2 class="mb-0"><i class="bi bi-calendar-x-fill me-2 text-danger"></i>Documentos Expirados</h2>
     <div class="d-flex align-items-center gap-3">
-        {% if mostrar_inativos %}
-            <a href="?{% if tipo %}tipo={{ tipo }}&{% endif %}{% if status %}status={{ status }}&{% endif %}{% if sindicato_id %}sindicato={{ sindicato_id }}&{% endif %}{% if q %}q={{ q }}&{% endif %}" class="btn btn-outline-success btn-sm">
-                <i class="bi bi-eye-fill me-1"></i>Ver ativos
-            </a>
-        {% else %}
-            <a href="?{% if tipo %}tipo={{ tipo }}&{% endif %}{% if status %}status={{ status }}&{% endif %}{% if sindicato_id %}sindicato={{ sindicato_id }}&{% endif %}{% if q %}q={{ q }}&{% endif %}inativos=1" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-eye-slash-fill me-1"></i>Ver inativos
-            </a>
-        {% endif %}
-        <a href="{% url 'cctdashboard:documentos_expirados' %}" class="btn btn-outline-danger btn-sm">
-            <i class="bi bi-calendar-x-fill me-1"></i>Expirados
+        <a href="{% url 'cctdashboard:lista_documentos' %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-files me-1"></i>Ver todos
         </a>
         <span class="text-muted">Total: {{ page_obj.paginator.count }}</span>
     </div>
@@ -32,14 +23,6 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <select name="status" class="form-select">
-                    <option value="">Todos os status</option>
-                    <option value="PENDENTE" {% if status == "PENDENTE" %}selected{% endif %}>Pendente</option>
-                    <option value="EXTRAIDO" {% if status == "EXTRAIDO" %}selected{% endif %}>Extraído</option>
-                    <option value="ERRO" {% if status == "ERRO" %}selected{% endif %}>Erro</option>
-                </select>
-            </div>
-            <div class="col-md-3">
                 <select name="sindicato" class="form-select">
                     <option value="">Todos os sindicatos</option>
                     {% for s in sindicatos %}
@@ -47,11 +30,11 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-4">
                 <input type="text" name="q" class="form-control" placeholder="Buscar..." value="{{ q }}">
             </div>
-            <div class="col-md-1 grid">
-                <button type="submit" class="btn btn-info text-white"><i class="bi bi-funnel-fill"></i></button>
+            <div class="col-md-2 grid">
+                <button type="submit" class="btn btn-info text-white w-100"><i class="bi bi-funnel-fill me-1"></i>Filtrar</button>
             </div>
         </form>
     </div>
@@ -61,7 +44,7 @@
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover table-striped mb-0">
-                <thead >
+                <thead>
                     <tr>
                         <th>Tipo</th>
                         <th>Sindicato</th>
@@ -74,7 +57,7 @@
                 </thead>
                 <tbody>
                     {% for doc in page_obj %}
-                    <tr>
+                    <tr class="table-danger">
                         <td>
                             {% if doc.tipo == "CCT" %}
                                 <span class="badge bg-primary">CCT</span>
@@ -99,29 +82,11 @@
                             <a href="{% url 'cctdashboard:detalhe_documento' doc.pk %}" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-eye me-1"></i>Ver
                             </a>
-                            {% if doc.ativo %}
-                                <form method="post" action="{% url 'cctdashboard:desativar_documento' doc.pk %}" class="d-inline" onsubmit="return confirm('Marcar este documento como NÃO UTILIZAR? Ele continuará no banco mas não aparecerá nas listas principais.');">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-warning">
-                                        <i class="bi bi-eye-slash me-1"></i>Não utilizar
-                                    </button>
-                                </form>
-                                <a href="{% url 'cctdashboard:excluir_documento' doc.pk %}" class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash me-1"></i>Excluir
-                                </a>
-                            {% else %}
-                                <form method="post" action="{% url 'cctdashboard:reativar_documento' doc.pk %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-success">
-                                        <i class="bi bi-check-circle me-1"></i>Reativar
-                                    </button>
-                                </form>
-                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">Nenhum documento encontrado.</td>
+                        <td colspan="7" class="text-center text-muted py-4">Nenhum documento expirado encontrado.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -134,10 +99,10 @@
             <ul class="pagination justify-content-center mb-0">
                 {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1{% if tipo %}&tipo={{ tipo }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if sindicato_id %}&sindicato={{ sindicato_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}">&laquo;</a>
+                    <a class="page-link" href="?page=1{% if tipo %}&tipo={{ tipo }}{% endif %}{% if sindicato_id %}&sindicato={{ sindicato_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}">&laquo;</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if sindicato_id %}&sindicato={{ sindicato_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}">&lsaquo;</a>
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if sindicato_id %}&sindicato={{ sindicato_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}">&lsaquo;</a>
                 </li>
                 {% endif %}
                 <li class="page-item active">
@@ -145,10 +110,10 @@
                 </li>
                 {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if sindicato_id %}&sindicato={{ sindicato_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}">&rsaquo;</a>
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if sindicato_id %}&sindicato={{ sindicato_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}">&rsaquo;</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if sindicato_id %}&sindicato={{ sindicato_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}">&raquo;</a>
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if sindicato_id %}&sindicato={{ sindicato_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}">&raquo;</a>
                 </li>
                 {% endif %}
             </ul>

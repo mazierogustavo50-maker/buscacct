@@ -67,6 +67,20 @@
             </div>
         </div>
     </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card kpi-card bg-dark h-100 shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <div class="card-title">Painel IA</div>
+                    <h2 class="mb-0">{{ total_concluido_ia|default:"0" }}</h2>
+                </div>
+                <i class="bi bi-robot fs-1 opacity-50"></i>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'cctdashboard:painel_ia' %}" class="text-white text-decoration-none">Ver análises <i class="bi bi-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row g-4 mb-4">
