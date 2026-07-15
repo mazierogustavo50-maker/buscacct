@@ -241,12 +241,13 @@ def configurar_driver(headless=False):
     options.add_argument("--ignore-certificate-errors-spki-list")
     options.add_argument("--allow-running-insecure-content")
 
-    # Tenta usar chromedriver do sistema (instalado no Dockerfile); fallback para webdriver_manager
+    # Tenta usar chromedriver do sistema; fallback para webdriver_manager
     chromedriver_path = shutil.which("chromedriver") or "/usr/local/bin/chromedriver"
     try:
         if os.path.exists(chromedriver_path):
             service = Service(chromedriver_path)
         else:
+            # webdriver-manager usa o novo endpoint Chrome for Testing (compatível com Chrome 115+)
             service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=options)
     except Exception as e:

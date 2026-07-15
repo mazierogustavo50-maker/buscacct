@@ -55,13 +55,8 @@ RUN wget -q --timeout=30 https://dl.google.com/linux/direct/google-chrome-stable
     && rm -f /tmp/chrome.deb \
     && rm -rf /var/lib/apt/lists/*
 
-# Instala ChromeDriver compatível com a versão do Google Chrome
-RUN CHROME_MAJOR=$(google-chrome --version | sed 's/Google Chrome \([0-9]*\).*/\1/') \
-    && wget -q "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR}" -O /tmp/chromedriver_version \
-    && wget -q "https://chromedriver.storage.googleapis.com/$(cat /tmp/chromedriver_version)/chromedriver_linux64.zip" -O /tmp/chromedriver.zip \
-    && unzip -o /tmp/chromedriver.zip -d /usr/local/bin/ \
-    && chmod +x /usr/local/bin/chromedriver \
-    && rm -f /tmp/chromedriver.zip /tmp/chromedriver_version
+# O ChromeDriver é gerenciado automaticamente pelo webdriver-manager (já no requirements.txt)
+# Não instalamos chromedriver manualmente pois as URLs antigas do Google foram descontinuadas
 
 # Instala dependências Python
 COPY requirements.txt /app/

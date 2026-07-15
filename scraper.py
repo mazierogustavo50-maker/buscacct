@@ -325,6 +325,7 @@ def configurar_driver():
         if os.path.exists(chromedriver_path):
             service = Service(chromedriver_path)
         else:
+            # webdriver-manager usa o novo endpoint Chrome for Testing (compatível com Chrome 115+)
             service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=options)
     except Exception as e:
