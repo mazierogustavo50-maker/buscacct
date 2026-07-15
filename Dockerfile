@@ -40,6 +40,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcairo2 \
     libasound2 \
     fonts-liberation \
+    fonts-dejavu-core \
+    fonts-noto-core \
+    fontconfig \
     && rm -rf /var/lib/apt/lists/*
 
 # Instala Google Chrome (necessário para o scraper)

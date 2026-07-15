@@ -208,12 +208,15 @@ def configurar_driver(headless=False):
     options.add_experimental_option("prefs", prefs)
 
     # Headless obrigatório em container Docker (sem display/X11)
-    if headless:
-        options.add_argument("--headless=new")
-    else:
-        # Mesmo sem headless explícito, força headless em ambiente sem display
-        if not os.environ.get("DISPLAY"):
-            options.add_argument("--headless=new")
+    # Usa --headless=old que é mais estável em containers do que --headless=new
+    if headless or not os.environ.get("DISPLAY"):
+        options.add_argument("--headless=old")
+
+    # User-agent real para evitar detecção/bloqueio
+    options.add_argument(
+        "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    )
 
     # Flags anti-detecção
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -229,11 +232,21 @@ def configurar_driver(headless=False):
     options.add_argument("--disable-software-rasterizer")
     options.add_argument("--window-size=1920,1080")
 
-    # Flags para evitar crash em containers com pouca memória
+    # Flags para evitar crash em containers
     options.add_argument("--disable-crash-reporter")
     options.add_argument("--disable-breakpad")
     options.add_argument("--disable-features=site-per-process,Translate,IsolateOrigins")
     options.add_argument("--disable-site-isolation-trials")
+    options.add_argument("--disable-background-networking")
+    options.add_argument("--disable-background-timer-throttling")
+    options.add_argument("--disable-backgrounding-occluded-windows")
+    options.add_argument("--disable-renderer-backgrounding")
+    options.add_argument("--disable-features=InterestFeedContentSuggestions,MediaRouter,OptimizationHints")
+    options.add_argument("--no-first-run")
+    options.add_argument("--no-default-browser-check")
+    options.add_argument("--disable-default-apps")
+    options.add_argument("--disable-sync")
+    options.add_argument("--disable-translate")
 
     # Flags para ignorar erros de certificado SSL (site do MTE usa AC SERPRO / ICP-Brasil)
     options.add_argument("--ignore-certificate-errors")
@@ -276,9 +289,9 @@ def configurar_driver(headless=False):
     driver.execute_script(
         "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
     )
-    # Timeouts curtos para permitir abortamento rápido
-    driver.set_page_load_timeout(15)
-    driver.set_script_timeout(10)
+    # Timeouts: 30s para page load (site do MTE é lento), 15s para script
+    driver.set_page_load_timeout(30)
+    driver.set_script_timeout(15)
     return driver
 
 
@@ -532,7 +545,7 @@ class Command(BaseCommand):
             # Acessar site
             try:
                 driver.get("https://www3.mte.gov.br/sistemas/mediador/ConsultarInstColetivo")
-                WebDriverWait(driver, 10).until(
+                WebDriverWait(driver, 20).until(
                     EC.presence_of_element_located((By.ID, "chkNRCNPJ"))
                 )
                 falhas_consecutivas = 0  # Reset ao conseguir carregar
@@ -609,7 +622,7 @@ class Command(BaseCommand):
             # Aguardar resultados
             encontrou_resultado = False
             try:
-                WebDriverWait(driver, 10).until(
+                WebDriverWait(driver, 20).until(
                     EC.visibility_of_element_located((By.ID, "divExibirConsultaDetalhada"))
                 )
                 encontrou_resultado = True
