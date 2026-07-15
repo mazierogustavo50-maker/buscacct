@@ -243,6 +243,26 @@ def configurar_driver(headless=False):
 
     # Tenta usar chromedriver do sistema; fallback para webdriver_manager
     chromedriver_path = shutil.which("chromedriver") or "/usr/local/bin/chromedriver"
+    chrome_path = shutil.which("google-chrome") or shutil.which("google-chrome-stable") or "/usr/bin/google-chrome"
+    try:
+        # Diagnóstico: verifica versões antes de tentar iniciar
+        import subprocess
+        try:
+            chrome_ver = subprocess.run([chrome_path, "--version"], capture_output=True, text=True, timeout=5).stdout.strip()
+        except Exception:
+            chrome_ver = "NÃO ENCONTRADO"
+        try:
+            if os.path.exists(chromedriver_path):
+                driver_ver = subprocess.run([chromedriver_path, "--version"], capture_output=True, text=True, timeout=5).stdout.strip()
+            else:
+                driver_ver = "NÃO ENCONTRADO (será baixado pelo webdriver-manager)"
+        except Exception:
+            driver_ver = "NÃO ENCONTRADO"
+        print(f"  [DIAGNÓSTICO] Chrome: {chrome_ver}")
+        print(f"  [DIAGNÓSTICO] ChromeDriver: {driver_ver}")
+    except Exception:
+        pass
+
     try:
         if os.path.exists(chromedriver_path):
             service = Service(chromedriver_path)
@@ -422,6 +442,11 @@ class Command(BaseCommand):
         else:
             execucao = ExecucaoScraper.objects.create(status=ExecucaoScraper.STATUS_EM_ANDAMENTO)
 
+        # Log inicial imediato para diagnóstico
+        self.log(f"[{timezone.now().strftime('%H:%M:%S')}] Scraper iniciado. Execução #{execucao.id}")
+        self.log(f"[{timezone.now().strftime('%H:%M:%S')}] Ambiente: DJANGO_SETTINGS_MODULE={os.environ.get('DJANGO_SETTINGS_MODULE', 'NÃO DEFINIDO')}")
+        self._salvar_progresso(execucao)
+
         headless = options.get("headless", False)
         sindicato_codigo = options.get("sindicato_codigo")
         forcar = options.get("forcar", False)
@@ -476,7 +501,10 @@ class Command(BaseCommand):
         self.rel_baixados = []
 
         self.log("Iniciando Chrome...")
+        self._salvar_progresso(execucao)
         driver = configurar_driver(headless=headless)
+        self.log("Chrome iniciado com sucesso.")
+        self._salvar_progresso(execucao)
         falhas_consecutivas = 0
         MAX_FALHAS = 3
 

@@ -2,7 +2,10 @@ import os
 import sys
 import subprocess
 import time
+from datetime import datetime
 from django.conf import settings
+from django.utils import timezone
+from cctbuscador.models import ExecucaoScraper
 
 
 def iniciar_scraper_background(execucao, headless=True, forcar=False, sindicato_codigo=""):
@@ -29,6 +32,9 @@ def iniciar_scraper_background(execucao, headless=True, forcar=False, sindicato_
     log_path = os.path.join(log_dir, f"scraper_{execucao.id}.log")
 
     log_file = open(log_path, "w", encoding="utf-8")
+    log_file.write(f"[{datetime.now().strftime('%H:%M:%S')}] Subprocess iniciado: {' '.join(cmd)}\n")
+    log_file.flush()
+
     try:
         proc = subprocess.Popen(
             cmd,
@@ -41,14 +47,19 @@ def iniciar_scraper_background(execucao, headless=True, forcar=False, sindicato_
         execucao.pid = proc.pid
         execucao.save(update_fields=["pid"])
 
-        # Verifica se o processo não morreu nos primeiros 5 segundos
-        time.sleep(5)
+        # Verifica se o processo não morreu nos primeiros 15 segundos
+        time.sleep(15)
         ret = proc.poll()
         if ret is not None:
             log_file.flush()
             log_file.close()
             with open(log_path, "r", encoding="utf-8") as f:
                 erro_log = f.read().strip()
+            # Salva o log no banco para diagnóstico
+            execucao.status = ExecucaoScraper.STATUS_ERRO
+            execucao.log_texto = erro_log[:4000]
+            execucao.data_fim = timezone.now()
+            execucao.save(update_fields=["status", "log_texto", "data_fim"])
             raise RuntimeError(
                 f"O processo do scraper morreu imediatamente (exit code {ret}).\n"
                 f"Log: {erro_log[:500]}"
