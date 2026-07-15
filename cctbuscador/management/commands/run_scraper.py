@@ -229,15 +229,25 @@ def configurar_driver(headless=False):
     options.add_argument("--disable-software-rasterizer")
     options.add_argument("--window-size=1920,1080")
 
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
-    driver.execute_script(
-        "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
-    )
-    # Timeouts curtos para permitir abortamento rápido
-    driver.set_page_load_timeout(15)
-    driver.set_script_timeout(10)
-    return driver
+    # Flags para evitar crash em containers com pouca memória
+    options.add_argument("--disable-crash-reporter")
+    options.add_argument("--disable-breakpad")
+    options.add_argument("--disable-features=site-per-process,Translate")
+    options.add_argument("--memory-model=low")
+    options.add_argument("--single-process")
+
+    try:
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
+        driver.execute_script(
+            "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+        )
+        # Timeouts curtos para permitir abortamento rápido
+        driver.set_page_load_timeout(15)
+        driver.set_script_timeout(10)
+        return driver
+    except Exception as e:
+        raise RuntimeError(f"Falha ao iniciar Chrome/WebDriver: {e}")
 
 
 def parse_data_br(data_str):
@@ -460,6 +470,8 @@ class Command(BaseCommand):
 
         self.log("Iniciando Chrome...")
         driver = configurar_driver(headless=headless)
+        falhas_consecutivas = 0
+        MAX_FALHAS = 3
 
         for index, sindicato in enumerate(sindicatos):
             # Verifica abortamento a cada sindicato
@@ -488,8 +500,30 @@ class Command(BaseCommand):
                 WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.ID, "chkNRCNPJ"))
                 )
+                falhas_consecutivas = 0  # Reset ao conseguir carregar
             except Exception as e:
+                falhas_consecutivas += 1
                 self.log(f"  [ERRO] Página não carregou: {e}")
+                self.log(f"  [DIAGNÓSTICO] Falha consecutiva {falhas_consecutivas}/{MAX_FALHAS}")
+
+                if falhas_consecutivas >= MAX_FALHAS:
+                    self.log(f"  [REINICIANDO] Chrome morreu após {MAX_FALHAS} falhas. Tentando reiniciar driver...")
+                    try:
+                        driver.quit()
+                    except Exception:
+                        pass
+                    try:
+                        driver = configurar_driver(headless=headless)
+                        self.log("  [OK] Chrome reiniciado com sucesso!")
+                        falhas_consecutivas = 0
+                    except Exception as restart_err:
+                        self.log(f"  [ERRO FATAL] Não foi possível reiniciar o Chrome: {restart_err}")
+                        self.log("  [ENCERRANDO] Scraper será encerrado. Verifique a instalação do Chrome no container.")
+                        execucao.status = ExecucaoScraper.STATUS_ERRO
+                        execucao.log_texto = "\n".join(self.linhas_log)
+                        execucao.data_fim = timezone.now()
+                        execucao.save(update_fields=["status", "log_texto", "data_fim"])
+                        return
                 continue
 
             # Marcar checkbox CNPJ e preencher
