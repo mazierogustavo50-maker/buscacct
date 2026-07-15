@@ -5,9 +5,7 @@ import shutil
 import signal
 import unicodedata
 import requests
-import pandas as pd
 from datetime import datetime
-from decimal import Decimal, InvalidOperation
 from urllib.parse import urljoin
 
 # Flag global para sinal SIGTERM
@@ -39,8 +37,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 BASE_DIR = settings.BASE_DIR
 DOWNLOAD_DIR = os.path.join(BASE_DIR, "convencoes")
 DOC_DIR = os.path.join(DOWNLOAD_DIR, "convencoesdoc")
-EXCEL_FILE = os.path.join(BASE_DIR, "cnpjs.xlsx")
-SINDICATO_SIS_FILE = os.path.join(BASE_DIR, "sindicatosistema.xlsx")
 TEMP_DL_DIR = os.path.join(BASE_DIR, "temp_dl")
 
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
@@ -211,9 +207,13 @@ def configurar_driver(headless=False):
     }
     options.add_experimental_option("prefs", prefs)
 
-    # Headless
+    # Headless obrigatório em container Docker (sem display/X11)
     if headless:
         options.add_argument("--headless=new")
+    else:
+        # Mesmo sem headless explícito, força headless em ambiente sem display
+        if not os.environ.get("DISPLAY"):
+            options.add_argument("--headless=new")
 
     # Flags anti-detecção
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -232,9 +232,8 @@ def configurar_driver(headless=False):
     # Flags para evitar crash em containers com pouca memória
     options.add_argument("--disable-crash-reporter")
     options.add_argument("--disable-breakpad")
-    options.add_argument("--disable-features=site-per-process,Translate")
-    options.add_argument("--memory-model=low")
-    options.add_argument("--single-process")
+    options.add_argument("--disable-features=site-per-process,Translate,IsolateOrigins")
+    options.add_argument("--disable-site-isolation-trials")
 
     # Flags para ignorar erros de certificado SSL (site do MTE usa AC SERPRO / ICP-Brasil)
     options.add_argument("--ignore-certificate-errors")
@@ -242,18 +241,24 @@ def configurar_driver(headless=False):
     options.add_argument("--ignore-certificate-errors-spki-list")
     options.add_argument("--allow-running-insecure-content")
 
+    # Tenta usar chromedriver do sistema (instalado no Dockerfile); fallback para webdriver_manager
+    chromedriver_path = shutil.which("chromedriver") or "/usr/local/bin/chromedriver"
     try:
-        service = Service(ChromeDriverManager().install())
+        if os.path.exists(chromedriver_path):
+            service = Service(chromedriver_path)
+        else:
+            service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=options)
-        driver.execute_script(
-            "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
-        )
-        # Timeouts curtos para permitir abortamento rápido
-        driver.set_page_load_timeout(15)
-        driver.set_script_timeout(10)
-        return driver
     except Exception as e:
         raise RuntimeError(f"Falha ao iniciar Chrome/WebDriver: {e}")
+
+    driver.execute_script(
+        "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+    )
+    # Timeouts curtos para permitir abortamento rápido
+    driver.set_page_load_timeout(15)
+    driver.set_script_timeout(10)
+    return driver
 
 
 def parse_data_br(data_str):
@@ -449,24 +454,19 @@ class Command(BaseCommand):
         else:
             self.log(f"Sindicatos carregados do banco: {sindicatos.count()} registro(s).")
 
-        # 1b. Carregar tabela de códigos (fallback opcional)
+        # 1b. Carregar códigos do sistema a partir do banco Django (elimina dependência do sindicatosistema.xlsx)
         mapa_codigo = {}
         try:
-            df_sis = pd.read_excel(SINDICATO_SIS_FILE)
-            col_sis_cnpj = next((c for c in df_sis.columns if 'cnpj' in str(c).lower()), None)
-            col_sis_codigo = next((c for c in df_sis.columns if 'codigo' in str(c).lower()), None)
-            if col_sis_cnpj and col_sis_codigo:
-                for _, r in df_sis.iterrows():
-                    k = limpar_cnpj(r[col_sis_cnpj])
-                    v = str(r[col_sis_codigo]).strip()
-                    mapa_codigo[k] = v
-                self.log(f"Códigos carregados: {len(mapa_codigo)} registro(s).")
+            for s in Sindicato.objects.exclude(cnpj="").exclude(cnpj__isnull=True):
+                cnpj_limpo = limpar_cnpj(s.cnpj)
+                if cnpj_limpo:
+                    mapa_codigo[cnpj_limpo] = str(s.codigo or "").strip()
+            if mapa_codigo:
+                self.log(f"Códigos carregados do banco: {len(mapa_codigo)} registro(s).")
             else:
-                self.log("[AVISO] sindicatosistema.xlsx sem colunas 'cnpj' e/ou 'codigo'.")
-        except FileNotFoundError:
-            self.log("[INFO] Arquivo sindicatosistema.xlsx não encontrado. Prosseguindo sem códigos de sistema.")
+                self.log("[INFO] Nenhum código de sindicato encontrado no banco (tabela Sindicato vazia ou sem CNPJ).")
         except Exception as e:
-            self.log(f"[AVISO] Erro ao ler sindicatosistema.xlsx: {e}")
+            self.log(f"[AVISO] Erro ao carregar códigos do banco: {e}")
 
         limpar_temp()
 

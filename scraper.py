@@ -289,6 +289,10 @@ def configurar_driver():
     }
     options.add_experimental_option("prefs", prefs)
 
+    # Headless obrigatório em container Docker ou sem display
+    if not os.environ.get("DISPLAY"):
+        options.add_argument("--headless=new")
+
     # Flags anti-detecção
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -303,11 +307,35 @@ def configurar_driver():
     options.add_argument("--disable-software-rasterizer")
     options.add_argument("--window-size=1920,1080")
 
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
+    # Flags para evitar crash em containers com pouca memória
+    options.add_argument("--disable-crash-reporter")
+    options.add_argument("--disable-breakpad")
+    options.add_argument("--disable-features=site-per-process,Translate,IsolateOrigins")
+    options.add_argument("--disable-site-isolation-trials")
+
+    # Flags para ignorar erros de certificado SSL (site do MTE usa AC SERPRO / ICP-Brasil)
+    options.add_argument("--ignore-certificate-errors")
+    options.add_argument("--ignore-ssl-errors")
+    options.add_argument("--ignore-certificate-errors-spki-list")
+    options.add_argument("--allow-running-insecure-content")
+
+    # Tenta usar chromedriver do sistema; fallback para webdriver_manager
+    chromedriver_path = shutil.which("chromedriver") or "/usr/local/bin/chromedriver"
+    try:
+        if os.path.exists(chromedriver_path):
+            service = Service(chromedriver_path)
+        else:
+            service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
+    except Exception as e:
+        raise RuntimeError(f"Falha ao iniciar Chrome/WebDriver: {e}")
+
     driver.execute_script(
         "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
     )
+    # Timeouts curtos para permitir abortamento rápido
+    driver.set_page_load_timeout(15)
+    driver.set_script_timeout(10)
     return driver
 
 # ==========================================
