@@ -6,6 +6,9 @@ ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=buscacct.settings
 ENV DJANGO_DEBUG=False
 ENV DJANGO_ALLOWED_HOSTS=*
+# Faz requests/curl usarem os certificados do sistema (incluindo ICP-Brasil instalados abaixo)
+ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+ENV CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
 WORKDIR /app
 
@@ -54,6 +57,18 @@ RUN wget -q --timeout=30 https://dl.google.com/linux/direct/google-chrome-stable
     && apt-get update && apt-get install -f -y --no-install-recommends \
     && rm -f /tmp/chrome.deb \
     && rm -rf /var/lib/apt/lists/*
+
+# Instala certificados ICP-Brasil (AC SERPRO etc.) para que requests/curl reconheçam sites do governo
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /usr/local/share/ca-certificates/icp-brasil \
+    && wget -q --timeout=30 "https://acraiz.icpbrasil.gov.br/credenciadas/CertificadosAC-ICP-Brasil/ACcompactado.zip" -O /tmp/icpbrasil.zip || true \
+    && if [ -f /tmp/icpbrasil.zip ]; then \
+         unzip -o /tmp/icpbrasil.zip -d /usr/local/share/ca-certificates/icp-brasil/ 2>/dev/null || true; \
+         rm -f /tmp/icpbrasil.zip; \
+       fi \
+    && wget -q --timeout=30 "https://www.serpro.gov.br/links-fixos-superiores/validator/certificate-chain/acserproar46.crt" -O /usr/local/share/ca-certificates/icp-brasil/acserproar46.crt || true \
+    && update-ca-certificates || true
 
 # Instala dependências Python
 COPY requirements.txt /app/

@@ -236,6 +236,12 @@ def configurar_driver(headless=False):
     options.add_argument("--memory-model=low")
     options.add_argument("--single-process")
 
+    # Flags para ignorar erros de certificado SSL (site do MTE usa AC SERPRO / ICP-Brasil)
+    options.add_argument("--ignore-certificate-errors")
+    options.add_argument("--ignore-ssl-errors")
+    options.add_argument("--ignore-certificate-errors-spki-list")
+    options.add_argument("--allow-running-insecure-content")
+
     try:
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=options)
