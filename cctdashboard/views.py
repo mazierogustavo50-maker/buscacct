@@ -532,43 +532,33 @@ def execucoes_scraper(request):
 @require_POST
 def executar_scraper(request):
     """Inicia o scraper em background via subprocess."""
+    from cctbuscador.utils import iniciar_scraper_background
+
     headless = request.POST.get("headless", "on") == "on"
     forcar = request.POST.get("forcar") == "on"
     sindicato_codigo = request.POST.get("sindicato_codigo", "").strip()
-
-    manage_py = os.path.join(settings.BASE_DIR, "manage.py")
-    cmd = [sys.executable, manage_py, "run_scraper"]
-    if headless:
-        cmd.append("--headless")
-    if forcar:
-        cmd.append("--forcar")
-    if sindicato_codigo:
-        cmd.extend(["--sindicato-codigo", sindicato_codigo])
-
-    env = os.environ.copy()
-    env.setdefault("DJANGO_SETTINGS_MODULE", "buscacct.settings")
 
     # Cria registro da execução antes de iniciar o subprocess
     execucao = ExecucaoScraper.objects.create(
         status=ExecucaoScraper.STATUS_EM_ANDAMENTO,
     )
-    cmd.extend(["--execucao-id", str(execucao.id)])
 
     try:
-        proc = subprocess.Popen(
-            cmd,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            stdin=subprocess.DEVNULL,
-            cwd=settings.BASE_DIR,
-            env=env,
+        proc, log_path = iniciar_scraper_background(
+            execucao,
+            headless=headless,
+            forcar=forcar,
+            sindicato_codigo=sindicato_codigo,
         )
-        execucao.pid = proc.pid
-        execucao.save(update_fields=["pid"])
-        messages.success(request, f"Scraper iniciado em background (PID {proc.pid}). Acompanhe na lista de execuções.")
+        messages.success(
+            request,
+            f"Scraper iniciado em background (PID {proc.pid}). Acompanhe na lista de execuções."
+        )
     except Exception as e:
         execucao.status = ExecucaoScraper.STATUS_ERRO
-        execucao.save(update_fields=["status"])
+        execucao.log_texto = str(e)
+        execucao.data_fim = timezone.now()
+        execucao.save(update_fields=["status", "log_texto", "data_fim"])
         messages.error(request, f"Erro ao iniciar o scraper: {e}")
 
     return redirect("cctdashboard:execucoes_scraper")

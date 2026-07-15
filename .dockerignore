@@ -17,7 +17,9 @@ Dockerfile
 staticfiles/
 media/
 *.sqlite3
-*.xlsx
+!cnpjs.xlsx
+!sindicatosistema.xlsx
+!empresasindicato.xlsx
 *.pdf
 *.doc
 *.docx

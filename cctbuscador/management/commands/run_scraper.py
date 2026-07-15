@@ -447,8 +447,10 @@ class Command(BaseCommand):
                 self.log(f"Códigos carregados: {len(mapa_codigo)} registro(s).")
             else:
                 self.log("[AVISO] sindicatosistema.xlsx sem colunas 'cnpj' e/ou 'codigo'.")
+        except FileNotFoundError:
+            self.log("[INFO] Arquivo sindicatosistema.xlsx não encontrado. Prosseguindo sem códigos de sistema.")
         except Exception as e:
-            self.log(f"[AVISO] Não foi possível ler sindicatosistema.xlsx: {e}")
+            self.log(f"[AVISO] Erro ao ler sindicatosistema.xlsx: {e}")
 
         limpar_temp()
 

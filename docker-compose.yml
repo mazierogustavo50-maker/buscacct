@@ -19,6 +19,23 @@ services:
       - DJANGO_SESSION_COOKIE_SECURE=${DJANGO_SESSION_COOKIE_SECURE:-True}
     restart: unless-stopped
 
+  scheduler:
+    build: .
+    container_name: buscacct_scheduler
+    command: python manage.py verificar_agendamentos
+    volumes:
+      - buscacct_data:/app/data
+      - buscacct_convencoes:/app/convencoes
+      - buscacct_dados:/app/dados
+      - buscacct_media:/app/media
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-django-insecure-change-me-in-production}
+      - DJANGO_DEBUG=${DJANGO_DEBUG:-False}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-*}
+    restart: unless-stopped
+    depends_on:
+      - web
+
 volumes:
   buscacct_data:
     driver: local
