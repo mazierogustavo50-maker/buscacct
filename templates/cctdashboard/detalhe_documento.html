@@ -203,4 +203,8 @@
     </div>
 </div>
 {% endif %}
+
+{% if documento.status_analise_ia == 'EM_ANDAMENTO' %}
+<meta http-equiv="refresh" content="10">
+{% endif %}
 {% endblock %}

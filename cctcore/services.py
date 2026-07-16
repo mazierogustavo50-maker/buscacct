@@ -93,8 +93,23 @@ def analisar_cct_com_ia(texto_cct: str, model_id: str = None) -> dict:
     }
 
     try:
-        resp = requests.post(endpoint, headers=headers, json=payload, timeout=120)
-        resp.raise_for_status()
+        # Tenta com timeout maior e retry com backoff
+        max_tentativas = 3
+        timeout_segundos = 300  # 5 minutos
+        ultimo_erro = None
+
+        for tentativa in range(1, max_tentativas + 1):
+            try:
+                resp = requests.post(endpoint, headers=headers, json=payload, timeout=timeout_segundos)
+                resp.raise_for_status()
+                break  # Sucesso, sai do loop
+            except requests.exceptions.Timeout:
+                if tentativa < max_tentativas:
+                    import time
+                    time.sleep(tentativa * 5)  # Backoff: 5s, 10s
+                    continue
+                raise  # Última tentativa, propaga o erro
+
         data = resp.json()
 
         if "choices" not in data or not data["choices"]:
@@ -119,7 +134,7 @@ def analisar_cct_com_ia(texto_cct: str, model_id: str = None) -> dict:
         return {"sucesso": True, "resultado": resultado, "modelo_usado": model_id}
 
     except requests.exceptions.Timeout:
-        return {"erro": "Timeout ao chamar API OpenCode Go"}
+        return {"erro": "Timeout ao chamar API OpenCode Go após 3 tentativas (5 min cada). Tente novamente mais tarde ou verifique sua conexão."}
     except requests.exceptions.HTTPError as e:
         return {"erro": f"Erro HTTP {e.response.status_code}: {e.response.text[:500]}"}
     except Exception as e:
