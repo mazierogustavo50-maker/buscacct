@@ -49,4 +49,6 @@ urlpatterns = [
     path("agendamentos/<int:pk>/excluir/", views.excluir_agendamento, name="excluir_agendamento"),
     # Relatório
     path("relatorio/", views.relatorio_execucoes, name="relatorio_execucoes"),
+    # Atualizar vigências de documentos existentes
+    path("atualizar-vigencias/", views.atualizar_vigencias, name="atualizar_vigencias"),
 ]

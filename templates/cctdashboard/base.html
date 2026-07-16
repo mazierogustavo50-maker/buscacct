@@ -55,6 +55,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link{% if request.resolver_match.url_name == 'atualizar_vigencias' %} active{% endif %}" href="{% url 'cctdashboard:atualizar_vigencias' %}">
+                            <i class="bi bi-arrow-repeat me-1"></i>Atualizar Vigências
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link{% if request.resolver_match.url_name == 'lista_agendamentos' or request.resolver_match.url_name == 'criar_agendamento' or request.resolver_match.url_name == 'editar_agendamento' %} active{% endif %}" href="{% url 'cctdashboard:lista_agendamentos' %}">
                             <i class="bi bi-calendar-check me-1"></i>Agendamentos
                         </a>
