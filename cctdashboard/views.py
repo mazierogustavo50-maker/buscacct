@@ -433,6 +433,7 @@ def lista_documentos(request):
     status = request.GET.get("status", "").strip()
     sindicato_id = request.GET.get("sindicato", "").strip()
     q = request.GET.get("q", "").strip()
+    ordenar = request.GET.get("ordenar", "").strip()
 
     if tipo:
         queryset = queryset.filter(tipo=tipo)
@@ -445,6 +446,24 @@ def lista_documentos(request):
             Q(sindicato__nome__icontains=q)
             | Q(sindicato__codigo__icontains=q)
         )
+
+    # Ordenação
+    ordenacao_valida = {
+        "inicio_vigencia": "data_inicio_vigencia",
+        "-inicio_vigencia": "-data_inicio_vigencia",
+        "fim_vigencia": "data_fim_vigencia",
+        "-fim_vigencia": "-data_fim_vigencia",
+        "registro_mte": "data_registro_mte",
+        "-registro_mte": "-data_registro_mte",
+        "tipo": "tipo",
+        "-tipo": "-tipo",
+        "status": "status_extracao",
+        "-status": "-status_extracao",
+    }
+    if ordenar in ordenacao_valida:
+        queryset = queryset.order_by(ordenacao_valida[ordenar])
+    else:
+        queryset = queryset.order_by("-data_inicio_vigencia")
 
     paginator = Paginator(queryset, 20)
     page_number = request.GET.get("page")
@@ -461,6 +480,7 @@ def lista_documentos(request):
         "q": q,
         "sindicatos": sindicatos,
         "mostrar_inativos": mostrar_inativos,
+        "ordenar": ordenar,
     }
     return render(request, "cctdashboard/lista_documentos.html", context)
 
@@ -520,14 +540,34 @@ def ver_pdf(request, pk):
 @login_required
 def execucoes_scraper(request):
     queryset = ExecucaoScraper.objects.all()
+    ordenar = request.GET.get("ordenar", "").strip()
+
+    ordenacao_valida = {
+        "data_inicio": "data_inicio",
+        "-data_inicio": "-data_inicio",
+        "data_fim": "data_fim",
+        "-data_fim": "-data_fim",
+        "status": "status",
+        "-status": "-status",
+    }
+    if ordenar in ordenacao_valida:
+        queryset = queryset.order_by(ordenacao_valida[ordenar])
+    else:
+        queryset = queryset.order_by("-data_inicio")
+
     paginator = Paginator(queryset, 20)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    context = {
+    response = render(request, "cctdashboard/execucoes_scraper.html", {
         "page_obj": page_obj,
-    }
-    return render(request, "cctdashboard/execucoes_scraper.html", context)
+        "ordenar": ordenar,
+    })
+    # Anti-cache para evitar que o navegador mostre lista desatualizada após iniciar nova execução
+    response["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 
 @login_required
@@ -724,7 +764,7 @@ def reativar_documento(request, pk):
 @login_required
 @require_POST
 def analisar_documento_ia(request, pk):
-    """Executa análise de CCT via IA (OpenCode Go) em background."""
+    """Executa análise de CCT via IA (OpenCode Go) em background com timeout."""
     documento = get_object_or_404(DocumentoCCT, pk=pk)
 
     if not documento.arquivo_pdf:
@@ -778,11 +818,23 @@ def analisar_documento_ia(request, pk):
 
 
 @login_required
+@require_POST
+def cancelar_analise_ia(request, pk):
+    """Cancela / redefine uma análise IA travada em 'Em andamento'."""
+    documento = get_object_or_404(DocumentoCCT, pk=pk)
+    documento.status_analise_ia = DocumentoCCT.STATUS_ANALISE_PENDENTE
+    documento.save(update_fields=["status_analise_ia"])
+    messages.success(request, f"Análise do documento #{pk} foi resetada para 'Pendente'. Você pode reiniciá-la quando quiser.")
+    return redirect("cctdashboard:painel_ia")
+
+
+@login_required
 def painel_ia(request):
     """Painel de CCTs analisadas pela IA."""
     status_filtro = request.GET.get("status", "").strip()
     sindicato_id = request.GET.get("sindicato", "").strip()
     q = request.GET.get("q", "").strip()
+    ordenar = request.GET.get("ordenar", "").strip()
 
     queryset = DocumentoCCT.objects.select_related("sindicato").exclude(
         status_analise_ia=DocumentoCCT.STATUS_ANALISE_PENDENTE
@@ -798,7 +850,23 @@ def painel_ia(request):
             | Q(sindicato__codigo__icontains=q)
         )
 
-    paginator = Paginator(queryset.order_by("-data_analise_ia"), 20)
+    # Ordenação
+    ordenacao_valida = {
+        "inicio_vigencia": "data_inicio_vigencia",
+        "-inicio_vigencia": "-data_inicio_vigencia",
+        "data_analise": "data_analise_ia",
+        "-data_analise": "-data_analise_ia",
+        "tipo": "tipo",
+        "-tipo": "-tipo",
+        "status_ia": "status_analise_ia",
+        "-status_ia": "-status_analise_ia",
+    }
+    if ordenar in ordenacao_valida:
+        queryset = queryset.order_by(ordenacao_valida[ordenar])
+    else:
+        queryset = queryset.order_by("-data_analise_ia")
+
+    paginator = Paginator(queryset, 20)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
@@ -816,6 +884,7 @@ def painel_ia(request):
         "total_concluido": total_concluido,
         "total_erro": total_erro,
         "total_andamento": total_andamento,
+        "ordenar": ordenar,
     }
     return render(request, "cctdashboard/painel_ia.html", context)
 

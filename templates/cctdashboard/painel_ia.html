@@ -46,11 +46,27 @@
             <table class="table table-hover table-striped mb-0">
                 <thead>
                     <tr>
-                        <th>Tipo</th>
+                        <th>
+                            <a href="?{% if status_filtro %}status={{ status_filtro }}&{% endif %}{% if sindicato_id %}sindicato={{ sindicato_id }}&{% endif %}{% if q %}q={{ q }}&{% endif %}ordenar={% if ordenar == 'tipo' %}-{% endif %}tipo" class="text-decoration-none text-dark">
+                                Tipo {% if ordenar == 'tipo' %}<i class="bi bi-arrow-up"></i>{% elif ordenar == '-tipo' %}<i class="bi bi-arrow-down"></i>{% endif %}
+                            </a>
+                        </th>
                         <th>Sindicato</th>
-                        <th>Início Vigência</th>
-                        <th>Status IA</th>
-                        <th>Data Análise</th>
+                        <th>
+                            <a href="?{% if status_filtro %}status={{ status_filtro }}&{% endif %}{% if sindicato_id %}sindicato={{ sindicato_id }}&{% endif %}{% if q %}q={{ q }}&{% endif %}ordenar={% if ordenar == '-inicio_vigencia' %}{% else %}-{% endif %}inicio_vigencia" class="text-decoration-none text-dark">
+                                Início Vigência {% if ordenar == 'inicio_vigencia' %}<i class="bi bi-arrow-up"></i>{% elif ordenar == '-inicio_vigencia' %}<i class="bi bi-arrow-down"></i>{% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?{% if status_filtro %}status={{ status_filtro }}&{% endif %}{% if sindicato_id %}sindicato={{ sindicato_id }}&{% endif %}{% if q %}q={{ q }}&{% endif %}ordenar={% if ordenar == 'status_ia' %}-{% endif %}status_ia" class="text-decoration-none text-dark">
+                                Status IA {% if ordenar == 'status_ia' %}<i class="bi bi-arrow-up"></i>{% elif ordenar == '-status_ia' %}<i class="bi bi-arrow-down"></i>{% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?{% if status_filtro %}status={{ status_filtro }}&{% endif %}{% if sindicato_id %}sindicato={{ sindicato_id }}&{% endif %}{% if q %}q={{ q }}&{% endif %}ordenar={% if ordenar == '-data_analise' %}{% else %}-{% endif %}data_analise" class="text-decoration-none text-dark">
+                                Data Análise {% if ordenar == 'data_analise' %}<i class="bi bi-arrow-up"></i>{% elif ordenar == '-data_analise' %}<i class="bi bi-arrow-down"></i>{% endif %}
+                            </a>
+                        </th>
                         <th class="text-end">Ações</th>
                     </tr>
                 </thead>
@@ -82,6 +98,14 @@
                             <a href="{% url 'cctdashboard:detalhe_documento' doc.pk %}" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-eye me-1"></i>Ver
                             </a>
+                            {% if doc.status_analise_ia == "EM_ANDAMENTO" %}
+                            <form method="post" action="{% url 'cctdashboard:cancelar_analise_ia' doc.pk %}" class="d-inline" onsubmit="return confirm('Cancelar análise IA deste documento? Ela será resetada para Pendente.');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar / Resetar IA">
+                                    <i class="bi bi-x-octagon me-1"></i>Cancelar
+                                </button>
+                            </form>
+                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}
