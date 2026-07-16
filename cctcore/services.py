@@ -93,14 +93,22 @@ def analisar_cct_com_ia(texto_cct: str, model_id: str = None) -> dict:
     }
 
     try:
-        # Tenta com timeout maior e retry com backoff
+        # Tenta com timeout maior e retry com backoff (timeout e erros 5xx)
         max_tentativas = 3
         timeout_segundos = 300  # 5 minutos
-        ultimo_erro = None
+        resp = None
 
         for tentativa in range(1, max_tentativas + 1):
             try:
                 resp = requests.post(endpoint, headers=headers, json=payload, timeout=timeout_segundos)
+                # Retry em erros 5xx (503, 502, 504)
+                if resp.status_code >= 500:
+                    if tentativa < max_tentativas:
+                        import time
+                        time.sleep(tentativa * 10)  # Backoff: 10s, 20s
+                        continue
+                    # Última tentativa: propaga o erro
+                    resp.raise_for_status()
                 resp.raise_for_status()
                 break  # Sucesso, sai do loop
             except requests.exceptions.Timeout:
@@ -119,7 +127,6 @@ def analisar_cct_com_ia(texto_cct: str, model_id: str = None) -> dict:
 
         # Tenta extrair JSON da resposta
         try:
-            json_match = None
             if "```json" in content:
                 json_block = content.split("```json")[1].split("```")[0].strip()
                 resultado = json.loads(json_block)
@@ -136,6 +143,19 @@ def analisar_cct_com_ia(texto_cct: str, model_id: str = None) -> dict:
     except requests.exceptions.Timeout:
         return {"erro": "Timeout ao chamar API OpenCode Go após 3 tentativas (5 min cada). Tente novamente mais tarde ou verifique sua conexão."}
     except requests.exceptions.HTTPError as e:
-        return {"erro": f"Erro HTTP {e.response.status_code}: {e.response.text[:500]}"}
+        status = e.response.status_code if e.response else 0
+        texto = e.response.text[:500] if e.response else ""
+        if status == 503:
+            return {"erro": f"API OpenCode Go indisponível (503 Service Unavailable). O servidor está sobrecarregado ou em manutenção. Tente novamente em alguns minutos."}
+        elif status == 502:
+            return {"erro": f"API OpenCode Go com erro de gateway (502 Bad Gateway). Tente novamente em alguns minutos."}
+        elif status == 504:
+            return {"erro": f"API OpenCode Go com timeout de gateway (504 Gateway Timeout). Tente novamente em alguns minutos."}
+        elif status == 429:
+            return {"erro": f"Muitas requisições à API (429 Rate Limited). Aguarde um momento e tente novamente."}
+        elif status >= 500:
+            return {"erro": f"Erro no servidor da API ({status}). Tente novamente em alguns minutos. Detalhes: {texto}"}
+        else:
+            return {"erro": f"Erro HTTP {status}: {texto}"}
     except Exception as e:
         return {"erro": f"Erro inesperado: {str(e)}"}
