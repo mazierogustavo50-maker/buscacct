@@ -829,9 +829,11 @@ def analisar_documento_ia(request, pk):
                 raise ValueError(texto or "Não foi possível extrair texto do PDF.")
 
             resultado = analisar_cct_com_ia(texto)
+            if not isinstance(resultado, dict):
+                resultado = {"erro": f"Resposta inesperada da API: {str(resultado)[:200]}"}
 
             doc = DocumentoCCT.objects.get(pk=pk)
-            if "erro" in resultado:
+            if resultado.get("erro"):
                 doc.status_analise_ia = DocumentoCCT.STATUS_ANALISE_ERRO
                 doc.analise_ia_texto = resultado["erro"]
                 doc.save(update_fields=["status_analise_ia", "analise_ia_texto"])
