@@ -1,4 +1,5 @@
 {% extends "cctdashboard/base.html" %}
+{% load cct_extras %}
 {% block title %}{{ documento.tipo }} - {{ documento.sindicato.nome }}{% endblock %}
 
 {% block content %}
@@ -176,20 +177,8 @@
                             <tbody>
                                 {% for chave, valor in documento.analise_ia_json.items %}
                                     <tr>
-                                        <th class="text-nowrap" style="width: 25%;">{{ chave|title }}</th>
-                                        <td>
-                                            {% if valor is None %}
-                                                <span class="text-muted">-</span>
-                                            {% elif valor is True %}
-                                                Sim
-                                            {% elif valor is False %}
-                                                Não
-                                            {% elif valor|stringformat:"s"|length > 200 %}
-                                                <pre class="mb-0" style="white-space: pre-wrap;">{{ valor|stringformat:"s" }}</pre>
-                                            {% else %}
-                                                {{ valor }}
-                                            {% endif %}
-                                        </td>
+                                        <th class="text-nowrap bg-light" style="width: 28%;">{{ chave|title }}</th>
+                                        <td>{{ valor|format_ia_value|safe }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

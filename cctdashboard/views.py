@@ -776,6 +776,46 @@ def analisar_documento_ia(request, pk):
     documento.save(update_fields=["status_analise_ia"])
 
     import threading
+    from datetime import datetime
+    import re
+
+    def _parse_data_br(valor):
+        """Converte string de data para objeto date."""
+        if not valor:
+            return None
+        if isinstance(valor, datetime):
+            return valor.date() if hasattr(valor, 'date') else None
+        for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d", "%d/%m/%y"):
+            try:
+                return datetime.strptime(str(valor).strip(), fmt).date()
+            except ValueError:
+                continue
+        return None
+
+    def _parse_decimal(valor):
+        """Converte string com percentual/valor para Decimal."""
+        if valor is None:
+            return None
+        from decimal import Decimal, InvalidOperation
+        if isinstance(valor, (int, float)):
+            return Decimal(str(valor))
+        s = str(valor).strip()
+        if not s or s.lower() in ("null", "none", "-", "n/a", "na"):
+            return None
+        # Remove simbolos de moeda, porcentagem, pontos de milhar
+        s = s.replace("R$", "").replace("%", "").replace(" ", "")
+        # Se tiver ponto e virgula, assume formato brasileiro (1.234,56)
+        if "," in s and "." in s:
+            if s.rfind(",") > s.rfind("."):
+                s = s.replace(".", "").replace(",", ".")
+            else:
+                s = s.replace(",", "")
+        elif "," in s:
+            s = s.replace(",", ".")
+        try:
+            return Decimal(s)
+        except InvalidOperation:
+            return None
 
     def _analisar():
         try:
@@ -796,11 +836,63 @@ def analisar_documento_ia(request, pk):
                 doc.analise_ia_texto = resultado["erro"]
                 doc.save(update_fields=["status_analise_ia", "analise_ia_texto"])
             else:
+                ia_json = resultado.get("resultado") or {}
+
+                # --- Persiste dados extraidos nos campos do modelo ---
+                campos_atualizar = [
+                    "status_analise_ia",
+                    "analise_ia_json",
+                    "analise_ia_texto",
+                    "data_analise_ia",
+                ]
+
+                # Data base
+                db = _parse_data_br(ia_json.get("data_base"))
+                if db:
+                    doc.data_base = db
+                    if "data_base" not in campos_atualizar:
+                        campos_atualizar.append("data_base")
+
+                # Vigencia inicio
+                vi = _parse_data_br(ia_json.get("vigencia_inicio"))
+                if vi:
+                    doc.data_inicio_vigencia = vi
+                    if "data_inicio_vigencia" not in campos_atualizar:
+                        campos_atualizar.append("data_inicio_vigencia")
+
+                # Vigencia fim
+                vf = _parse_data_br(ia_json.get("vigencia_fim"))
+                if vf:
+                    doc.data_fim_vigencia = vf
+                    if "data_fim_vigencia" not in campos_atualizar:
+                        campos_atualizar.append("data_fim_vigencia")
+
+                # Reajuste percentual
+                rp = _parse_decimal(ia_json.get("reajuste_percentual"))
+                if rp is not None:
+                    doc.reajuste_percentual = rp
+                    if "reajuste_percentual" not in campos_atualizar:
+                        campos_atualizar.append("reajuste_percentual")
+
+                # Contribuicao sindical empregado
+                ce = _parse_decimal(ia_json.get("contribuicao_sindical_empregado"))
+                if ce is not None:
+                    doc.contribuicao_sindical_empregado = ce
+                    if "contribuicao_sindical_empregado" not in campos_atualizar:
+                        campos_atualizar.append("contribuicao_sindical_empregado")
+
+                # Contribuicao sindical patronal
+                cp = _parse_decimal(ia_json.get("contribuicao_sindical_patronal"))
+                if cp is not None:
+                    doc.contribuicao_sindical_patronal = cp
+                    if "contribuicao_sindical_patronal" not in campos_atualizar:
+                        campos_atualizar.append("contribuicao_sindical_patronal")
+
                 doc.status_analise_ia = DocumentoCCT.STATUS_ANALISE_CONCLUIDO
-                doc.analise_ia_json = resultado.get("resultado")
-                doc.analise_ia_texto = json.dumps(resultado.get("resultado"), ensure_ascii=False, indent=2)
+                doc.analise_ia_json = ia_json
+                doc.analise_ia_texto = json.dumps(ia_json, ensure_ascii=False, indent=2)
                 doc.data_analise_ia = timezone.now()
-                doc.save(update_fields=["status_analise_ia", "analise_ia_json", "analise_ia_texto", "data_analise_ia"])
+                doc.save(update_fields=campos_atualizar)
         except Exception as e:
             try:
                 doc = DocumentoCCT.objects.get(pk=pk)
