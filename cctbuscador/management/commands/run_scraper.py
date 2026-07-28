@@ -748,33 +748,74 @@ class Command(BaseCommand):
                         achou_match = True
                         self.log(f"  [MATCH] Pág {num_pagina} / Linha {i}. Baixando...")
 
-                        # Extrai datas de vigência (início e fim)
+                        # Extrai datas de vigência (início e fim) e registro MTE
                         inicio_vigencia = "DATA_DESCONHECIDA"
                         fim_vigencia = None
-                        m_data = re.search(r'(\d{2}/\d{2}/\d{4})', texto_linha)
-                        if m_data:
-                            inicio_vigencia = m_data.group(1).replace('/', '-')
-                        # Tenta extrair intervalo de vigência
-                        m_vigencia = re.search(r'VIGENCIA.*?DE\s*(\d{2}/\d{2}/\d{4})\s*A\s*(\d{2}/\d{2}/\d{4})', texto_norm, re.IGNORECASE)
-                        if not m_vigencia:
-                            m_vigencia = re.search(r'(\d{2}/\d{2}/\d{4})\s*A\s*(\d{2}/\d{2}/\d{4})', texto_norm, re.IGNORECASE)
-                        if m_vigencia:
-                            inicio_vigencia = m_vigencia.group(1).replace('/', '-')
-                            fim_vigencia = m_vigencia.group(2).replace('/', '-')
-                        else:
-                            # Tenta achar segunda data no texto como fim
-                            datas = re.findall(r'(\d{2}/\d{2}/\d{4})', texto_linha)
-                            if len(datas) >= 2:
-                                inicio_vigencia = datas[0].replace('/', '-')
-                                fim_vigencia = datas[1].replace('/', '-')
-
-                        # Extrai data de registro no MTE
                         data_registro_mte = None
-                        m_reg = re.search(r'DATA\s*DE\s*REGISTRO.*?([\d]{2}/[\d]{2}/[\d]{4})', texto_norm, re.IGNORECASE)
-                        if not m_reg:
-                            m_reg = re.search(r'REGISTRO.*?([\d]{2}/[\d]{2}/[\d]{4})', texto_norm, re.IGNORECASE)
-                        if m_reg:
-                            data_registro_mte = m_reg.group(1).replace('/', '-')
+
+                        # --- ESTRATÉGIA 1: Parsear células da tabela HTML (mais confiável) ---
+                        try:
+                            tds = linha.find_elements(By.TAG_NAME, "td")
+                            if len(tds) >= 5:
+                                # O MTE geralmente exibe: [Tipo] [Partes] [Vigência] [Registro] [Ação]
+                                # Tenta encontrar padrões em cada célula
+                                for td in tds:
+                                    td_text = td.text or ""
+                                    td_norm = normalizar_texto(td_text)
+
+                                    # Vigência em célula específica
+                                    if "VIGENCIA" in td_norm or "DE" in td_norm and "A" in td_norm:
+                                        m_vig = re.search(r'(\d{2}/\d{2}/\d{4})\s*A\s*(\d{2}/\d{2}/\d{4})', td_text, re.IGNORECASE)
+                                        if m_vig:
+                                            inicio_vigencia = m_vig.group(1).replace('/', '-')
+                                            fim_vigencia = m_vig.group(2).replace('/', '-')
+                                        else:
+                                            # Tenta duas datas na célula
+                                            datas_td = re.findall(r'(\d{2}/\d{2}/\d{4})', td_text)
+                                            if len(datas_td) >= 2:
+                                                inicio_vigencia = datas_td[0].replace('/', '-')
+                                                fim_vigencia = datas_td[1].replace('/', '-')
+                                            elif len(datas_td) == 1:
+                                                inicio_vigencia = datas_td[0].replace('/', '-')
+
+                                    # Registro MTE em célula específica
+                                    if "REGISTRO" in td_norm:
+                                        m_reg_td = re.search(r'(\d{2}/\d{2}/\d{4})', td_text)
+                                        if m_reg_td:
+                                            data_registro_mte = m_reg_td.group(1).replace('/', '-')
+                        except Exception:
+                            pass
+
+                        # --- ESTRATÉGIA 2: Regex no texto completo da linha (fallback) ---
+                        if inicio_vigencia == "DATA_DESCONHECIDA" or not fim_vigencia:
+                            m_data = re.search(r'(\d{2}/\d{2}/\d{4})', texto_linha)
+                            if m_data:
+                                inicio_vigencia = m_data.group(1).replace('/', '-')
+
+                            # Intervalo de vigência explícito
+                            m_vigencia = re.search(r'VIGENCIA.*?DE\s*(\d{2}/\d{2}/\d{4})\s*A\s*(\d{2}/\d{2}/\d{4})', texto_norm, re.IGNORECASE)
+                            if not m_vigencia:
+                                m_vigencia = re.search(r'(\d{2}/\d{2}/\d{4})\s*A\s*(\d{2}/\d{2}/\d{4})', texto_norm, re.IGNORECASE)
+                            if m_vigencia:
+                                inicio_vigencia = m_vigencia.group(1).replace('/', '-')
+                                fim_vigencia = m_vigencia.group(2).replace('/', '-')
+                            else:
+                                # Tenta achar segunda data no texto como fim
+                                datas = re.findall(r'(\d{2}/\d{2}/\d{4})', texto_linha)
+                                if len(datas) >= 2:
+                                    inicio_vigencia = datas[0].replace('/', '-')
+                                    fim_vigencia = datas[1].replace('/', '-')
+
+                        # --- REGISTRO MTE: fallback por regex ---
+                        if not data_registro_mte:
+                            m_reg = re.search(r'DATA\s*DE\s*REGISTRO\s*:?\s*([\d]{2}/[\d]{2}/[\d]{4})', texto_norm, re.IGNORECASE)
+                            if not m_reg:
+                                m_reg = re.search(r'REGISTRO\s*:?\s*([\d]{2}/[\d]{2}/[\d]{4})', texto_norm, re.IGNORECASE)
+                            if not m_reg:
+                                # Padrão alternativo: "Registrado em DD/MM/YYYY"
+                                m_reg = re.search(r'REGISTRAD[OA]\s+EM\s+([\d]{2}/[\d]{2}/[\d]{4})', texto_norm, re.IGNORECASE)
+                            if m_reg:
+                                data_registro_mte = m_reg.group(1).replace('/', '-')
 
                         tipo_arq = "TA-CCT" if "TERMO ADITIVO" in tipo_check else "CCT"
                         codigo_sind = mapa_codigo.get(cnpj_digits, sindicato.codigo or "")

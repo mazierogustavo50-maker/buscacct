@@ -76,9 +76,21 @@
                 <thead >
                     <tr>
                         <th>ID</th>
-                        <th>Data Início</th>
-                        <th>Data Fim</th>
-                        <th>Status</th>
+                        <th>
+                            <a href="?ordenar={% if ordenar == '-data_inicio' %}{% else %}-{% endif %}data_inicio" class="text-decoration-none text-dark">
+                                Data Início {% if ordenar == 'data_inicio' %}<i class="bi bi-arrow-up"></i>{% elif ordenar == '-data_inicio' %}<i class="bi bi-arrow-down"></i>{% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?ordenar={% if ordenar == 'data_fim' %}-{% endif %}data_fim" class="text-decoration-none text-dark">
+                                Data Fim {% if ordenar == 'data_fim' %}<i class="bi bi-arrow-up"></i>{% elif ordenar == '-data_fim' %}<i class="bi bi-arrow-down"></i>{% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?ordenar={% if ordenar == 'status' %}-{% endif %}status" class="text-decoration-none text-dark">
+                                Status {% if ordenar == 'status' %}<i class="bi bi-arrow-up"></i>{% elif ordenar == '-status' %}<i class="bi bi-arrow-down"></i>{% endif %}
+                            </a>
+                        </th>
                         <th>Baixados</th>
                         <th>Já Existentes</th>
                         <th>Não Encontrados</th>
@@ -136,10 +148,10 @@
             <ul class="pagination justify-content-center mb-0">
                 {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1">&laquo;</a>
+                    <a class="page-link" href="?page=1{% if ordenar %}&ordenar={{ ordenar }}{% endif %}">&laquo;</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&lsaquo;</a>
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if ordenar %}&ordenar={{ ordenar }}{% endif %}">&lsaquo;</a>
                 </li>
                 {% endif %}
                 <li class="page-item active">
@@ -147,10 +159,10 @@
                 </li>
                 {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">&rsaquo;</a>
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if ordenar %}&ordenar={{ ordenar }}{% endif %}">&rsaquo;</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if ordenar %}&ordenar={{ ordenar }}{% endif %}">&raquo;</a>
                 </li>
                 {% endif %}
             </ul>

@@ -430,6 +430,7 @@ def lista_documentos(request):
     status = request.GET.get("status", "").strip()
     sindicato_id = request.GET.get("sindicato", "").strip()
     q = request.GET.get("q", "").strip()
+    ordenar = request.GET.get("ordenar", "").strip()
 
     if tipo:
         queryset = queryset.filter(tipo=tipo)
@@ -442,6 +443,24 @@ def lista_documentos(request):
             Q(sindicato__nome__icontains=q)
             | Q(sindicato__codigo__icontains=q)
         )
+
+    # Ordenação
+    ordenacao_valida = {
+        "inicio_vigencia": "data_inicio_vigencia",
+        "-inicio_vigencia": "-data_inicio_vigencia",
+        "fim_vigencia": "data_fim_vigencia",
+        "-fim_vigencia": "-data_fim_vigencia",
+        "registro_mte": "data_registro_mte",
+        "-registro_mte": "-data_registro_mte",
+        "tipo": "tipo",
+        "-tipo": "-tipo",
+        "status": "status_extracao",
+        "-status": "-status_extracao",
+    }
+    if ordenar in ordenacao_valida:
+        queryset = queryset.order_by(ordenacao_valida[ordenar])
+    else:
+        queryset = queryset.order_by("-data_inicio_vigencia")
 
     paginator = Paginator(queryset, 20)
     page_number = request.GET.get("page")
@@ -458,6 +477,7 @@ def lista_documentos(request):
         "q": q,
         "sindicatos": sindicatos,
         "mostrar_inativos": mostrar_inativos,
+        "ordenar": ordenar,
     }
     return render(request, "cctdashboard/lista_documentos.html", context)
 
@@ -517,14 +537,34 @@ def ver_pdf(request, pk):
 @login_required
 def execucoes_scraper(request):
     queryset = ExecucaoScraper.objects.all()
+    ordenar = request.GET.get("ordenar", "").strip()
+
+    ordenacao_valida = {
+        "data_inicio": "data_inicio",
+        "-data_inicio": "-data_inicio",
+        "data_fim": "data_fim",
+        "-data_fim": "-data_fim",
+        "status": "status",
+        "-status": "-status",
+    }
+    if ordenar in ordenacao_valida:
+        queryset = queryset.order_by(ordenacao_valida[ordenar])
+    else:
+        queryset = queryset.order_by("-data_inicio")
+
     paginator = Paginator(queryset, 20)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    context = {
+    response = render(request, "cctdashboard/execucoes_scraper.html", {
         "page_obj": page_obj,
-    }
-    return render(request, "cctdashboard/execucoes_scraper.html", context)
+        "ordenar": ordenar,
+    })
+    # Anti-cache para evitar que o navegador mostre lista desatualizada após iniciar nova execução
+    response["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 
 @login_required
@@ -928,3 +968,180 @@ def excluir_agendamento(request, pk):
     agendamento.delete()
     messages.success(request, "Agendamento excluído com sucesso.")
     return redirect("cctdashboard:lista_agendamentos")
+
+
+# ============================================================
+# ATUALIZAR VIGENCIAS DE DOCUMENTOS EXISTENTES
+# ============================================================
+
+import threading
+from cctcore.services import extrair_texto_pdf
+
+# Estado global para acompanhar execução em segundo plano
+_estado_atualizar_vigencias = {
+    "rodando": False,
+    "total": 0,
+    "atual": 0,
+    "mensagens": [],
+    "atualizados": 0,
+    "sem_mudanca": 0,
+    "erro_pdf": 0,
+}
+
+
+def _thread_atualizar_vigencias(sindicato_codigo, apenas_vazios, limite):
+    """Executa a atualização em segundo plano."""
+    global _estado_atualizar_vigencias
+    _estado_atualizar_vigencias["rodando"] = True
+    _estado_atualizar_vigencias["mensagens"] = []
+    _estado_atualizar_vigencias["atualizados"] = 0
+    _estado_atualizar_vigencias["sem_mudanca"] = 0
+    _estado_atualizar_vigencias["erro_pdf"] = 0
+
+    queryset = DocumentoCCT.objects.filter(ativo=True).exclude(
+        arquivo_pdf=""
+    ).exclude(arquivo_pdf__isnull=True)
+
+    if sindicato_codigo:
+        queryset = queryset.filter(sindicato__codigo=sindicato_codigo)
+
+    if apenas_vazios:
+        queryset = queryset.filter(
+            data_fim_vigencia__isnull=True
+        ) | queryset.filter(data_registro_mte__isnull=True)
+
+    total = queryset.count()
+    if limite and limite > 0:
+        queryset = queryset[:limite]
+        total = min(total, limite)
+
+    _estado_atualizar_vigencias["total"] = total
+    _estado_atualizar_vigencias["atual"] = 0
+
+    for idx, doc in enumerate(queryset, start=1):
+        _estado_atualizar_vigencias["atual"] = idx
+        _estado_atualizar_vigencias["mensagens"].append(
+            f"[{idx}/{total}] #{doc.pk} — {doc.sindicato} — {doc.tipo}"
+        )
+
+        caminho_pdf = doc.arquivo_pdf
+        if not os.path.isabs(caminho_pdf):
+            caminho_pdf = str(Path(settings.BASE_DIR) / caminho_pdf)
+
+        if not os.path.exists(caminho_pdf):
+            _estado_atualizar_vigencias["mensagens"].append(
+                f"  [AVISO] PDF não encontrado: {caminho_pdf}"
+            )
+            continue
+
+        texto = extrair_texto_pdf(caminho_pdf, max_paginas=10)
+        if not texto or texto.startswith("[ERRO"):
+            _estado_atualizar_vigencias["erro_pdf"] += 1
+            _estado_atualizar_vigencias["mensagens"].append(
+                f"  [ERRO] Falha ao extrair texto do PDF."
+            )
+            continue
+
+        # Importa do management command para reaproveitar regex
+        from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto
+        datas = extrair_datas_do_texto(texto)
+
+        encontrado = []
+        if datas["data_inicio"]:
+            encontrado.append(f"início={datas['data_inicio']}")
+        if datas["data_fim"]:
+            encontrado.append(f"fim={datas['data_fim']}")
+        if datas["data_registro_mte"]:
+            encontrado.append(f"registro_mte={datas['data_registro_mte']}")
+
+        if encontrado:
+            _estado_atualizar_vigencias["mensagens"].append(
+                f"  Encontrado: {', '.join(encontrado)}"
+            )
+        else:
+            _estado_atualizar_vigencias["mensagens"].append(
+                f"  [AVISO] Nenhuma data encontrada no texto."
+            )
+
+        mudou = False
+        campos_atualizar = []
+
+        if datas["data_inicio"] and doc.data_inicio_vigencia != datas["data_inicio"]:
+            doc.data_inicio_vigencia = datas["data_inicio"]
+            campos_atualizar.append("data_inicio_vigencia")
+            mudou = True
+
+        if datas["data_fim"] and doc.data_fim_vigencia != datas["data_fim"]:
+            doc.data_fim_vigencia = datas["data_fim"]
+            campos_atualizar.append("data_fim_vigencia")
+            mudou = True
+
+        if datas["data_registro_mte"] and doc.data_registro_mte != datas["data_registro_mte"]:
+            doc.data_registro_mte = datas["data_registro_mte"]
+            campos_atualizar.append("data_registro_mte")
+            mudou = True
+
+        if mudou:
+            doc.save(update_fields=campos_atualizar)
+            _estado_atualizar_vigencias["atualizados"] += 1
+            _estado_atualizar_vigencias["mensagens"].append(
+                f"  [OK] Atualizado: {', '.join(campos_atualizar)}"
+            )
+        else:
+            _estado_atualizar_vigencias["sem_mudanca"] += 1
+
+    _estado_atualizar_vigencias["rodando"] = False
+
+
+@login_required
+def atualizar_vigencias(request):
+    """Página para executar a atualização de vigências dos documentos existentes."""
+    global _estado_atualizar_vigencias
+
+    if request.method == "POST":
+        acao = request.POST.get("acao", "")
+
+        if acao == "iniciar":
+            if _estado_atualizar_vigencias["rodando"]:
+                messages.warning(request, "Já há uma execução em andamento.")
+                return redirect("cctdashboard:atualizar_vigencias")
+
+            sindicato_codigo = request.POST.get("sindicato_codigo", "").strip()
+            apenas_vazios = request.POST.get("apenas_vazios") == "on"
+            limite_str = request.POST.get("limite", "0").strip()
+            try:
+                limite = int(limite_str)
+            except ValueError:
+                limite = 0
+
+            t = threading.Thread(
+                target=_thread_atualizar_vigencias,
+                args=(sindicato_codigo, apenas_vazios, limite),
+                daemon=True,
+            )
+            t.start()
+
+            messages.success(request, "Atualização de vigências iniciada em segundo plano.")
+            return redirect("cctdashboard:atualizar_vigencias")
+
+        elif acao == "parar":
+            # Não conseguimos matar a thread de forma segura,
+            # mas podemos marcar para parar no próximo ciclo
+            _estado_atualizar_vigencias["rodando"] = False
+            messages.info(request, "Sinal de parada enviado. A execução terminará no próximo documento.")
+            return redirect("cctdashboard:atualizar_vigencias")
+
+    # Contagens para os cards
+    total_docs = DocumentoCCT.objects.filter(ativo=True).count()
+    sem_data_fim = DocumentoCCT.objects.filter(ativo=True, data_fim_vigencia__isnull=True).count()
+    sem_registro = DocumentoCCT.objects.filter(ativo=True, data_registro_mte__isnull=True).count()
+
+    context = {
+        "titulo": "Atualizar Vigências",
+        "estado": _estado_atualizar_vigencias,
+        "total_docs": total_docs,
+        "sem_data_fim": sem_data_fim,
+        "sem_registro": sem_registro,
+        "sindicatos": Sindicato.objects.order_by("nome"),
+    }
+    return render(request, "cctdashboard/atualizar_vigencias.html", context)

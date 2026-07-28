@@ -1,0 +1,144 @@
+{% extends "cctdashboard/base.html" %}
+{% block title %}Atualizar Vigências — Dashboard CCT{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="bi bi-arrow-repeat text-primary me-2"></i>Atualizar Vigências dos Documentos</h2>
+    <a href="{% url 'cctdashboard:lista_documentos' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Voltar para Documentos
+    </a>
+</div>
+
+<p class="text-muted">
+    Reprocessa todos os documentos já existentes no banco, extraindo do PDF as datas de
+    <strong>vigência</strong> (início e fim) e <strong>registro no MTE</strong>.
+</p>
+
+<!-- Cards de resumo -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-primary h-100">
+            <div class="card-body text-center">
+                <h3 class="text-primary mb-1">{{ total_docs }}</h3>
+                <small class="text-muted">Documentos ativos no banco</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-warning h-100">
+            <div class="card-body text-center">
+                <h3 class="text-warning mb-1">{{ sem_data_fim }}</h3>
+                <small class="text-muted">Sem data de fim de vigência</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-danger h-100">
+            <div class="card-body text-center">
+                <h3 class="text-danger mb-1">{{ sem_registro }}</h3>
+                <small class="text-muted">Sem data de registro no MTE</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status da execução -->
+{% if estado.rodando %}
+<div class="alert alert-info d-flex align-items-center">
+    <div class="spinner-border spinner-border-sm me-3" role="status"></div>
+    <div>
+        <strong>Execução em andamento...</strong>
+        <span class="ms-2">{{ estado.atual }} / {{ estado.total }} documentos processados</span>
+    </div>
+</div>
+
+<!-- Barra de progresso -->
+<div class="progress mb-3" style="height: 25px;">
+    {% if estado.total > 0 %}
+        {% widthratio estado.atual estado.total 100 as pct %}
+        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+             style="width: {{ pct }}%" aria-valuenow="{{ estado.atual }}" aria-valuemin="0" aria-valuemax="{{ estado.total }}">
+            {{ estado.atual }} / {{ estado.total }}
+        </div>
+    {% else %}
+        <div class="progress-bar progress-bar-striped progress-bar-animated w-100" role="progressbar">
+            Iniciando...
+        </div>
+    {% endif %}
+</div>
+
+<!-- Log -->
+<div class="card mb-4">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-terminal me-2"></i>Log de execução</span>
+        <form method="post" class="m-0" onsubmit="return confirm('Deseja parar a execução?');">
+            {% csrf_token %}
+            <input type="hidden" name="acao" value="parar">
+            <button type="submit" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-stop-fill me-1"></i>Parar
+            </button>
+        </form>
+    </div>
+    <div class="card-body p-0">
+        <pre class="m-0 p-3 bg-dark text-light" style="max-height: 400px; overflow-y: auto; font-size: 0.85rem;"><code>{% for msg in estado.mensagens %}{{ msg }}
+{% empty %}Aguardando início...{% endfor %}</code></pre>
+    </div>
+</div>
+
+<meta http-equiv="refresh" content="5">
+{% else %}
+    {% if estado.mensagens %}
+    <!-- Execução concluída — mostra resumo -->
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong>Última execução concluída!</strong>
+        Atualizados: <strong>{{ estado.atualizados }}</strong> &middot;
+        Sem mudança: <strong>{{ estado.sem_mudanca }}</strong> &middot;
+        Erro no PDF: <strong>{{ estado.erro_pdf }}</strong>
+    </div>
+    {% endif %}
+
+<!-- Formulário de início -->
+<div class="card">
+    <div class="card-header bg-light">
+        <i class="bi bi-play-circle me-2"></i>Iniciar nova execução
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="acao" value="iniciar">
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="sindicato" class="form-label">Sindicato (opcional)</label>
+                    <select name="sindicato_codigo" id="sindicato" class="form-select">
+                        <option value="">Todos os sindicatos</option>
+                        {% for s in sindicatos %}
+                        <option value="{{ s.codigo }}">{{ s.nome }} ({{ s.codigo }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="limite" class="form-label">Limite (opcional)</label>
+                    <input type="number" name="limite" id="limite" class="form-control" min="0" placeholder="0 = sem limite">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="apenas_vazios" id="apenas_vazios" checked>
+                        <label class="form-check-label" for="apenas_vazios">
+                            Só documentos com dados faltando
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-play-fill me-1"></i>Iniciar Atualização
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

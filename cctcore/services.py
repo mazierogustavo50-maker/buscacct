@@ -27,6 +27,3 @@ def extrair_texto_pdf(caminho_pdf: str, max_paginas: int = 30) -> str:
         return f"[ERRO ao ler PDF: {e}]"
 
     return "\n\n".join(texto_paginas)
-
-
-
