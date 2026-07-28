@@ -205,6 +205,141 @@ def converter_para_pdf(caminho_doc):
         return caminho_doc
 
 
+def parse_data_br(data_str):
+    """Converte string de data brasileira para objeto date."""
+    if not data_str:
+        return None
+    from datetime import datetime
+    for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(data_str.strip(), fmt).date()
+        except ValueError:
+            continue
+    return None
+
+
+def extrair_texto_pdf(caminho_pdf, max_paginas=30):
+    """Extrai texto de um PDF usando pdfplumber."""
+    if not caminho_pdf:
+        return ""
+    try:
+        import pdfplumber
+    except ImportError:
+        return "[ERRO] pdfplumber nao instalado"
+    caminho = os.path.abspath(caminho_pdf)
+    if not os.path.exists(caminho):
+        return ""
+    texto_paginas = []
+    try:
+        with pdfplumber.open(caminho) as pdf:
+            for i, page in enumerate(pdf.pages[:max_paginas]):
+                txt = page.extract_text()
+                if txt:
+                    texto_paginas.append(f"--- Pagina {i + 1} ---\n{txt}")
+    except Exception as e:
+        return f"[ERRO ao ler PDF: {e}]"
+    return "\n\n".join(texto_paginas)
+
+
+def extrair_datas_do_texto(texto):
+    """
+    Extrai datas de vigencia (inicio, fim) e registro MTE do texto de uma CCT.
+    Retorna dict com as chaves: data_inicio, data_fim, data_registro_mte.
+    """
+    resultado = {"data_inicio": None, "data_fim": None, "data_registro_mte": None}
+    if not texto or len(texto) < 50:
+        return resultado
+    texto_upper = texto.upper()
+
+    # 1. VIGENCIA - multiplas estrategias
+    m = re.search(
+        r'VIGEN[CGC][IA]*\s*(?:DE)?\s*(\d{2}[/-]\d{2}[/-]\d{4})\s*(?:A|AT[E]|[-]|[-])\s*(\d{2}[/-]\d{2}[/-]\d{4})',
+        texto_upper
+    )
+    if m:
+        resultado["data_inicio"] = parse_data_br(m.group(1))
+        resultado["data_fim"] = parse_data_br(m.group(2))
+
+    if not resultado["data_inicio"]:
+        m = re.search(
+            r'VIGEN[CGC][IA]*\s*[:\-]\s*(\d{2}[/-]\d{2}[/-]\d{4})\s*(?:A|AT[E]|[-]|[-])\s*(\d{2}[/-]\d{2}[/-]\d{4})',
+            texto_upper
+        )
+        if m:
+            resultado["data_inicio"] = parse_data_br(m.group(1))
+            resultado["data_fim"] = parse_data_br(m.group(2))
+
+    if not resultado["data_inicio"]:
+        m = re.search(
+            r'(?:PER[I]ODO|PRAZO)\s*DE\s*VIGEN[CGC][IA]*.*?([\d]{2}[/-][\d]{2}[/-][\d]{4}).*?(?:A|AT[E]|[-]|[-]).*?([\d]{2}[/-][\d]{2}[/-][\d]{4})',
+            texto_upper, re.DOTALL
+        )
+        if m:
+            resultado["data_inicio"] = parse_data_br(m.group(1))
+            resultado["data_fim"] = parse_data_br(m.group(2))
+
+    if not resultado["data_inicio"]:
+        blocos = re.split(r'VIGEN[CGC][IA]*', texto_upper)
+        if len(blocos) > 1:
+            for bloco in blocos[1:3]:
+                datas = re.findall(r'(\d{2}[/-]\d{2}[/-]\d{4})', bloco[:500])
+                if len(datas) >= 2:
+                    resultado["data_inicio"] = parse_data_br(datas[0])
+                    resultado["data_fim"] = parse_data_br(datas[1])
+                    break
+                elif len(datas) == 1:
+                    resultado["data_inicio"] = parse_data_br(datas[0])
+                    break
+
+    if resultado["data_inicio"] and not resultado["data_fim"]:
+        pos = texto_upper.find(str(resultado["data_inicio"]).replace("-", "/"))
+        if pos >= 0:
+            trecho = texto_upper[pos:pos+800]
+            m_fim = re.search(r'(?:AT[E]|A)\s*(\d{2}[/-]\d{2}[/-]\d{4})', trecho)
+            if m_fim:
+                resultado["data_fim"] = parse_data_br(m_fim.group(1))
+
+    # 2. DATA DE REGISTRO NO MTE
+    m = re.search(
+        r'DATA\s*DE\s*REGISTRO\s*(?:NO\s*MTE)?\s*[:\-]?\s*(\d{2}[/-]\d{2}[/-]\d{4})',
+        texto_upper
+    )
+    if m:
+        resultado["data_registro_mte"] = parse_data_br(m.group(1))
+
+    if not resultado["data_registro_mte"]:
+        m = re.search(
+            r'REGISTRAD[OA]\s+(?:EM\s+)?(\d{2}[/-]\d{2}[/-]\d{4}).*?MTE',
+            texto_upper
+        )
+        if m:
+            resultado["data_registro_mte"] = parse_data_br(m.group(1))
+
+    if not resultado["data_registro_mte"]:
+        m = re.search(
+            r'REGISTRO\s*[:\-]?\s*(\d{2}[/-]\d{2}[/-]\d{4})',
+            texto_upper
+        )
+        if m:
+            pos_reg = texto_upper.find("REGISTRO")
+            if pos_reg >= 0:
+                trecho = texto_upper[max(0, pos_reg-200):pos_reg+300]
+                if "MTE" in trecho or "MINISTERIO" in trecho or "MINISTERIO" in trecho:
+                    resultado["data_registro_mte"] = parse_data_br(m.group(1))
+
+    if not resultado["data_registro_mte"]:
+        m = re.search(
+            r'(?:PROTOCOLO|PROCESSO)\s*(?:N[\u00ba\u00b0]?\s*)?\d+.*?([\d]{2}[/-][\d]{2}[/-][\d]{4})',
+            texto_upper, re.DOTALL
+        )
+        if m:
+            candidata = parse_data_br(m.group(1))
+            if candidata != resultado["data_inicio"]:
+                resultado["data_registro_mte"] = candidata
+
+    return resultado
+
+
 def baixar_arquivo_direto(driver, link_element, destino_path, log_print=True):
     """
     Baixa o arquivo diretamente via requests usando os cookies da sessão Selenium.
@@ -688,7 +823,7 @@ def processar_mediador():
                             pass
 
                     # ==========================================
-                    # PÓS-DOWNLOAD: converte e registra
+                    # PÓS-DOWNLOAD: converte e extrai vigência do PDF
                     # ==========================================
                     if destino_final:
                         ext_arq = os.path.splitext(destino_final)[1].lower()
@@ -696,6 +831,29 @@ def processar_mediador():
                             destino_final = converter_para_pdf(destino_final)
 
                         nome_final = os.path.basename(destino_final)
+
+                        # EXTRAÇÃO DE VIGÊNCIA DO CONTEÚDO DO PDF
+                        print(f"  [EXTRACAO] Lendo conteúdo do PDF para extrair vigência...")
+                        try:
+                            texto_pdf = extrair_texto_pdf(destino_final, max_paginas=10)
+                            if texto_pdf and not texto_pdf.startswith("[ERRO"):
+                                datas_pdf = extrair_datas_do_texto(texto_pdf)
+                                encontrado_pdf = []
+                                if datas_pdf["data_inicio"]:
+                                    encontrado_pdf.append(f"início={datas_pdf['data_inicio']}")
+                                if datas_pdf["data_fim"]:
+                                    encontrado_pdf.append(f"fim={datas_pdf['data_fim']}")
+                                if datas_pdf["data_registro_mte"]:
+                                    encontrado_pdf.append(f"registro_mte={datas_pdf['data_registro_mte']}")
+                                if encontrado_pdf:
+                                    print(f"  [EXTRACAO OK] Extraído do PDF: {', '.join(encontrado_pdf)}")
+                                else:
+                                    print(f"  [EXTRACAO AVISO] Nenhuma data encontrada no PDF.")
+                            else:
+                                print(f"  [EXTRACAO AVISO] Não foi possível extrair texto do PDF.")
+                        except Exception as e_extr:
+                            print(f"  [EXTRACAO ERRO] Falha ao extrair do PDF: {e_extr}")
+
                         rel_baixados.append((cnpj_formatado, sindicato_esperado, nome_final))
                         print(f"  [OK] Arquivo final: {nome_final}")
                     else:

@@ -22,6 +22,8 @@ from django.utils import timezone
 
 from cctbuscador.models import ExecucaoScraper
 from cctcore.models import Sindicato, DocumentoCCT
+from cctcore.services import extrair_texto_pdf
+from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -946,6 +948,33 @@ class Command(BaseCommand):
                                 caminho_relativo = os.path.relpath(destino_final, BASE_DIR)
                             except ValueError:
                                 pass  # mantém absoluto se não conseguir relativizar
+
+                            # ==========================================================
+                            # EXTRAÇÃO DE VIGÊNCIA DO CONTEÚDO DO ARQUIVO (PDF)
+                            # ==========================================================
+                            self.log(f"  [EXTRACAO] Lendo conteúdo do PDF para extrair vigência...")
+                            try:
+                                texto_pdf = extrair_texto_pdf(destino_final, max_paginas=10)
+                                if texto_pdf and not texto_pdf.startswith("[ERRO"):
+                                    datas_pdf = extrair_datas_do_texto(texto_pdf)
+                                    encontrado_pdf = []
+                                    if datas_pdf["data_inicio"]:
+                                        data_obj = datas_pdf["data_inicio"]
+                                        encontrado_pdf.append(f"início={datas_pdf['data_inicio']}")
+                                    if datas_pdf["data_fim"]:
+                                        data_fim_obj = datas_pdf["data_fim"]
+                                        encontrado_pdf.append(f"fim={datas_pdf['data_fim']}")
+                                    if datas_pdf["data_registro_mte"]:
+                                        data_reg_obj = datas_pdf["data_registro_mte"]
+                                        encontrado_pdf.append(f"registro_mte={datas_pdf['data_registro_mte']}")
+                                    if encontrado_pdf:
+                                        self.log(f"  [EXTRACAO OK] Extraído do PDF: {', '.join(encontrado_pdf)}")
+                                    else:
+                                        self.log(f"  [EXTRACAO AVISO] Nenhuma data encontrada no PDF. Usando dados da tabela HTML.")
+                                else:
+                                    self.log(f"  [EXTRACAO AVISO] Não foi possível extrair texto do PDF. Usando dados da tabela HTML.")
+                            except Exception as e_extr:
+                                self.log(f"  [EXTRACAO ERRO] Falha ao extrair do PDF: {e_extr}. Usando dados da tabela HTML.")
 
                             # Registra no banco
                             if not sindicato_db:
