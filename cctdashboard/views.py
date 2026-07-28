@@ -12,12 +12,11 @@ import pandas as pd
 import subprocess
 import sys
 import os
-import json
 
 from cctcore.models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT
 from cctbuscador.models import ExecucaoScraper, AgendamentoScraper
 from .forms import SindicatoForm, EmpresaForm, ImportarSindicatosForm, ImportarEmpresasForm
-from cctcore.services import extrair_texto_pdf, analisar_cct_com_ia
+from cctcore.services import extrair_texto_pdf
 
 
 @login_required
@@ -26,7 +25,6 @@ def home(request):
     total_empresas = Empresa.objects.count()
     total_cct = DocumentoCCT.objects.filter(tipo=DocumentoCCT.TIPO_CCT).count()
     total_ta_cct = DocumentoCCT.objects.filter(tipo=DocumentoCCT.TIPO_TA_CCT).count()
-    total_concluido_ia = DocumentoCCT.objects.filter(status_analise_ia=DocumentoCCT.STATUS_ANALISE_CONCLUIDO).count()
     execucoes_recentes = ExecucaoScraper.objects.all()[:5]
 
     # Dados para gráfico de documentos por tipo
@@ -65,7 +63,6 @@ def home(request):
         "total_empresas": total_empresas,
         "total_cct": total_cct,
         "total_ta_cct": total_ta_cct,
-        "total_concluido_ia": total_concluido_ia,
         "execucoes_recentes": execucoes_recentes,
         "documentos_por_tipo": documentos_por_tipo,
         "sindicato_labels": sindicato_labels,
@@ -719,105 +716,6 @@ def reativar_documento(request, pk):
     documento.save(update_fields=["ativo"])
     messages.success(request, "Documento reativado com sucesso.")
     return redirect("cctdashboard:detalhe_documento", pk=pk)
-
-
-@login_required
-@require_POST
-def analisar_documento_ia(request, pk):
-    """Executa análise de CCT via IA (OpenCode Go) em background."""
-    documento = get_object_or_404(DocumentoCCT, pk=pk)
-
-    if not documento.arquivo_pdf:
-        messages.error(request, "Documento não possui arquivo PDF para análise.")
-        return redirect("cctdashboard:detalhe_documento", pk=pk)
-
-    # Atualiza status
-    documento.status_analise_ia = DocumentoCCT.STATUS_ANALISE_EM_ANDAMENTO
-    documento.save(update_fields=["status_analise_ia"])
-
-    import threading
-
-    def _analisar():
-        try:
-            from django.db import connection
-            connection.close()
-        except Exception:
-            pass
-        try:
-            texto = extrair_texto_pdf(documento.arquivo_pdf)
-            if not texto or texto.startswith("[ERRO"):
-                raise ValueError(texto or "Não foi possível extrair texto do PDF.")
-
-            resultado = analisar_cct_com_ia(texto)
-
-            doc = DocumentoCCT.objects.get(pk=pk)
-            if "erro" in resultado:
-                doc.status_analise_ia = DocumentoCCT.STATUS_ANALISE_ERRO
-                doc.analise_ia_texto = resultado["erro"]
-                doc.save(update_fields=["status_analise_ia", "analise_ia_texto"])
-            else:
-                doc.status_analise_ia = DocumentoCCT.STATUS_ANALISE_CONCLUIDO
-                doc.analise_ia_json = resultado.get("resultado")
-                doc.analise_ia_texto = json.dumps(resultado.get("resultado"), ensure_ascii=False, indent=2)
-                doc.data_analise_ia = timezone.now()
-                doc.save(update_fields=["status_analise_ia", "analise_ia_json", "analise_ia_texto", "data_analise_ia"])
-        except Exception as e:
-            try:
-                doc = DocumentoCCT.objects.get(pk=pk)
-                doc.status_analise_ia = DocumentoCCT.STATUS_ANALISE_ERRO
-                doc.analise_ia_texto = str(e)
-                doc.save(update_fields=["status_analise_ia", "analise_ia_texto"])
-            except Exception:
-                pass
-
-    thread = threading.Thread(target=_analisar, daemon=True)
-    thread.start()
-
-    messages.success(request, "Análise com IA iniciada em background! Acompanhe o status na página do documento.")
-    return redirect("cctdashboard:detalhe_documento", pk=pk)
-
-
-@login_required
-def painel_ia(request):
-    """Painel de CCTs analisadas pela IA."""
-    status_filtro = request.GET.get("status", "").strip()
-    sindicato_id = request.GET.get("sindicato", "").strip()
-    q = request.GET.get("q", "").strip()
-
-    queryset = DocumentoCCT.objects.select_related("sindicato").exclude(
-        status_analise_ia=DocumentoCCT.STATUS_ANALISE_PENDENTE
-    )
-
-    if status_filtro:
-        queryset = queryset.filter(status_analise_ia=status_filtro)
-    if sindicato_id:
-        queryset = queryset.filter(sindicato_id=sindicato_id)
-    if q:
-        queryset = queryset.filter(
-            Q(sindicato__nome__icontains=q)
-            | Q(sindicato__codigo__icontains=q)
-        )
-
-    paginator = Paginator(queryset.order_by("-data_analise_ia"), 20)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    # Contadores por status
-    total_concluido = DocumentoCCT.objects.filter(status_analise_ia=DocumentoCCT.STATUS_ANALISE_CONCLUIDO).count()
-    total_erro = DocumentoCCT.objects.filter(status_analise_ia=DocumentoCCT.STATUS_ANALISE_ERRO).count()
-    total_andamento = DocumentoCCT.objects.filter(status_analise_ia=DocumentoCCT.STATUS_ANALISE_EM_ANDAMENTO).count()
-
-    context = {
-        "page_obj": page_obj,
-        "status_filtro": status_filtro,
-        "sindicato_id": sindicato_id,
-        "q": q,
-        "sindicatos": Sindicato.objects.order_by("nome"),
-        "total_concluido": total_concluido,
-        "total_erro": total_erro,
-        "total_andamento": total_andamento,
-    }
-    return render(request, "cctdashboard/painel_ia.html", context)
 
 
 @login_required
