@@ -971,32 +971,46 @@ def excluir_agendamento(request, pk):
 
 
 # ============================================================
-# ATUALIZAR VIGENCIAS DE DOCUMENTOS EXISTENTES
+# ATUALIZAR / REANALISAR DOCUMENTOS EXISTENTES (VIGÊNCIAS + IA)
 # ============================================================
 
 import threading
-from cctcore.services import extrair_texto_pdf
+from django.utils import timezone
+from cctcore.services import extrair_texto_pdf, analisar_cct_com_ia
 
 # Estado global para acompanhar execução em segundo plano
 _estado_atualizar_vigencias = {
     "rodando": False,
+    "modo": "vigencias",
     "total": 0,
     "atual": 0,
     "mensagens": [],
     "atualizados": 0,
     "sem_mudanca": 0,
     "erro_pdf": 0,
+    "erro_ia": 0,
+    "atualizados_ia": 0,
 }
 
 
-def _thread_atualizar_vigencias(sindicato_codigo, apenas_vazios, limite):
-    """Executa a atualização em segundo plano."""
+def _thread_atualizar_vigencias(sindicato_codigo, apenas_vazios, limite, modo="vigencias"):
+    """
+    Executa a atualização em segundo plano.
+
+    modo:
+      - "vigencias": só extrai datas via regex
+      - "ia":        só faz análise com IA
+      - "completo":  vigências + análise IA
+    """
     global _estado_atualizar_vigencias
     _estado_atualizar_vigencias["rodando"] = True
+    _estado_atualizar_vigencias["modo"] = modo
     _estado_atualizar_vigencias["mensagens"] = []
     _estado_atualizar_vigencias["atualizados"] = 0
     _estado_atualizar_vigencias["sem_mudanca"] = 0
     _estado_atualizar_vigencias["erro_pdf"] = 0
+    _estado_atualizar_vigencias["erro_ia"] = 0
+    _estado_atualizar_vigencias["atualizados_ia"] = 0
 
     queryset = DocumentoCCT.objects.filter(ativo=True).exclude(
         arquivo_pdf=""
@@ -1006,19 +1020,44 @@ def _thread_atualizar_vigencias(sindicato_codigo, apenas_vazios, limite):
         queryset = queryset.filter(sindicato__codigo=sindicato_codigo)
 
     if apenas_vazios:
-        queryset = queryset.filter(
-            data_fim_vigencia__isnull=True
-        ) | queryset.filter(data_registro_mte__isnull=True)
+        if modo == "vigencias":
+            queryset = queryset.filter(
+                data_fim_vigencia__isnull=True
+            ) | queryset.filter(data_registro_mte__isnull=True)
+        elif modo == "ia":
+            queryset = queryset.filter(
+                Q(data_base__isnull=True)
+                | Q(reajuste_percentual__isnull=True)
+                | Q(contribuicao_sindical_empregado__isnull=True)
+                | Q(analise_ia_json__isnull=True)
+                | Q(status_analise_ia=DocumentoCCT.STATUS_ANALISE_ERRO)
+            )
+        else:  # completo
+            queryset = queryset.filter(
+                Q(data_fim_vigencia__isnull=True)
+                | Q(data_registro_mte__isnull=True)
+                | Q(data_base__isnull=True)
+                | Q(reajuste_percentual__isnull=True)
+                | Q(analise_ia_json__isnull=True)
+            )
 
     total = queryset.count()
     if limite and limite > 0:
-        queryset = queryset[:limite]
-        total = min(total, limite)
+        queryset = list(queryset[:limite])
+        total = len(queryset)
+    else:
+        queryset = list(queryset)
 
     _estado_atualizar_vigencias["total"] = total
     _estado_atualizar_vigencias["atual"] = 0
 
+    from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto
+
     for idx, doc in enumerate(queryset, start=1):
+        if not _estado_atualizar_vigencias["rodando"]:
+            _estado_atualizar_vigencias["mensagens"].append("[PARADO] Execução interrompida pelo usuário.")
+            break
+
         _estado_atualizar_vigencias["atual"] = idx
         _estado_atualizar_vigencias["mensagens"].append(
             f"[{idx}/{total}] #{doc.pk} — {doc.sindicato} — {doc.tipo}"
@@ -1029,6 +1068,7 @@ def _thread_atualizar_vigencias(sindicato_codigo, apenas_vazios, limite):
             caminho_pdf = str(Path(settings.BASE_DIR) / caminho_pdf)
 
         if not os.path.exists(caminho_pdf):
+            _estado_atualizar_vigencias["erro_pdf"] += 1
             _estado_atualizar_vigencias["mensagens"].append(
                 f"  [AVISO] PDF não encontrado: {caminho_pdf}"
             )
@@ -1042,60 +1082,138 @@ def _thread_atualizar_vigencias(sindicato_codigo, apenas_vazios, limite):
             )
             continue
 
-        # Importa do management command para reaproveitar regex
-        from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto
-        datas = extrair_datas_do_texto(texto)
-
-        encontrado = []
-        if datas["data_inicio"]:
-            encontrado.append(f"início={datas['data_inicio']}")
-        if datas["data_fim"]:
-            encontrado.append(f"fim={datas['data_fim']}")
-        if datas["data_registro_mte"]:
-            encontrado.append(f"registro_mte={datas['data_registro_mte']}")
-
-        if encontrado:
-            _estado_atualizar_vigencias["mensagens"].append(
-                f"  Encontrado: {', '.join(encontrado)}"
-            )
-        else:
-            _estado_atualizar_vigencias["mensagens"].append(
-                f"  [AVISO] Nenhuma data encontrada no texto."
-            )
-
         mudou = False
         campos_atualizar = []
 
-        if datas["data_inicio"] and doc.data_inicio_vigencia != datas["data_inicio"]:
-            doc.data_inicio_vigencia = datas["data_inicio"]
-            campos_atualizar.append("data_inicio_vigencia")
-            mudou = True
+        # ============== VIGÊNCIAS (regex) ==============
+        if modo in ("vigencias", "completo"):
+            datas = extrair_datas_do_texto(texto)
 
-        if datas["data_fim"] and doc.data_fim_vigencia != datas["data_fim"]:
-            doc.data_fim_vigencia = datas["data_fim"]
-            campos_atualizar.append("data_fim_vigencia")
-            mudou = True
+            encontrado = []
+            if datas["data_inicio"]:
+                encontrado.append(f"início={datas['data_inicio']}")
+            if datas["data_fim"]:
+                encontrado.append(f"fim={datas['data_fim']}")
+            if datas["data_registro_mte"]:
+                encontrado.append(f"registro_mte={datas['data_registro_mte']}")
 
-        if datas["data_registro_mte"] and doc.data_registro_mte != datas["data_registro_mte"]:
-            doc.data_registro_mte = datas["data_registro_mte"]
-            campos_atualizar.append("data_registro_mte")
-            mudou = True
+            if encontrado:
+                _estado_atualizar_vigencias["mensagens"].append(
+                    f"  [VIGÊNCIAS] Encontrado: {', '.join(encontrado)}"
+                )
+            else:
+                _estado_atualizar_vigencias["mensagens"].append(
+                    f"  [VIGÊNCIAS] Nenhuma data encontrada."
+                )
 
+            if datas["data_inicio"] and doc.data_inicio_vigencia != datas["data_inicio"]:
+                doc.data_inicio_vigencia = datas["data_inicio"]
+                campos_atualizar.append("data_inicio_vigencia")
+                mudou = True
+
+            if datas["data_fim"] and doc.data_fim_vigencia != datas["data_fim"]:
+                doc.data_fim_vigencia = datas["data_fim"]
+                campos_atualizar.append("data_fim_vigencia")
+                mudou = True
+
+            if datas["data_registro_mte"] and doc.data_registro_mte != datas["data_registro_mte"]:
+                doc.data_registro_mte = datas["data_registro_mte"]
+                campos_atualizar.append("data_registro_mte")
+                mudou = True
+
+        # ============== ANÁLISE IA ==============
+        if modo in ("ia", "completo"):
+            _estado_atualizar_vigencias["mensagens"].append(
+                f"  [IA] Enviando texto para análise..."
+            )
+
+            resultado_ia = analisar_cct_com_ia(texto)
+
+            if not resultado_ia["sucesso"]:
+                _estado_atualizar_vigencias["erro_ia"] += 1
+                _estado_atualizar_vigencias["mensagens"].append(
+                    f"  [IA-ERRO] {resultado_ia['erro']}"
+                )
+                doc.status_analise_ia = DocumentoCCT.STATUS_ANALISE_ERRO
+                campos_atualizar.append("status_analise_ia")
+                mudou = True
+            else:
+                dados = resultado_ia["dados"]
+
+                # Atualiza campos simples do model
+                if dados.get("data_base") and doc.data_base != dados["data_base"]:
+                    doc.data_base = dados["data_base"]
+                    campos_atualizar.append("data_base")
+                    mudou = True
+
+                if dados.get("reajuste_percentual") is not None and doc.reajuste_percentual != dados["reajuste_percentual"]:
+                    doc.reajuste_percentual = dados["reajuste_percentual"]
+                    campos_atualizar.append("reajuste_percentual")
+                    mudou = True
+
+                if dados.get("contribuicao_sindical_empregado") is not None and doc.contribuicao_sindical_empregado != dados["contribuicao_sindical_empregado"]:
+                    doc.contribuicao_sindical_empregado = dados["contribuicao_sindical_empregado"]
+                    campos_atualizar.append("contribuicao_sindical_empregado")
+                    mudou = True
+
+                if dados.get("contribuicao_sindical_patronal") is not None and doc.contribuicao_sindical_patronal != dados["contribuicao_sindical_patronal"]:
+                    doc.contribuicao_sindical_patronal = dados["contribuicao_sindical_patronal"]
+                    campos_atualizar.append("contribuicao_sindical_patronal")
+                    mudou = True
+
+                # Atualiza JSON e texto da análise
+                doc.analise_ia_json = {
+                    "pisos_salariais": dados.get("pisos_salariais") or [],
+                    "beneficios": dados.get("beneficios") or [],
+                    "jornada": dados.get("jornada"),
+                    "aviso_previo": dados.get("aviso_previo"),
+                    "multa": dados.get("multa"),
+                    "outras_clausulas_relevantes": dados.get("outras_clausulas_relevantes"),
+                    "resumo": dados.get("resumo"),
+                }
+                campos_atualizar.append("analise_ia_json")
+                mudou = True
+
+                texto_resumo = dados.get("resumo", "")
+                if texto_resumo and doc.analise_ia_texto != texto_resumo:
+                    doc.analise_ia_texto = texto_resumo
+                    campos_atualizar.append("analise_ia_texto")
+                    mudou = True
+
+                doc.status_analise_ia = DocumentoCCT.STATUS_ANALISE_CONCLUIDO
+                campos_atualizar.append("status_analise_ia")
+                mudou = True
+
+                doc.data_analise_ia = timezone.now()
+                campos_atualizar.append("data_analise_ia")
+                mudou = True
+
+                _estado_atualizar_vigencias["atualizados_ia"] += 1
+                _estado_atualizar_vigencias["mensagens"].append(
+                    f"  [IA-OK] Análise concluída."
+                )
+
+        # ============== SALVAR ==============
         if mudou:
-            doc.save(update_fields=campos_atualizar)
+            # remove duplicatas preservando ordem
+            campos_unicos = list(dict.fromkeys(campos_atualizar))
+            doc.save(update_fields=campos_unicos)
             _estado_atualizar_vigencias["atualizados"] += 1
             _estado_atualizar_vigencias["mensagens"].append(
-                f"  [OK] Atualizado: {', '.join(campos_atualizar)}"
+                f"  [OK] Campos salvos: {', '.join(campos_unicos)}"
             )
         else:
             _estado_atualizar_vigencias["sem_mudanca"] += 1
 
     _estado_atualizar_vigencias["rodando"] = False
+    _estado_atualizar_vigencias["mensagens"].append(
+        f"\n=== FIM === Total: {total} | Atualizados: {_estado_atualizar_vigencias['atualizados']} | Sem mudança: {_estado_atualizar_vigencias['sem_mudanca']} | Erro PDF: {_estado_atualizar_vigencias['erro_pdf']} | Erro IA: {_estado_atualizar_vigencias['erro_ia']} ==="
+    )
 
 
 @login_required
 def atualizar_vigencias(request):
-    """Página para executar a atualização de vigências dos documentos existentes."""
+    """Página para executar a atualização/reanálise dos documentos existentes."""
     global _estado_atualizar_vigencias
 
     if request.method == "POST":
@@ -1109,6 +1227,8 @@ def atualizar_vigencias(request):
             sindicato_codigo = request.POST.get("sindicato_codigo", "").strip()
             apenas_vazios = request.POST.get("apenas_vazios") == "on"
             limite_str = request.POST.get("limite", "0").strip()
+            modo = request.POST.get("modo", "completo").strip()
+
             try:
                 limite = int(limite_str)
             except ValueError:
@@ -1116,17 +1236,20 @@ def atualizar_vigencias(request):
 
             t = threading.Thread(
                 target=_thread_atualizar_vigencias,
-                args=(sindicato_codigo, apenas_vazios, limite),
+                args=(sindicato_codigo, apenas_vazios, limite, modo),
                 daemon=True,
             )
             t.start()
 
-            messages.success(request, "Atualização de vigências iniciada em segundo plano.")
+            desc_modo = {
+                "vigencias": "vigências (regex)",
+                "ia": "análise com IA",
+                "completo": "vigências + análise IA completa",
+            }.get(modo, modo)
+            messages.success(request, f"Atualização de '{desc_modo}' iniciada em segundo plano.")
             return redirect("cctdashboard:atualizar_vigencias")
 
         elif acao == "parar":
-            # Não conseguimos matar a thread de forma segura,
-            # mas podemos marcar para parar no próximo ciclo
             _estado_atualizar_vigencias["rodando"] = False
             messages.info(request, "Sinal de parada enviado. A execução terminará no próximo documento.")
             return redirect("cctdashboard:atualizar_vigencias")
@@ -1135,13 +1258,21 @@ def atualizar_vigencias(request):
     total_docs = DocumentoCCT.objects.filter(ativo=True).count()
     sem_data_fim = DocumentoCCT.objects.filter(ativo=True, data_fim_vigencia__isnull=True).count()
     sem_registro = DocumentoCCT.objects.filter(ativo=True, data_registro_mte__isnull=True).count()
+    sem_analise_ia = DocumentoCCT.objects.filter(
+        ativo=True,
+    ).filter(
+        Q(analise_ia_json__isnull=True)
+        | Q(status_analise_ia=DocumentoCCT.STATUS_ANALISE_ERRO)
+        | Q(status_analise_ia=DocumentoCCT.STATUS_ANALISE_PENDENTE)
+    ).count()
 
     context = {
-        "titulo": "Atualizar Vigências",
+        "titulo": "Atualizar / Reanalisar Documentos",
         "estado": _estado_atualizar_vigencias,
         "total_docs": total_docs,
         "sem_data_fim": sem_data_fim,
         "sem_registro": sem_registro,
+        "sem_analise_ia": sem_analise_ia,
         "sindicatos": Sindicato.objects.order_by("nome"),
     }
     return render(request, "cctdashboard/atualizar_vigencias.html", context)

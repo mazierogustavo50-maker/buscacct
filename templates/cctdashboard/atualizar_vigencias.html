@@ -1,22 +1,23 @@
 {% extends "cctdashboard/base.html" %}
-{% block title %}Atualizar Vigências — Dashboard CCT{% endblock %}
+{% block title %}Atualizar / Reanalisar Documentos — Dashboard CCT{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0"><i class="bi bi-arrow-repeat text-primary me-2"></i>Atualizar Vigências dos Documentos</h2>
+    <h2 class="mb-0"><i class="bi bi-arrow-repeat text-primary me-2"></i>Atualizar / Reanalisar Documentos</h2>
     <a href="{% url 'cctdashboard:lista_documentos' %}" class="btn btn-outline-secondary btn-sm">
         <i class="bi bi-arrow-left me-1"></i>Voltar para Documentos
     </a>
 </div>
 
 <p class="text-muted">
-    Reprocessa todos os documentos já existentes no banco, extraindo do PDF as datas de
-    <strong>vigência</strong> (início e fim) e <strong>registro no MTE</strong>.
+    Reprocessa documentos já existentes no banco, extraindo do PDF:
+    <strong>datas de vigência</strong> (início, fim, registro MTE) via regex
+    e/ou <strong>análise completa com IA</strong> (data-base, reajuste, contribuição sindical, pisos, benefícios, jornada, aviso prévio, multa, resumo).
 </p>
 
 <!-- Cards de resumo -->
 <div class="row g-3 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card border-primary h-100">
             <div class="card-body text-center">
                 <h3 class="text-primary mb-1">{{ total_docs }}</h3>
@@ -24,7 +25,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card border-warning h-100">
             <div class="card-body text-center">
                 <h3 class="text-warning mb-1">{{ sem_data_fim }}</h3>
@@ -32,11 +33,19 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card border-danger h-100">
             <div class="card-body text-center">
                 <h3 class="text-danger mb-1">{{ sem_registro }}</h3>
                 <small class="text-muted">Sem data de registro no MTE</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-info h-100">
+            <div class="card-body text-center">
+                <h3 class="text-info mb-1">{{ sem_analise_ia }}</h3>
+                <small class="text-muted">Sem análise IA / com erro</small>
             </div>
         </div>
     </div>
@@ -47,8 +56,9 @@
 <div class="alert alert-info d-flex align-items-center">
     <div class="spinner-border spinner-border-sm me-3" role="status"></div>
     <div>
-        <strong>Execução em andamento...</strong>
-        <span class="ms-2">{{ estado.atual }} / {{ estado.total }} documentos processados</span>
+        <strong>Execução em andamento</strong>
+        <span class="badge bg-secondary ms-2">{{ estado.modo }}</span>
+        <span class="ms-2">{{ estado.atual }} / {{ estado.total }} documentos</span>
     </div>
 </div>
 
@@ -92,9 +102,14 @@
     <div class="alert alert-success">
         <i class="bi bi-check-circle-fill me-2"></i>
         <strong>Última execução concluída!</strong>
+        Modo: <strong>{{ estado.modo }}</strong> &middot;
         Atualizados: <strong>{{ estado.atualizados }}</strong> &middot;
         Sem mudança: <strong>{{ estado.sem_mudanca }}</strong> &middot;
-        Erro no PDF: <strong>{{ estado.erro_pdf }}</strong>
+        Erro PDF: <strong>{{ estado.erro_pdf }}</strong> &middot;
+        Erro IA: <strong>{{ estado.erro_ia }}</strong>
+        {% if estado.atualizados_ia > 0 %}
+            &middot; Análises IA: <strong>{{ estado.atualizados_ia }}</strong>
+        {% endif %}
     </div>
     {% endif %}
 
@@ -109,7 +124,16 @@
             <input type="hidden" name="acao" value="iniciar">
 
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <label for="modo" class="form-label">Modo de atualização</label>
+                    <select name="modo" id="modo" class="form-select">
+                        <option value="completo" selected>🔄 Completo (vigências + análise IA)</option>
+                        <option value="vigencias">📅 Apenas vigências (regex rápido)</option>
+                        <option value="ia">🤖 Apenas análise com IA</option>
+                    </select>
+                    <small class="text-muted">O modo "Completo" é mais lento (chama IA) mas atualiza todos os campos.</small>
+                </div>
+                <div class="col-md-4">
                     <label for="sindicato" class="form-label">Sindicato (opcional)</label>
                     <select name="sindicato_codigo" id="sindicato" class="form-select">
                         <option value="">Todos os sindicatos</option>
@@ -118,11 +142,11 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="limite" class="form-label">Limite (opcional)</label>
                     <input type="number" name="limite" id="limite" class="form-control" min="0" placeholder="0 = sem limite">
                 </div>
-                <div class="col-md-3 d-flex align-items-end">
+                <div class="col-md-2 d-flex align-items-end">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="apenas_vazios" id="apenas_vazios" checked>
                         <label class="form-check-label" for="apenas_vazios">
