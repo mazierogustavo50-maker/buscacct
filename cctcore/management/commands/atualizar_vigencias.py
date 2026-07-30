@@ -22,6 +22,46 @@ def parse_data_br(data_str):
     return None
 
 
+def _parse_data_escrita(texto):
+    """
+    Converte datas por extenso brasileiras para objeto date.
+    Ex: '01 de janeiro de 2025', '1º de junho de 2025', '31 de dezembro de 2026'
+    """
+    meses = {
+        'JANEIRO': 1, 'FEVEREIRO': 2, 'MARCO': 3, 'ABRIL': 4,
+        'MAIO': 5, 'JUNHO': 6, 'JULHO': 7, 'AGOSTO': 8,
+        'SETEMBRO': 9, 'OUTUBRO': 10, 'NOVEMBRO': 11, 'DEZEMBRO': 12,
+        'JAN': 1, 'FEV': 2, 'FEB': 2, 'MAR': 3, 'ABR': 4, 'APR': 4,
+        'MAI': 5, 'MAY': 5, 'JUN': 6, 'JUL': 7, 'AGO': 8, 'AUG': 8,
+        'SET': 9, 'SEP': 9, 'OUT': 10, 'OCT': 10, 'NOV': 11, 'DEZ': 12, 'DEC': 12,
+    }
+    # Remove acentos e padroniza
+    t = texto.upper()
+    t = re.sub(r'[ÁÀÂÃÄáàâãä]', 'A', t)
+    t = re.sub(r'[ÉÈÊËéèêë]', 'E', t)
+    t = re.sub(r'[ÍÌÎÏíìîï]', 'I', t)
+    t = re.sub(r'[ÓÒÔÕÖóòôõö]', 'O', t)
+    t = re.sub(r'[ÚÙÛÜúùûü]', 'U', t)
+    t = re.sub(r'[Çç]', 'C', t)
+    t = re.sub(r'[º°]', '', t)
+    t = re.sub(r'\s+', ' ', t).strip()
+
+    # Padrão: 01 de janeiro de 2025  ou  1 de janeiro de 2025
+    m = re.search(r'(\d{1,2})\s+DE\s+(\w+)\s+DE\s+(\d{4})', t)
+    if m:
+        dia = int(m.group(1))
+        mes_nome = m.group(2).strip()
+        ano = int(m.group(3))
+        mes_num = meses.get(mes_nome)
+        if mes_num and 1 <= dia <= 31:
+            try:
+                from datetime import date as dt_date
+                return dt_date(ano, mes_num, dia)
+            except ValueError:
+                return None
+    return None
+
+
 def extrair_datas_do_texto(texto):
     """
     Extrai datas de vigência (início, fim) e registro MTE do texto de uma CCT.
@@ -71,7 +111,18 @@ def extrair_datas_do_texto(texto):
             resultado["data_inicio"] = parse_data_br(m.group(1))
             resultado["data_fim"] = parse_data_br(m.group(2))
 
-    # Estratégia 1d: Duas datas próximas em contexto de vigência (fallback)
+    # Estratégia 1d: "VIGENCIA ATE DD/MM/AAAA" ou "VIGENCIA DE ... ATE ..."
+    if not resultado["data_fim"]:
+        m = re.search(
+            r'VIGEN[CGÇ][IA]*.*?AT[EÉ]\s*(\d{2}[/-]\d{2}[/-]\d{4})',
+            texto_upper, re.IGNORECASE
+        )
+        if m:
+            candidata_fim = parse_data_br(m.group(1))
+            if candidata_fim:
+                resultado["data_fim"] = candidata_fim
+
+    # Estratégia 1e: Duas datas próximas em contexto de vigência (fallback)
     if not resultado["data_inicio"]:
         # Procura bloco com a palavra vigência e pega as duas primeiras datas
         blocos = re.split(r'VIGEN[CGÇ][IA]*', texto_upper)
@@ -86,7 +137,26 @@ def extrair_datas_do_texto(texto):
                     resultado["data_inicio"] = parse_data_br(datas[0])
                     break
 
-    # Estratégia 1e: Se só achou uma data, tenta achar outra no documento inteiro como fim
+    # Estratégia 1f: Datas por extenso — "01 de janeiro de 2025 a 31 de dezembro de 2026"
+    if not resultado["data_inicio"]:
+        m = re.search(
+            r'(\d{1,2}\s*º?\s*DE\s+\w+\s+DE\s+\d{4})\s*(?:A|AT[EÉ]|–|-)\s*(\d{1,2}\s*º?\s*DE\s+\w+\s+DE\s+\d{4})',
+            texto, re.IGNORECASE
+        )
+        if m:
+            resultado["data_inicio"] = _parse_data_escrita(m.group(1))
+            resultado["data_fim"] = _parse_data_escrita(m.group(2))
+
+    # Estratégia 1g: Vigência por extenso com "até"
+    if not resultado["data_fim"]:
+        m = re.search(
+            r'VIGEN[CGÇ][IA]*.*?AT[EÉ]\s*(\d{1,2}\s*º?\s*DE\s+\w+\s+DE\s+\d{4})',
+            texto, re.IGNORECASE
+        )
+        if m:
+            resultado["data_fim"] = _parse_data_escrita(m.group(1))
+
+    # Estratégia 1h: Se só achou uma data numérica, tenta achar outra no documento inteiro como fim
     if resultado["data_inicio"] and not resultado["data_fim"]:
         # Procura por "até" ou "a" seguido de data após a data de início no texto
         pos = texto_upper.find(str(resultado["data_inicio"]).replace("-", "/"))
@@ -95,6 +165,18 @@ def extrair_datas_do_texto(texto):
             m_fim = re.search(r'(?:AT[EÉ]|A)\s*(\d{2}[/-]\d{2}[/-]\d{4})', trecho)
             if m_fim:
                 resultado["data_fim"] = parse_data_br(m_fim.group(1))
+
+    # Estratégia 1i: Se ainda não achou fim, procura a próxima data no documento inteiro
+    # que seja diferente da data de início e posterior a ela
+    if resultado["data_inicio"] and not resultado["data_fim"]:
+        todas_datas = re.findall(r'(\d{2}[/-]\d{2}[/-]\d{4})', texto_upper)
+        inicio_str = str(resultado["data_inicio"]).replace("-", "/")
+        for d_str in todas_datas:
+            if d_str != inicio_str:
+                candidata = parse_data_br(d_str)
+                if candidata and candidata > resultado["data_inicio"]:
+                    resultado["data_fim"] = candidata
+                    break
 
     # ============================================================
     # 2. DATA DE REGISTRO NO MTE

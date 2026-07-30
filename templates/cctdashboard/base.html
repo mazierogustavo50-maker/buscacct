@@ -60,6 +60,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link{% if request.resolver_match.url_name == 'reanalisar_disponiveis' %} active{% endif %}" href="{% url 'cctdashboard:reanalisar_disponiveis' %}">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>Reanalisar
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link{% if request.resolver_match.url_name == 'lista_agendamentos' or request.resolver_match.url_name == 'criar_agendamento' or request.resolver_match.url_name == 'editar_agendamento' %} active{% endif %}" href="{% url 'cctdashboard:lista_agendamentos' %}">
                             <i class="bi bi-calendar-check me-1"></i>Agendamentos
                         </a>

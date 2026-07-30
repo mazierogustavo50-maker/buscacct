@@ -1370,3 +1370,163 @@ def atualizar_vigencias(request):
         "sindicatos": Sindicato.objects.order_by("nome"),
     }
     return render(request, "cctdashboard/atualizar_vigencias.html", context)
+
+
+# ============================================================
+# REANALISAR CCTs JÁ DISPONÍVEIS
+# ============================================================
+
+_estado_reanalisar = {
+    "rodando": False,
+    "total": 0,
+    "atual": 0,
+    "mensagens": [],
+    "atualizados": 0,
+    "sem_mudanca": 0,
+    "erros": 0,
+}
+
+
+def _thread_reanalisar(sindicato_codigo, com_ia, limite):
+    """Executa a reanálise em segundo plano."""
+    global _estado_reanalisar
+    _estado_reanalisar["rodando"] = True
+    _estado_reanalisar["mensagens"] = []
+    _estado_reanalisar["atualizados"] = 0
+    _estado_reanalisar["sem_mudanca"] = 0
+    _estado_reanalisar["erros"] = 0
+
+    queryset = DocumentoCCT.objects.filter(ativo=True).exclude(
+        arquivo_pdf=""
+    ).exclude(arquivo_pdf__isnull=True)
+
+    if sindicato_codigo:
+        queryset = queryset.filter(sindicato__codigo=sindicato_codigo)
+
+    total = queryset.count()
+    if limite and limite > 0:
+        queryset = queryset[:limite]
+        total = min(total, limite)
+
+    _estado_reanalisar["total"] = total
+    _estado_reanalisar["atual"] = 0
+
+    for idx, doc in enumerate(queryset, start=1):
+        if not _estado_reanalisar["rodando"]:
+            _estado_reanalisar["mensagens"].append("[PARADO] Execução interrompida pelo usuário.")
+            break
+
+        _estado_reanalisar["atual"] = idx
+        _estado_reanalisar["mensagens"].append(
+            f"[{idx}/{total}] #{doc.pk} — {doc.sindicato} — {doc.tipo}"
+        )
+
+        caminho_pdf = doc.arquivo_pdf
+        if not os.path.isabs(caminho_pdf):
+            caminho_pdf = str(Path(settings.BASE_DIR) / caminho_pdf)
+
+        if not os.path.exists(caminho_pdf):
+            _estado_reanalisar["mensagens"].append(
+                f"  [AVISO] PDF não encontrado: {caminho_pdf}"
+            )
+            _estado_reanalisar["erros"] += 1
+            continue
+
+        texto = extrair_texto_pdf(caminho_pdf, max_paginas=10)
+        if not texto or texto.startswith("[ERRO"):
+            _estado_reanalisar["erros"] += 1
+            _estado_reanalisar["mensagens"].append(
+                f"  [ERRO] Falha ao extrair texto do PDF."
+            )
+            continue
+
+        from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto
+        datas = extrair_datas_do_texto(texto)
+
+        mudou = False
+        campos_atualizar = []
+
+        if datas["data_inicio"] and doc.data_inicio_vigencia != datas["data_inicio"]:
+            doc.data_inicio_vigencia = datas["data_inicio"]
+            campos_atualizar.append("data_inicio_vigencia")
+            mudou = True
+
+        if datas["data_fim"] and doc.data_fim_vigencia != datas["data_fim"]:
+            doc.data_fim_vigencia = datas["data_fim"]
+            campos_atualizar.append("data_fim_vigencia")
+            mudou = True
+
+        if datas["data_registro_mte"] and doc.data_registro_mte != datas["data_registro_mte"]:
+            doc.data_registro_mte = datas["data_registro_mte"]
+            campos_atualizar.append("data_registro_mte")
+            mudou = True
+
+        if mudou:
+            doc.save(update_fields=campos_atualizar)
+            _estado_reanalisar["atualizados"] += 1
+            _estado_reanalisar["mensagens"].append(
+                f"  [OK] Atualizado: {', '.join(campos_atualizar)}"
+            )
+        else:
+            _estado_reanalisar["sem_mudanca"] += 1
+
+        # Análise IA opcional (simplificada — só marca como pendente para reanálise futura)
+        if com_ia:
+            doc.status_analise_ia = DocumentoCCT.STATUS_ANALISE_PENDENTE
+            doc.save(update_fields=["status_analise_ia"])
+            _estado_reanalisar["mensagens"].append(
+                f"  [INFO] Status IA resetado para Pendente."
+            )
+
+    _estado_reanalisar["rodando"] = False
+
+
+@login_required
+def reanalisar_disponiveis(request):
+    """Página para reanalisar CCTs já disponíveis no banco."""
+    global _estado_reanalisar
+
+    if request.method == "POST":
+        acao = request.POST.get("acao", "")
+
+        if acao == "iniciar":
+            if _estado_reanalisar["rodando"]:
+                messages.warning(request, "Já há uma execução em andamento.")
+                return redirect("cctdashboard:reanalisar_disponiveis")
+
+            sindicato_codigo = request.POST.get("sindicato_codigo", "").strip()
+            com_ia = request.POST.get("com_ia") == "on"
+            limite_str = request.POST.get("limite", "0").strip()
+            try:
+                limite = int(limite_str)
+            except ValueError:
+                limite = 0
+
+            t = threading.Thread(
+                target=_thread_reanalisar,
+                args=(sindicato_codigo, com_ia, limite),
+                daemon=True,
+            )
+            t.start()
+
+            messages.success(request, "Reanálise dos CCTs disponíveis iniciada em segundo plano.")
+            return redirect("cctdashboard:reanalisar_disponiveis")
+
+        elif acao == "parar":
+            _estado_reanalisar["rodando"] = False
+            messages.info(request, "Sinal de parada enviado. A execução terminará no próximo documento.")
+            return redirect("cctdashboard:reanalisar_disponiveis")
+
+    total_docs = DocumentoCCT.objects.filter(ativo=True).count()
+    com_pdf = DocumentoCCT.objects.filter(ativo=True).exclude(arquivo_pdf="").exclude(arquivo_pdf__isnull=True).count()
+    sem_data_fim = DocumentoCCT.objects.filter(ativo=True, data_fim_vigencia__isnull=True).count()
+
+    context = {
+        "titulo": "Reanalisar CCTs Disponíveis",
+        "estado": _estado_reanalisar,
+        "total_docs": total_docs,
+        "com_pdf": com_pdf,
+        "sem_data_fim": sem_data_fim,
+        "sindicatos": Sindicato.objects.order_by("nome"),
+    }
+    return render(request, "cctdashboard/reanalisar_disponiveis.html", context)

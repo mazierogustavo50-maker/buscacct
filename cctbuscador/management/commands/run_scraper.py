@@ -978,6 +978,31 @@ class Command(BaseCommand):
                                     doc.data_registro_mte = data_reg_obj
                                 doc.save()
 
+                            # ============================================================
+                            # PÓS-DOWNLOAD: LÊ O PDF E EXTRAI DATAS PARA GARANTIR PRECISÃO
+                            # ============================================================
+                            try:
+                                from cctcore.services import extrair_texto_pdf as _extrair_texto_pdf
+                                from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto as _extrair_datas_do_texto
+                                texto_pdf = _extrair_texto_pdf(caminho_relativo, max_paginas=10)
+                                if texto_pdf and not texto_pdf.startswith("[ERRO"):
+                                    datas_pdf = _extrair_datas_do_texto(texto_pdf)
+                                    campos_pdf = []
+                                    if datas_pdf["data_inicio"] and doc.data_inicio_vigencia != datas_pdf["data_inicio"]:
+                                        doc.data_inicio_vigencia = datas_pdf["data_inicio"]
+                                        campos_pdf.append("data_inicio_vigencia")
+                                    if datas_pdf["data_fim"] and doc.data_fim_vigencia != datas_pdf["data_fim"]:
+                                        doc.data_fim_vigencia = datas_pdf["data_fim"]
+                                        campos_pdf.append("data_fim_vigencia")
+                                    if datas_pdf["data_registro_mte"] and doc.data_registro_mte != datas_pdf["data_registro_mte"]:
+                                        doc.data_registro_mte = datas_pdf["data_registro_mte"]
+                                        campos_pdf.append("data_registro_mte")
+                                    if campos_pdf:
+                                        doc.save(update_fields=campos_pdf)
+                                        self.log(f"  [OK] PDF relido e datas atualizadas: {', '.join(campos_pdf)}")
+                            except Exception as e_pdf:
+                                self.log(f"  [AVISO] Falha ao reler PDF pós-download: {e_pdf}")
+
                             # Marca sindicato como tendo documentos
                             if sindicato.sem_documentos:
                                 try:

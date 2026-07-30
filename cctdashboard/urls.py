@@ -51,4 +51,6 @@ urlpatterns = [
     path("relatorio/", views.relatorio_execucoes, name="relatorio_execucoes"),
     # Atualizar vigências de documentos existentes
     path("atualizar-vigencias/", views.atualizar_vigencias, name="atualizar_vigencias"),
+    # Reanalisar CCTs já disponíveis
+    path("reanalisar-disponiveis/", views.reanalisar_disponiveis, name="reanalisar_disponiveis"),
 ]
