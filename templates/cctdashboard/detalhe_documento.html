@@ -62,8 +62,22 @@
                     <dt class="col-sm-4">Reajuste (%)</dt>
                     <dd class="col-sm-8">{{ documento.reajuste_percentual|default:"-" }}</dd>
 
-                    <dt class="col-sm-4">Contrib. Sindical Empregado</dt>
-                    <dd class="col-sm-8">{{ documento.contribuicao_sindical_empregado|default:"-" }}</dd>
+                    <dt class="col-sm-4">Contrib. Sindical/Negocial Empregado</dt>
+                    <dd class="col-sm-8">
+                        {% if documento.contribuicao_sindical_empregado %}
+                            {{ documento.contribuicao_sindical_empregado }}
+                            {% if documento.contribuicao_sindical_empregado > 0 and documento.contribuicao_sindical_empregado < 100 %}
+                                %
+                            {% else %}
+                                (R$)
+                            {% endif %}
+                        {% else %}
+                            -
+                        {% endif %}
+                        {% if documento.contribuicao_sindical_empregado_meses %}
+                            <br><small class="text-muted">Desconto em: {{ documento.contribuicao_sindical_empregado_meses }}</small>
+                        {% endif %}
+                    </dd>
 
                     <dt class="col-sm-4">Contrib. Sindical Patronal</dt>
                     <dd class="col-sm-8">{{ documento.contribuicao_sindical_patronal|default:"-" }}</dd>

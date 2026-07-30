@@ -90,6 +90,11 @@ class DocumentoCCT(models.Model):
     contribuicao_sindical_patronal = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True
     )
+    contribuicao_sindical_empregado_meses = models.CharField(
+        max_length=100, blank=True, null=True,
+        verbose_name="Meses desconto contrib. sindical/negocial",
+        help_text="Meses em que a contribuição é descontada (ex: MAR, MAI, AGO, OUT ou '12x ao ano')"
+    )
     status_extracao = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDENTE
     )

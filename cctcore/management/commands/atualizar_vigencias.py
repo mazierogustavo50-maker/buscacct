@@ -243,6 +243,7 @@ def extrair_dados_complementares_do_texto(texto):
         "reajuste_percentual": None,
         "contribuicao_sindical_empregado": None,
         "contribuicao_sindical_patronal": None,
+        "contribuicao_sindical_empregado_meses": None,
     }
     if not texto or len(texto) < 50:
         return resultado
@@ -303,13 +304,30 @@ def extrair_dados_complementares_do_texto(texto):
     # 3. CONTRIBUIÇÃO SINDICAL / NEGOCIAL EMPREGADO
     # ============================================================
     padroes_empregado = [
-        r'CONTRIBUI[ÇC][ÃA]O\s*(?:SINDICAL|NEGOCIAL|ASSISTENCIAL)\s*(?:DOS?\s*)?(?:EMPREGADOS?|TRABALHADORES?|EMPREGADO)\s*.*?([\d.,]+)\s*%',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*(?:SINDICAL|NEGOCIAL|ASSISTENCIAL)\s*(?:DOS?\s*)?(?:EMPREGADOS?|TRABALHADORES?|EMPREGADO)\s*.*?([\d.,]+)\s*%',
         r'TAXA\s*ASSISTENCIAL\s*(?:DOS?\s*)?(?:EMPREGADOS?|TRABALHADORES?)\s*.*?([\d.,]+)\s*%',
         r'MENSALIDADE\s*(?:SINDICAL)?\s*(?:DOS?\s*)?(?:EMPREGADOS?|TRABALHADORES?)\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[ÇC][ÃA]O\s*NEGOCIAL\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[ÇC][ÃA]O\s*SINDICAL\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[ÇC][ÃA]O\s*(?:SINDICAL|NEGOCIAL)\s*.*?R\$\s*([\d.,]+)',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*NEGOCIAL\s*.*?([\d.,]+)\s*%',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*SINDICAL\s*.*?([\d.,]+)\s*%',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*(?:SINDICAL|NEGOCIAL)\s*.*?R\$\s*([\d.,]+)',
         r'TAXA\s*ASSISTENCIAL\s*.*?R\$\s*([\d.,]+)',
+        # NOVOS PADRÕES
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*NEGOCIAL\s*PROFISSIONAL\s*.*?([\d.,]+)\s*%',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*NEGOCIAL\s*PROFISSIONAL\s*.*?R\$\s*([\d.,]+)',
+        r'TAXA\s*NEGOCIAL\s*.*?([\d.,]+)\s*%',
+        r'TAXA\s*NEGOCIAL\s*.*?R\$\s*([\d.,]+)',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL\s*.*?([\d.,]+)\s*%',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL\s*.*?R\$\s*([\d.,]+)',
+        r'DESCONTADOS?\s*DO\s*EMPREGADO.*?([\d.,]+)\s*%',
+        r'DESCONTADOS?\s*DO\s*EMPREGADO.*?R\$\s*([\d.,]+)',
+        r'DEVIDA\s*POR\s*TODOS\s*OS\s*EMPREGADOS.*?([\d.,]+)\s*%',
+        r'DEVIDA\s*POR\s*TODOS\s*OS\s*EMPREGADOS.*?R\$\s*([\d.,]+)',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*CONFEDERATIVA\s*.*?([\d.,]+)\s*%',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*CONFEDERATIVA\s*.*?R\$\s*([\d.,]+)',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL\s*(?:SINDICAL)?\s*DOS?\s*EMPREGADOS?\s*.*?([\d.,]+)\s*%',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL\s*(?:SINDICAL)?\s*DOS?\s*EMPREGADOS?\s*.*?R\$\s*([\d.,]+)',
+        r'TAXA\s*CONFEDERATIVA\s*.*?([\d.,]+)\s*%',
+        r'TAXA\s*CONFEDERATIVA\s*.*?R\$\s*([\d.,]+)',
     ]
     for padrao in padroes_empregado:
         m = re.search(padrao, texto_upper, re.DOTALL)
@@ -322,6 +340,97 @@ def extrair_dados_complementares_do_texto(texto):
                     break
             except (ValueError, AttributeError):
                 continue
+
+    # ============================================================
+    # 3b. MESES DE DESCONTO DA CONTRIBUIÇÃO
+    # ============================================================
+    # Procura menção a meses específicos de desconto
+    meses_map = {
+        'JANEIRO': 'JAN', 'FEVEREIRO': 'FEV', 'MARCO': 'MAR', 'ABRIL': 'ABR',
+        'MAIO': 'MAI', 'JUNHO': 'JUN', 'JULHO': 'JUL', 'AGOSTO': 'AGO',
+        'SETEMBRO': 'SET', 'OUTUBRO': 'OUT', 'NOVEMBRO': 'NOV', 'DEZEMBRO': 'DEZ',
+        'JAN': 'JAN', 'FEV': 'FEV', 'MAR': 'MAR', 'ABR': 'ABR', 'MAI': 'MAI',
+        'JUN': 'JUN', 'JUL': 'JUL', 'AGO': 'AGO', 'SET': 'SET', 'OUT': 'OUT',
+        'NOV': 'NOV', 'DEZ': 'DEZ',
+    }
+    meses_encontrados = []
+
+    # Estratégia 3b.1: "desconto no mês de XXXXX" ou "descontada em XXXXX"
+    padroes_meses = [
+        r'(?:DESCONTO|DESCONTADA|COBRAN[\u00c7C]A|ARRECADA[\u00c7C][\u00c3A]O)\s*(?:NO|NA|EM)\s*M[\u00caE]S\s*DE\s*(\w+)',
+        r'(?:DESCONTO|DESCONTADA|COBRAN[\u00c7C]A)\s*(?:NO|NA|EM)\s*(\w+)',
+        r'COBRAN[\u00c7C]A\s*ESPECIAL\s*(?:NO|NA|EM)\s*(\w+)',
+        r'COBRAN[\u00c7C]A\s*(?:NEGOCIAL|SINDICAL|ASSISTENCIAL)\s*(?:NO|NA|EM)\s*(\w+)',
+        r'VERBA\s*DESCONTADA\s*(?:NO|NA|EM)\s*(\w+)',
+        r'IMPORT[\u00c2A]NCIA\s*DESCONTADA\s*(?:NO|NA|EM)\s*(\w+)',
+        r'RETEN[\u00c7C][\u00c3A]O\s*(?:NO|NA|EM)\s*(\w+)',
+        r'ARRECADA[\u00c7C][\u00c3A]O\s*(?:NO|NA|EM)\s*(\w+)',
+        r'DESCONTAR\s*(?:NO|NA|EM)\s*(\w+)',
+        r'COBRAR\s*(?:NO|NA|EM)\s*(\w+)',
+        # Padrão de lista: "nos meses de JANEIRO, MARCO, MAIO e AGOSTO"
+        r'(?:NOS?\s*M[\u00caE]S(?:ES)?\s*DE)\s*(.+?)(?:\.|;|,)',
+        r'(?:DESCONTO|DESCONTADA)\s*NOS?\s*M[\u00caE]S(?:ES)?\s*DE\s*(.+?)(?:\.|;|,)',
+        r'(?:COBRAN[\u00c7C]A)\s*NOS?\s*M[\u00caE]S(?:ES)?\s*DE\s*(.+?)(?:\.|;|,)',
+        # Padrão: "mensal" = 12x
+        r'12\s*(?:PARCELAS?|VEZES?|X|PRESTA[\u00c7C][\u00d5O]ES?)',
+        r'DOZE\s*(?:PARCELAS?|VEZES?|PRESTA[\u00c7C][\u00d5O]ES?)',
+        r'MENSALMENTE|MENSAL',
+        r'TODOS\s*OS\s*M[\u00caE]S(?:ES)?',
+    ]
+    for padrao in padroes_meses:
+        m = re.search(padrao, texto_upper, re.DOTALL)
+        if m:
+            grupo = m.group(1).strip() if m.lastindex else None
+            # Se for padrão de lista de meses (captura grupo genérico)
+            if grupo and ('E' in grupo or ',' in grupo or 'E' in grupo):
+                # Quebra por vírgula, 'E', 'OU'
+                partes = re.split(r',|\s+E\s+|\s+OU\s+', grupo)
+                for parte in partes:
+                    parte_limpa = parte.strip().upper()
+                    # Remove acentos
+                    parte_limpa = re.sub(r'[\u00c1\u00c0\u00c2\u00c3\u00c4\u00e1\u00e0\u00e2\u00e3\u00e4]', 'A', parte_limpa)
+                    parte_limpa = re.sub(r'[\u00c9\u00c8\u00ca\u00cb\u00e9\u00e8\u00ea\u00eb]', 'E', parte_limpa)
+                    parte_limpa = re.sub(r'[\u00cd\u00cc\u00ce\u00cf\u00ed\u00ec\u00ee\u00ef]', 'I', parte_limpa)
+                    parte_limpa = re.sub(r'[\u00d3\u00d2\u00d4\u00d5\u00d6\u00f3\u00f2\u00f4\u00f5\u00f6]', 'O', parte_limpa)
+                    parte_limpa = re.sub(r'[\u00da\u00d9\u00db\u00dc\u00fa\u00f9\u00fb\u00fc]', 'U', parte_limpa)
+                    parte_limpa = re.sub(r'[\u00c7\u00e7]', 'C', parte_limpa)
+                    parte_limpa = re.sub(r'[^A-Z]', '', parte_limpa)
+                    if parte_limpa in meses_map:
+                        meses_encontrados.append(meses_map[parte_limpa])
+            elif grupo:
+                # Mês único
+                parte_limpa = re.sub(r'[\u00c1\u00c0\u00c2\u00c3\u00c4\u00e1\u00e0\u00e2\u00e3\u00e4]', 'A', grupo.upper())
+                parte_limpa = re.sub(r'[\u00c9\u00c8\u00ca\u00cb\u00e9\u00e8\u00ea\u00eb]', 'E', parte_limpa)
+                parte_limpa = re.sub(r'[\u00cd\u00cc\u00ce\u00cf\u00ed\u00ec\u00ee\u00ef]', 'I', parte_limpa)
+                parte_limpa = re.sub(r'[\u00d3\u00d2\u00d4\u00d5\u00d6\u00f3\u00f2\u00f4\u00f5\u00f6]', 'O', parte_limpa)
+                parte_limpa = re.sub(r'[\u00da\u00d9\u00db\u00dc\u00fa\u00f9\u00fb\u00fc]', 'U', parte_limpa)
+                parte_limpa = re.sub(r'[\u00c7\u00e7]', 'C', parte_limpa)
+                parte_limpa = re.sub(r'[^A-Z]', '', parte_limpa)
+                if parte_limpa in meses_map:
+                    meses_encontrados.append(meses_map[parte_limpa])
+            elif not grupo and ('12' in m.group(0) or 'DOZE' in m.group(0) or 'MENSAL' in m.group(0) or 'TODOS' in m.group(0)):
+                # 12x ao ano = todos os meses
+                meses_encontrados = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ']
+                break
+
+    # Também procura nomes de meses espalhados no texto em contexto de contribuição
+    if not meses_encontrados:
+        # Procura por "CONTRIBUIÇÃO" seguido de até 500 chars e depois um mês
+        matches = re.finditer(r'CONTRIBUI[\u00c7C][\u00c3A]O.*?', texto_upper)
+        for match in matches:
+            inicio = match.start()
+            trecho = texto_upper[inicio:inicio+600]
+            for mes_nome, mes_sigla in meses_map.items():
+                if mes_nome in trecho and mes_sigla not in meses_encontrados:
+                    meses_encontrados.append(mes_sigla)
+
+    # Ordena meses e remove duplicatas mantendo ordem
+    ordem_meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ']
+    meses_ordenados = sorted(set(meses_encontrados), key=lambda x: ordem_meses.index(x))
+    if meses_ordenados:
+        resultado["contribuicao_sindical_empregado_meses"] = ", ".join(meses_ordenados)
+    else:
+        resultado["contribuicao_sindical_empregado_meses"] = None
 
     # ============================================================
     # 4. CONTRIBUIÇÃO SINDICAL PATRONAL
@@ -508,6 +617,13 @@ class Command(BaseCommand):
                     if not dry_run:
                         doc.contribuicao_sindical_patronal = novo_valor
                     campos_atualizar.append("contribuicao_sindical_patronal")
+                    mudou = True
+
+            if compl["contribuicao_sindical_empregado_meses"] is not None:
+                if doc.contribuicao_sindical_empregado_meses != compl["contribuicao_sindical_empregado_meses"]:
+                    if not dry_run:
+                        doc.contribuicao_sindical_empregado_meses = compl["contribuicao_sindical_empregado_meses"]
+                    campos_atualizar.append("contribuicao_sindical_empregado_meses")
                     mudou = True
 
             if mudou:

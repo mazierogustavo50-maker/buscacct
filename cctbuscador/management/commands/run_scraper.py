@@ -1021,6 +1021,10 @@ class Command(BaseCommand):
                                         if doc.contribuicao_sindical_patronal != novo_valor:
                                             doc.contribuicao_sindical_patronal = novo_valor
                                             campos_pdf.append("contribuicao_sindical_patronal")
+                                    if compl_pdf["contribuicao_sindical_empregado_meses"] is not None:
+                                        if doc.contribuicao_sindical_empregado_meses != compl_pdf["contribuicao_sindical_empregado_meses"]:
+                                            doc.contribuicao_sindical_empregado_meses = compl_pdf["contribuicao_sindical_empregado_meses"]
+                                            campos_pdf.append("contribuicao_sindical_empregado_meses")
                                     if campos_pdf:
                                         doc.save(update_fields=campos_pdf)
                                         self.log(f"  [OK] PDF relido e campos atualizados: {', '.join(campos_pdf)}")

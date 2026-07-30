@@ -1266,6 +1266,12 @@ def _thread_reanalisar(sindicato_codigo, com_ia, limite):
                 campos_atualizar.append("contribuicao_sindical_patronal")
                 mudou = True
 
+        if compl["contribuicao_sindical_empregado_meses"] is not None:
+            if doc.contribuicao_sindical_empregado_meses != compl["contribuicao_sindical_empregado_meses"]:
+                doc.contribuicao_sindical_empregado_meses = compl["contribuicao_sindical_empregado_meses"]
+                campos_atualizar.append("contribuicao_sindical_empregado_meses")
+                mudou = True
+
         if mudou:
             doc.save(update_fields=campos_atualizar)
             _estado_reanalisar["atualizados"] += 1
