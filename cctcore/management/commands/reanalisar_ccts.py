@@ -6,7 +6,11 @@ from django.db import connection
 from pathlib import Path
 
 from cctcore.models import DocumentoCCT
-from cctcore.services import extrair_texto_pdf, analisar_cct_com_ia
+from cctcore.services import extrair_texto_pdf
+try:
+    from cctcore.services import analisar_cct_com_ia
+except ImportError:
+    analisar_cct_com_ia = None
 from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto
 
 
@@ -158,8 +162,8 @@ class Command(BaseCommand):
             else:
                 sem_mudanca += 1
 
-            # --- An\u00e1lise com IA (opcional) ---
-            if com_ia and not dry_run:
+            # --- Análise com IA (opcional) ---
+            if com_ia and not dry_run and analisar_cct_com_ia:
                 try:
                     resultado = analisar_cct_com_ia(texto)
                     if resultado.get("erro"):

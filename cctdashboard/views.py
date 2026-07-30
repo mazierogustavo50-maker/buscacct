@@ -17,7 +17,11 @@ import json
 from cctcore.models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT
 from cctbuscador.models import ExecucaoScraper, AgendamentoScraper
 from .forms import SindicatoForm, EmpresaForm, ImportarSindicatosForm, ImportarEmpresasForm
-from cctcore.services import extrair_texto_pdf, analisar_cct_com_ia
+from cctcore.services import extrair_texto_pdf
+try:
+    from cctcore.services import analisar_cct_com_ia
+except ImportError:
+    analisar_cct_com_ia = None
 
 
 @login_required
@@ -828,7 +832,10 @@ def analisar_documento_ia(request, pk):
             if not texto or texto.startswith("[ERRO"):
                 raise ValueError(texto or "Não foi possível extrair texto do PDF.")
 
-            resultado = analisar_cct_com_ia(texto)
+            if analisar_cct_com_ia:
+                resultado = analisar_cct_com_ia(texto)
+            else:
+                resultado = {"erro": "Análise com IA não está disponível no momento."}
             if not isinstance(resultado, dict):
                 resultado = {"erro": f"Resposta inesperada da API: {str(resultado)[:200]}"}
 
