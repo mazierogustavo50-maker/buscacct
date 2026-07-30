@@ -984,9 +984,11 @@ class Command(BaseCommand):
                             try:
                                 from cctcore.services import extrair_texto_pdf as _extrair_texto_pdf
                                 from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto as _extrair_datas_do_texto
+                                from cctcore.management.commands.atualizar_vigencias import extrair_dados_complementares_do_texto as _extrair_compl
                                 texto_pdf = _extrair_texto_pdf(caminho_relativo, max_paginas=10)
                                 if texto_pdf and not texto_pdf.startswith("[ERRO"):
                                     datas_pdf = _extrair_datas_do_texto(texto_pdf)
+                                    compl_pdf = _extrair_compl(texto_pdf)
                                     campos_pdf = []
                                     if datas_pdf["data_inicio"] and doc.data_inicio_vigencia != datas_pdf["data_inicio"]:
                                         doc.data_inicio_vigencia = datas_pdf["data_inicio"]
@@ -997,9 +999,31 @@ class Command(BaseCommand):
                                     if datas_pdf["data_registro_mte"] and doc.data_registro_mte != datas_pdf["data_registro_mte"]:
                                         doc.data_registro_mte = datas_pdf["data_registro_mte"]
                                         campos_pdf.append("data_registro_mte")
+                                    # Dados complementares
+                                    if compl_pdf["data_base"] and doc.data_base != compl_pdf["data_base"]:
+                                        doc.data_base = compl_pdf["data_base"]
+                                        campos_pdf.append("data_base")
+                                    if compl_pdf["reajuste_percentual"] is not None:
+                                        from decimal import Decimal
+                                        novo_valor = Decimal(str(compl_pdf["reajuste_percentual"]))
+                                        if doc.reajuste_percentual != novo_valor:
+                                            doc.reajuste_percentual = novo_valor
+                                            campos_pdf.append("reajuste_percentual")
+                                    if compl_pdf["contribuicao_sindical_empregado"] is not None:
+                                        from decimal import Decimal
+                                        novo_valor = Decimal(str(compl_pdf["contribuicao_sindical_empregado"]))
+                                        if doc.contribuicao_sindical_empregado != novo_valor:
+                                            doc.contribuicao_sindical_empregado = novo_valor
+                                            campos_pdf.append("contribuicao_sindical_empregado")
+                                    if compl_pdf["contribuicao_sindical_patronal"] is not None:
+                                        from decimal import Decimal
+                                        novo_valor = Decimal(str(compl_pdf["contribuicao_sindical_patronal"]))
+                                        if doc.contribuicao_sindical_patronal != novo_valor:
+                                            doc.contribuicao_sindical_patronal = novo_valor
+                                            campos_pdf.append("contribuicao_sindical_patronal")
                                     if campos_pdf:
                                         doc.save(update_fields=campos_pdf)
-                                        self.log(f"  [OK] PDF relido e datas atualizadas: {', '.join(campos_pdf)}")
+                                        self.log(f"  [OK] PDF relido e campos atualizados: {', '.join(campos_pdf)}")
                             except Exception as e_pdf:
                                 self.log(f"  [AVISO] Falha ao reler PDF pós-download: {e_pdf}")
 

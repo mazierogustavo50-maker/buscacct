@@ -11,7 +11,7 @@ try:
     from cctcore.services import analisar_cct_com_ia
 except ImportError:
     analisar_cct_com_ia = None
-from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto
+from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto, extrair_dados_complementares_do_texto
 
 
 def _parse_data_br(valor):
@@ -152,11 +152,51 @@ class Command(BaseCommand):
                 campos_atualizar.append("data_registro_mte")
                 mudou = True
 
+            # --- Reextrai dados complementares (data base, reajuste, contribuições) ---
+            compl = extrair_dados_complementares_do_texto(texto)
+
+            if compl["data_base"] and doc.data_base != compl["data_base"]:
+                if not dry_run:
+                    doc.data_base = compl["data_base"]
+                if "data_base" not in campos_atualizar:
+                    campos_atualizar.append("data_base")
+                mudou = True
+
+            if compl["reajuste_percentual"] is not None:
+                from decimal import Decimal
+                novo_valor = Decimal(str(compl["reajuste_percentual"]))
+                if doc.reajuste_percentual != novo_valor:
+                    if not dry_run:
+                        doc.reajuste_percentual = novo_valor
+                    if "reajuste_percentual" not in campos_atualizar:
+                        campos_atualizar.append("reajuste_percentual")
+                    mudou = True
+
+            if compl["contribuicao_sindical_empregado"] is not None:
+                from decimal import Decimal
+                novo_valor = Decimal(str(compl["contribuicao_sindical_empregado"]))
+                if doc.contribuicao_sindical_empregado != novo_valor:
+                    if not dry_run:
+                        doc.contribuicao_sindical_empregado = novo_valor
+                    if "contribuicao_sindical_empregado" not in campos_atualizar:
+                        campos_atualizar.append("contribuicao_sindical_empregado")
+                    mudou = True
+
+            if compl["contribuicao_sindical_patronal"] is not None:
+                from decimal import Decimal
+                novo_valor = Decimal(str(compl["contribuicao_sindical_patronal"]))
+                if doc.contribuicao_sindical_patronal != novo_valor:
+                    if not dry_run:
+                        doc.contribuicao_sindical_patronal = novo_valor
+                    if "contribuicao_sindical_patronal" not in campos_atualizar:
+                        campos_atualizar.append("contribuicao_sindical_patronal")
+                    mudou = True
+
             if mudou:
                 if not dry_run:
                     doc.save(update_fields=campos_atualizar)
                 self.stdout.write(self.style.SUCCESS(
-                    f"  {'[DRY-RUN] ' if dry_run else ''}Datas atualizadas: {', '.join(campos_atualizar)}"
+                    f"  {'[DRY-RUN] ' if dry_run else ''}Atualizado: {', '.join(campos_atualizar)}"
                 ))
                 atualizados_datas += 1
             else:

@@ -1215,8 +1215,9 @@ def _thread_reanalisar(sindicato_codigo, com_ia, limite):
             )
             continue
 
-        from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto
+        from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto, extrair_dados_complementares_do_texto
         datas = extrair_datas_do_texto(texto)
+        compl = extrair_dados_complementares_do_texto(texto)
 
         mudou = False
         campos_atualizar = []
@@ -1235,6 +1236,35 @@ def _thread_reanalisar(sindicato_codigo, com_ia, limite):
             doc.data_registro_mte = datas["data_registro_mte"]
             campos_atualizar.append("data_registro_mte")
             mudou = True
+
+        if compl["data_base"] and doc.data_base != compl["data_base"]:
+            doc.data_base = compl["data_base"]
+            campos_atualizar.append("data_base")
+            mudou = True
+
+        if compl["reajuste_percentual"] is not None:
+            from decimal import Decimal
+            novo_valor = Decimal(str(compl["reajuste_percentual"]))
+            if doc.reajuste_percentual != novo_valor:
+                doc.reajuste_percentual = novo_valor
+                campos_atualizar.append("reajuste_percentual")
+                mudou = True
+
+        if compl["contribuicao_sindical_empregado"] is not None:
+            from decimal import Decimal
+            novo_valor = Decimal(str(compl["contribuicao_sindical_empregado"]))
+            if doc.contribuicao_sindical_empregado != novo_valor:
+                doc.contribuicao_sindical_empregado = novo_valor
+                campos_atualizar.append("contribuicao_sindical_empregado")
+                mudou = True
+
+        if compl["contribuicao_sindical_patronal"] is not None:
+            from decimal import Decimal
+            novo_valor = Decimal(str(compl["contribuicao_sindical_patronal"]))
+            if doc.contribuicao_sindical_patronal != novo_valor:
+                doc.contribuicao_sindical_patronal = novo_valor
+                campos_atualizar.append("contribuicao_sindical_patronal")
+                mudou = True
 
         if mudou:
             doc.save(update_fields=campos_atualizar)

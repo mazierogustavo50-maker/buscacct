@@ -229,6 +229,125 @@ def extrair_datas_do_texto(texto):
     return resultado
 
 
+def extrair_dados_complementares_do_texto(texto):
+    """
+    Extrai dados complementares de uma CCT do texto do PDF:
+      - data_base
+      - reajuste_percentual
+      - contribuicao_sindical_empregado
+      - contribuicao_sindical_patronal
+    Retorna dict com as chaves acima.
+    """
+    resultado = {
+        "data_base": None,
+        "reajuste_percentual": None,
+        "contribuicao_sindical_empregado": None,
+        "contribuicao_sindical_patronal": None,
+    }
+    if not texto or len(texto) < 50:
+        return resultado
+
+    texto_upper = texto.upper()
+
+    # ============================================================
+    # 1. DATA BASE
+    # ============================================================
+    padroes_data_base = [
+        r'DATA[-\s]*BASE\s*[:\-\s]*(\d{2}[/-]\d{2}[/-]\d{4})',
+        r'EFEITOS\s+FINANCEIROS\s*(?:A\s*PARTIR\s*DE)?\s*[:\-\s]*(\d{2}[/-]\d{2}[/-]\d{4})',
+        r'REAJUSTE\s*(?:SALARIAL)?\s*A\s*PARTIR\s*DE\s*[:\-\s]*(\d{2}[/-]\d{2}[/-]\d{4})',
+        r'PAGAMENTO\s*A\s*PARTIR\s*DE\s*[:\-\s]*(\d{2}[/-]\d{2}[/-]\d{4})',
+        r'RETROATIVO\s*(?:A)?\s*[:\-\s]*(\d{2}[/-]\d{2}[/-]\d{4})',
+    ]
+    for padrao in padroes_data_base:
+        m = re.search(padrao, texto_upper)
+        if m:
+            resultado["data_base"] = parse_data_br(m.group(1))
+            if resultado["data_base"]:
+                break
+
+    if not resultado["data_base"]:
+        m = re.search(
+            r'DATA[-\s]*BASE.*?((?:\d{1,2}\s*º?\s*DE\s+\w+\s+DE\s+\d{4}))',
+            texto, re.IGNORECASE
+        )
+        if m:
+            resultado["data_base"] = _parse_data_escrita(m.group(1))
+
+    # ============================================================
+    # 2. REAJUSTE PERCENTUAL
+    # ============================================================
+    padroes_reajuste = [
+        r'REAJUSTE\s*(?:SALARIAL)?\s*DE\s*([\d.,]+)\s*%',
+        r'AUMENTO\s*(?:SALARIAL)?\s*DE\s*([\d.,]+)\s*%',
+        r'[IÍ]NDICE\s*DE\s*([\d.,]+)\s*%',
+        r'PERCENTUAL\s*DE\s*([\d.,]+)\s*%',
+        r'REAJUSTE\s*DE\s*([\d.,]+)\s*PER\s*CENTO',
+        r'REAJUSTE\s*[:\-]?\s*([\d.,]+)\s*%',
+        r'REAJUSTE\s*SALARIAL\s*[:\-]?\s*([\d.,]+)\s*%',
+        r'REAJUSTE\s*NO\s*SAL[ÁA]RIO\s*DE\s*([\d.,]+)\s*%',
+    ]
+    for padrao in padroes_reajuste:
+        m = re.search(padrao, texto_upper)
+        if m:
+            try:
+                val_str = m.group(1).strip().replace(".", "").replace(",", ".")
+                val = float(val_str)
+                if 0 < val < 1000:
+                    resultado["reajuste_percentual"] = val
+                    break
+            except (ValueError, AttributeError):
+                continue
+
+    # ============================================================
+    # 3. CONTRIBUIÇÃO SINDICAL / NEGOCIAL EMPREGADO
+    # ============================================================
+    padroes_empregado = [
+        r'CONTRIBUI[ÇC][ÃA]O\s*(?:SINDICAL|NEGOCIAL|ASSISTENCIAL)\s*(?:DOS?\s*)?(?:EMPREGADOS?|TRABALHADORES?|EMPREGADO)\s*.*?([\d.,]+)\s*%',
+        r'TAXA\s*ASSISTENCIAL\s*(?:DOS?\s*)?(?:EMPREGADOS?|TRABALHADORES?)\s*.*?([\d.,]+)\s*%',
+        r'MENSALIDADE\s*(?:SINDICAL)?\s*(?:DOS?\s*)?(?:EMPREGADOS?|TRABALHADORES?)\s*.*?([\d.,]+)\s*%',
+        r'CONTRIBUI[ÇC][ÃA]O\s*NEGOCIAL\s*.*?([\d.,]+)\s*%',
+        r'CONTRIBUI[ÇC][ÃA]O\s*SINDICAL\s*.*?([\d.,]+)\s*%',
+        r'CONTRIBUI[ÇC][ÃA]O\s*(?:SINDICAL|NEGOCIAL)\s*.*?R\$\s*([\d.,]+)',
+        r'TAXA\s*ASSISTENCIAL\s*.*?R\$\s*([\d.,]+)',
+    ]
+    for padrao in padroes_empregado:
+        m = re.search(padrao, texto_upper, re.DOTALL)
+        if m:
+            try:
+                val_str = m.group(1).strip().replace(".", "").replace(",", ".")
+                val = float(val_str)
+                if 0 < val < 10000:
+                    resultado["contribuicao_sindical_empregado"] = val
+                    break
+            except (ValueError, AttributeError):
+                continue
+
+    # ============================================================
+    # 4. CONTRIBUIÇÃO SINDICAL PATRONAL
+    # ============================================================
+    padroes_patronal = [
+        r'CONTRIBUI[ÇC][ÃA]O\s*(?:SINDICAL|NEGOCIAL|ASSISTENCIAL)\s*(?:DOS?\s*)?(?:PATRONAL|PATRONAIS|EMPREGADORES?|EMPRESAS?)\s*.*?([\d.,]+)\s*%',
+        r'CONTRIBUI[ÇC][ÃA]O\s*PATRONAL\s*.*?([\d.,]+)\s*%',
+        r'CONTRIBUI[ÇC][ÃA]O\s*(?:SINDICAL|NEGOCIAL)\s*(?:DO\s*)?(?:EMPREGADOR|PATR[ÃA]O)\s*.*?([\d.,]+)\s*%',
+        r'CONTRIBUI[ÇC][ÃA]O\s*(?:SINDICAL|NEGOCIAL)\s*(?:DO\s*)?EMPREGADOR\s*.*?R\$\s*([\d.,]+)',
+        r'CONTRIBUI[ÇC][ÃA]O\s*PATRONAL\s*.*?R\$\s*([\d.,]+)',
+    ]
+    for padrao in padroes_patronal:
+        m = re.search(padrao, texto_upper, re.DOTALL)
+        if m:
+            try:
+                val_str = m.group(1).strip().replace(".", "").replace(",", ".")
+                val = float(val_str)
+                if 0 < val < 100000:
+                    resultado["contribuicao_sindical_patronal"] = val
+                    break
+            except (ValueError, AttributeError):
+                continue
+
+    return resultado
+
+
 class Command(BaseCommand):
     help = (
         "Atualiza as datas de vigência (início, fim) e registro MTE "
@@ -310,24 +429,33 @@ class Command(BaseCommand):
                 erro_pdf += 1
                 continue
 
-            # Extrai datas do texto
+            # Extrai dados do texto
             datas = extrair_datas_do_texto(texto)
+            compl = extrair_dados_complementares_do_texto(texto)
 
             # Log do que foi encontrado
             encontrado = []
             if datas["data_inicio"]:
-                encontrado.append(f"início={datas['data_inicio']}")
+                encontrado.append(f"inicio={datas['data_inicio']}")
             if datas["data_fim"]:
                 encontrado.append(f"fim={datas['data_fim']}")
             if datas["data_registro_mte"]:
                 encontrado.append(f"registro_mte={datas['data_registro_mte']}")
+            if compl["data_base"]:
+                encontrado.append(f"data_base={compl['data_base']}")
+            if compl["reajuste_percentual"] is not None:
+                encontrado.append(f"reajuste={compl['reajuste_percentual']}%")
+            if compl["contribuicao_sindical_empregado"] is not None:
+                encontrado.append(f"contrib_empregado={compl['contribuicao_sindical_empregado']}")
+            if compl["contribuicao_sindical_patronal"] is not None:
+                encontrado.append(f"contrib_patronal={compl['contribuicao_sindical_patronal']}")
 
             if encontrado:
                 self.stdout.write(f"  Encontrado: {', '.join(encontrado)}")
             else:
-                self.stdout.write(self.style.WARNING(f"  Nenhuma data encontrada no texto."))
+                self.stdout.write(self.style.WARNING(f"  Nenhuma informacao encontrada no texto."))
 
-            # Verifica se houve mudança real
+            # Verifica se houve mudanca real
             mudou = False
             campos_atualizar = []
 
@@ -348,6 +476,39 @@ class Command(BaseCommand):
                     doc.data_registro_mte = datas["data_registro_mte"]
                 campos_atualizar.append("data_registro_mte")
                 mudou = True
+
+            if compl["data_base"] and doc.data_base != compl["data_base"]:
+                if not dry_run:
+                    doc.data_base = compl["data_base"]
+                campos_atualizar.append("data_base")
+                mudou = True
+
+            if compl["reajuste_percentual"] is not None:
+                from decimal import Decimal
+                novo_valor = Decimal(str(compl["reajuste_percentual"]))
+                if doc.reajuste_percentual != novo_valor:
+                    if not dry_run:
+                        doc.reajuste_percentual = novo_valor
+                    campos_atualizar.append("reajuste_percentual")
+                    mudou = True
+
+            if compl["contribuicao_sindical_empregado"] is not None:
+                from decimal import Decimal
+                novo_valor = Decimal(str(compl["contribuicao_sindical_empregado"]))
+                if doc.contribuicao_sindical_empregado != novo_valor:
+                    if not dry_run:
+                        doc.contribuicao_sindical_empregado = novo_valor
+                    campos_atualizar.append("contribuicao_sindical_empregado")
+                    mudou = True
+
+            if compl["contribuicao_sindical_patronal"] is not None:
+                from decimal import Decimal
+                novo_valor = Decimal(str(compl["contribuicao_sindical_patronal"]))
+                if doc.contribuicao_sindical_patronal != novo_valor:
+                    if not dry_run:
+                        doc.contribuicao_sindical_patronal = novo_valor
+                    campos_atualizar.append("contribuicao_sindical_patronal")
+                    mudou = True
 
             if mudou:
                 if not dry_run:
