@@ -12,16 +12,11 @@ import pandas as pd
 import subprocess
 import sys
 import os
-import json
 
 from cctcore.models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT
 from cctbuscador.models import ExecucaoScraper, AgendamentoScraper
 from .forms import SindicatoForm, EmpresaForm, ImportarSindicatosForm, ImportarEmpresasForm
 from cctcore.services import extrair_texto_pdf
-try:
-    from cctcore.services import analisar_cct_com_ia
-except ImportError:
-    analisar_cct_com_ia = None
 
 
 @login_required
@@ -30,7 +25,6 @@ def home(request):
     total_empresas = Empresa.objects.count()
     total_cct = DocumentoCCT.objects.filter(tipo=DocumentoCCT.TIPO_CCT).count()
     total_ta_cct = DocumentoCCT.objects.filter(tipo=DocumentoCCT.TIPO_TA_CCT).count()
-    total_concluido_ia = DocumentoCCT.objects.filter(status_analise_ia=DocumentoCCT.STATUS_ANALISE_CONCLUIDO).count()
     execucoes_recentes = ExecucaoScraper.objects.all()[:5]
 
     # Dados para gráfico de documentos por tipo
@@ -69,7 +63,6 @@ def home(request):
         "total_empresas": total_empresas,
         "total_cct": total_cct,
         "total_ta_cct": total_ta_cct,
-        "total_concluido_ia": total_concluido_ia,
         "execucoes_recentes": execucoes_recentes,
         "documentos_por_tipo": documentos_por_tipo,
         "sindicato_labels": sindicato_labels,
@@ -763,231 +756,6 @@ def reativar_documento(request, pk):
     documento.save(update_fields=["ativo"])
     messages.success(request, "Documento reativado com sucesso.")
     return redirect("cctdashboard:detalhe_documento", pk=pk)
-
-
-@login_required
-@require_POST
-def analisar_documento_ia(request, pk):
-    """Executa análise de CCT via IA (OpenCode Go) em background com timeout."""
-    documento = get_object_or_404(DocumentoCCT, pk=pk)
-
-    if not documento.arquivo_pdf:
-        messages.error(request, "Documento não possui arquivo PDF para análise.")
-        return redirect("cctdashboard:detalhe_documento", pk=pk)
-
-    # Atualiza status
-    documento.status_analise_ia = DocumentoCCT.STATUS_ANALISE_EM_ANDAMENTO
-    documento.save(update_fields=["status_analise_ia"])
-
-    import threading
-    from datetime import datetime
-    import re
-
-    def _parse_data_br(valor):
-        """Converte string de data para objeto date."""
-        if not valor:
-            return None
-        if isinstance(valor, datetime):
-            return valor.date() if hasattr(valor, 'date') else None
-        for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d", "%d/%m/%y"):
-            try:
-                return datetime.strptime(str(valor).strip(), fmt).date()
-            except ValueError:
-                continue
-        return None
-
-    def _parse_decimal(valor):
-        """Converte string com percentual/valor para Decimal."""
-        if valor is None:
-            return None
-        from decimal import Decimal, InvalidOperation
-        if isinstance(valor, (int, float)):
-            return Decimal(str(valor))
-        s = str(valor).strip()
-        if not s or s.lower() in ("null", "none", "-", "n/a", "na"):
-            return None
-        # Remove simbolos de moeda, porcentagem, pontos de milhar
-        s = s.replace("R$", "").replace("%", "").replace(" ", "")
-        # Se tiver ponto e virgula, assume formato brasileiro (1.234,56)
-        if "," in s and "." in s:
-            if s.rfind(",") > s.rfind("."):
-                s = s.replace(".", "").replace(",", ".")
-            else:
-                s = s.replace(",", "")
-        elif "," in s:
-            s = s.replace(",", ".")
-        try:
-            return Decimal(s)
-        except InvalidOperation:
-            return None
-
-    def _analisar():
-        try:
-            from django.db import connection
-            connection.close()
-        except Exception:
-            pass
-        try:
-            texto = extrair_texto_pdf(documento.arquivo_pdf)
-            if not texto or texto.startswith("[ERRO"):
-                raise ValueError(texto or "Não foi possível extrair texto do PDF.")
-
-            if analisar_cct_com_ia:
-                resultado = analisar_cct_com_ia(texto)
-            else:
-                resultado = {"erro": "Análise com IA não está disponível no momento."}
-            if not isinstance(resultado, dict):
-                resultado = {"erro": f"Resposta inesperada da API: {str(resultado)[:200]}"}
-
-            doc = DocumentoCCT.objects.get(pk=pk)
-            if resultado.get("erro"):
-                doc.status_analise_ia = DocumentoCCT.STATUS_ANALISE_ERRO
-                doc.analise_ia_texto = resultado["erro"]
-                doc.save(update_fields=["status_analise_ia", "analise_ia_texto"])
-            else:
-                ia_json = resultado.get("resultado") or {}
-
-                # --- Persiste dados extraidos nos campos do modelo ---
-                campos_atualizar = [
-                    "status_analise_ia",
-                    "analise_ia_json",
-                    "analise_ia_texto",
-                    "data_analise_ia",
-                ]
-
-                # Data base
-                db = _parse_data_br(ia_json.get("data_base"))
-                if db:
-                    doc.data_base = db
-                    if "data_base" not in campos_atualizar:
-                        campos_atualizar.append("data_base")
-
-                # Vigencia inicio
-                vi = _parse_data_br(ia_json.get("vigencia_inicio"))
-                if vi:
-                    doc.data_inicio_vigencia = vi
-                    if "data_inicio_vigencia" not in campos_atualizar:
-                        campos_atualizar.append("data_inicio_vigencia")
-
-                # Vigencia fim
-                vf = _parse_data_br(ia_json.get("vigencia_fim"))
-                if vf:
-                    doc.data_fim_vigencia = vf
-                    if "data_fim_vigencia" not in campos_atualizar:
-                        campos_atualizar.append("data_fim_vigencia")
-
-                # Reajuste percentual
-                rp = _parse_decimal(ia_json.get("reajuste_percentual"))
-                if rp is not None:
-                    doc.reajuste_percentual = rp
-                    if "reajuste_percentual" not in campos_atualizar:
-                        campos_atualizar.append("reajuste_percentual")
-
-                # Contribuicao sindical empregado
-                ce = _parse_decimal(ia_json.get("contribuicao_sindical_empregado"))
-                if ce is not None:
-                    doc.contribuicao_sindical_empregado = ce
-                    if "contribuicao_sindical_empregado" not in campos_atualizar:
-                        campos_atualizar.append("contribuicao_sindical_empregado")
-
-                # Contribuicao sindical patronal
-                cp = _parse_decimal(ia_json.get("contribuicao_sindical_patronal"))
-                if cp is not None:
-                    doc.contribuicao_sindical_patronal = cp
-                    if "contribuicao_sindical_patronal" not in campos_atualizar:
-                        campos_atualizar.append("contribuicao_sindical_patronal")
-
-                doc.status_analise_ia = DocumentoCCT.STATUS_ANALISE_CONCLUIDO
-                doc.analise_ia_json = ia_json
-                doc.analise_ia_texto = json.dumps(ia_json, ensure_ascii=False, indent=2)
-                doc.data_analise_ia = timezone.now()
-                doc.save(update_fields=campos_atualizar)
-        except Exception as e:
-            try:
-                doc = DocumentoCCT.objects.get(pk=pk)
-                doc.status_analise_ia = DocumentoCCT.STATUS_ANALISE_ERRO
-                doc.analise_ia_texto = str(e)
-                doc.save(update_fields=["status_analise_ia", "analise_ia_texto"])
-            except Exception:
-                pass
-
-    thread = threading.Thread(target=_analisar, daemon=True)
-    thread.start()
-
-    messages.success(request, "Análise com IA iniciada em background! Acompanhe o status na página do documento.")
-    return redirect("cctdashboard:detalhe_documento", pk=pk)
-
-
-@login_required
-@require_POST
-def cancelar_analise_ia(request, pk):
-    """Cancela / redefine uma análise IA travada em 'Em andamento'."""
-    documento = get_object_or_404(DocumentoCCT, pk=pk)
-    documento.status_analise_ia = DocumentoCCT.STATUS_ANALISE_PENDENTE
-    documento.save(update_fields=["status_analise_ia"])
-    messages.success(request, f"Análise do documento #{pk} foi resetada para 'Pendente'. Você pode reiniciá-la quando quiser.")
-    return redirect("cctdashboard:painel_ia")
-
-
-@login_required
-def painel_ia(request):
-    """Painel de CCTs analisadas pela IA."""
-    status_filtro = request.GET.get("status", "").strip()
-    sindicato_id = request.GET.get("sindicato", "").strip()
-    q = request.GET.get("q", "").strip()
-    ordenar = request.GET.get("ordenar", "").strip()
-
-    queryset = DocumentoCCT.objects.select_related("sindicato").exclude(
-        status_analise_ia=DocumentoCCT.STATUS_ANALISE_PENDENTE
-    )
-
-    if status_filtro:
-        queryset = queryset.filter(status_analise_ia=status_filtro)
-    if sindicato_id:
-        queryset = queryset.filter(sindicato_id=sindicato_id)
-    if q:
-        queryset = queryset.filter(
-            Q(sindicato__nome__icontains=q)
-            | Q(sindicato__codigo__icontains=q)
-        )
-
-    # Ordenação
-    ordenacao_valida = {
-        "inicio_vigencia": "data_inicio_vigencia",
-        "-inicio_vigencia": "-data_inicio_vigencia",
-        "data_analise": "data_analise_ia",
-        "-data_analise": "-data_analise_ia",
-        "tipo": "tipo",
-        "-tipo": "-tipo",
-        "status_ia": "status_analise_ia",
-        "-status_ia": "-status_analise_ia",
-    }
-    if ordenar in ordenacao_valida:
-        queryset = queryset.order_by(ordenacao_valida[ordenar])
-    else:
-        queryset = queryset.order_by("-data_analise_ia")
-
-    paginator = Paginator(queryset, 20)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    # Contadores por status
-    total_concluido = DocumentoCCT.objects.filter(status_analise_ia=DocumentoCCT.STATUS_ANALISE_CONCLUIDO).count()
-    total_erro = DocumentoCCT.objects.filter(status_analise_ia=DocumentoCCT.STATUS_ANALISE_ERRO).count()
-    total_andamento = DocumentoCCT.objects.filter(status_analise_ia=DocumentoCCT.STATUS_ANALISE_EM_ANDAMENTO).count()
-
-    context = {
-        "page_obj": page_obj,
-        "status_filtro": status_filtro,
-        "sindicato_id": sindicato_id,
-        "q": q,
-        "sindicatos": Sindicato.objects.order_by("nome"),
-        "total_concluido": total_concluido,
-        "total_erro": total_erro,
-        "total_andamento": total_andamento,
-        "ordenar": ordenar,
-    }
-    return render(request, "cctdashboard/painel_ia.html", context)
 
 
 @login_required

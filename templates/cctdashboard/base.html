@@ -45,11 +45,6 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link{% if request.resolver_match.url_name == 'painel_ia' %} active{% endif %}" href="{% url 'cctdashboard:painel_ia' %}">
-                            <i class="bi bi-robot me-1"></i>Painel IA
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link{% if request.resolver_match.url_name == 'execucoes_scraper' %} active{% endif %}" href="{% url 'cctdashboard:execucoes_scraper' %}">
                             <i class="bi bi-robot me-1"></i>Execuções
                         </a>

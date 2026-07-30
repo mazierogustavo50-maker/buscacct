@@ -46,7 +46,7 @@ class DocumentoCCTAdmin(admin.ModelAdmin):
 
 @admin.register(ConfiguracaoSistema)
 class ConfiguracaoSistemaAdmin(admin.ModelAdmin):
-    list_display = ("chave_api_opencode", "modelo_padrao_opencode")
+    list_display = ("__str__",)
     
     def has_add_permission(self, request):
         # Permite apenas 1 registro
