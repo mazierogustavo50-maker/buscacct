@@ -344,16 +344,27 @@ def extrair_dados_complementares_do_texto(texto):
     # 3. SEPARAÇÃO DE SEÇÕES: EMPREGADO vs PATRONAL
     # ============================================================
     marcadores_empregado = [
-        r'CONTRIBUI[ÇC][ÃA]O\s*(?:NEGOCIAL|ASSISTENCIAL|SINDICAL)\s*PROFISSIONAL',
-        r'CONTRIBUI[ÇC][ÃA]O\s*PROFISSIONAL',
-        r'CONTRIBUI[ÇC][ÃA]O\s*(?:NEGOCIAL|ASSISTENCIAL)\s*(?:DOS?\s*)?EMPREGADOS',
-        r'CONTRIBUI[ÇC][ÃA]O\s*NEGOCIAL\s*EMPREGADO',
+        # Padrões mais flexíveis: permitem texto intermediário (até 50 chars)
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}(?:NEGOCIAL|ASSISTENCIAL|SINDICAL).{0,50}PROFISSIONAL',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,30}PROFISSIONAL',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}(?:NEGOCIAL|ASSISTENCIAL).{0,30}(?:DOS?\s*)?EMPREGADOS',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,30}NEGOCIAL.{0,20}EMPREGADO',
+        # Padrões estritos originais (mantidos como fallback)
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*(?:NEGOCIAL|ASSISTENCIAL|SINDICAL)\s*PROFISSIONAL',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*PROFISSIONAL',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*(?:NEGOCIAL|ASSISTENCIAL)\s*(?:DOS?\s*)?EMPREGADOS',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*NEGOCIAL\s*EMPREGADO',
     ]
     marcadores_patronal = [
-        r'CONTRIBUI[ÇC][ÃA]O\s*(?:NEGOCIAL|SINDICAL|ASSISTENCIAL)\s*PATRONAL',
-        r'CONTRIBUI[ÇC][ÃA]O\s*PATRONAL',
-        r'CONTRIBUI[ÇC][ÃA]O\s*(?:DO|DOS)\s*EMPREGADOR',
-        r'CONTRIBUI[ÇC][ÃA]O\s*(?:NEGOCIAL|SINDICAL)\s*PATR[AÃ]O',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}(?:NEGOCIAL|SINDICAL|ASSISTENCIAL).{0,50}PATRONAL',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}PATRONAL',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,30}(?:DO|DOS)\s*EMPREGADOR',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}(?:NEGOCIAL|SINDICAL).{0,20}PATR[A\u00c3]O',
+        # Padrões estritos originais
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*(?:NEGOCIAL|SINDICAL|ASSISTENCIAL)\s*PATRONAL',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*PATRONAL',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*(?:DO|DOS)\s*EMPREGADOR',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*(?:NEGOCIAL|SINDICAL)\s*PATR[A\u00c3]O',
     ]
 
     pos_empregado = None
@@ -412,7 +423,7 @@ def extrair_dados_complementares_do_texto(texto):
             r'\n\s*ANEXO',
         ]:
             m = re.search(delim, trecho_busca)
-            if m and m.start() > 200:  # evita parar muito cedo
+            if m and m.start() > 100:  # evita parar muito cedo
                 fim_delimitadores.append(inicio + m.start())
         if fim_delimitadores and pos_fim is not None:
             fim = min(min(fim_delimitadores), pos_fim)
@@ -425,7 +436,7 @@ def extrair_dados_complementares_do_texto(texto):
         trecho = texto_original[inicio:fim].strip()
         trecho = re.sub(r'\n+', '\n', trecho)
         trecho = re.sub(r'[ \t]+', ' ', trecho)
-        return trecho if len(trecho) > 30 else None
+        return trecho if len(trecho) > 20 else None
 
     resultado["trecho_contribuicao_empregado"] = _extrair_trecho_da_posicao(
         texto, pos_empregado,
@@ -441,6 +452,15 @@ def extrair_dados_complementares_do_texto(texto):
     # Fallback: se ainda não achou trecho empregado, tenta busca por mais marcadores
     if not resultado["trecho_contribuicao_empregado"]:
         marcadores_empregado_extra = [
+            # Flexíveis: permitem intermediário
+            r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}SINDICAL.{0,20}EMPREGADO',
+            r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}ASSISTENCIAL.{0,20}EMPREGADO',
+            r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}DOS\s*EMPREGADOS',
+            r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}DOS\s*TRABALHADORES',
+            r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}NEGOCIAL.{0,30}TRABALHADORES',
+            r'TAXA\s*NEGOCIAL.{0,30}PROFISSIONAL',
+            r'TAXA\s*ASSISTENCIAL.{0,30}PROFISSIONAL',
+            # Estritos originais
             r'CONTRIBUI[\u00c7C][\u00c3A]O\s*SINDICAL\s*EMPREGADO',
             r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL\s*EMPREGADO',
             r'CONTRIBUI[\u00c7C][\u00c3A]O\s*DOS\s*EMPREGADOS',
