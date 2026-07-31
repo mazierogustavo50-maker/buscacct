@@ -390,12 +390,72 @@ def extrair_dados_complementares_do_texto(texto):
     # ============================================================
     # 3b. EXTRAÇÃO DOS TRECHOS DE TEXTO (empregado e patronal)
     # ============================================================
-    resultado["trecho_contribuicao_empregado"] = _extrair_trecho_contribuicao(
-        texto, marcadores_empregado, max_chars=1800
+    # Usa as posições já encontradas na separação de seções para
+    # extrair o trecho do texto ORIGINAL (case preservado).
+    # Isso garante que, se a seção foi encontrada, o trecho também será.
+
+    def _extrair_trecho_da_posicao(texto_original, pos_inicio, pos_fim, max_chars=1800):
+        """Extrai trecho do texto original entre pos_inicio e pos_fim (ou max_chars)."""
+        if pos_inicio is None:
+            return None
+        inicio = pos_inicio
+        # Tenta achar o fim da cláusula por delimitadores
+        trecho_busca = texto_original[inicio:inicio + max_chars]
+        fim_delimitadores = []
+        for delim in [
+            r'\n\s*CL[\u00c1A]USULA',
+            r'\n\s*ARTIGO',
+            r'\n\s*T[\u00cdI]TULO',
+            r'\n\s*CAP[\u00cdI]TULO',
+            r'\n\s*SE[\u00c7C][\u00c3A]O',
+            r'\n\s*SUBSE[\u00c7C][\u00c3A]O',
+            r'\n\s*ANEXO',
+        ]:
+            m = re.search(delim, trecho_busca)
+            if m and m.start() > 200:  # evita parar muito cedo
+                fim_delimitadores.append(inicio + m.start())
+        if fim_delimitadores and pos_fim is not None:
+            fim = min(min(fim_delimitadores), pos_fim)
+        elif fim_delimitadores:
+            fim = min(fim_delimitadores)
+        elif pos_fim is not None:
+            fim = pos_fim
+        else:
+            fim = inicio + max_chars
+        trecho = texto_original[inicio:fim].strip()
+        trecho = re.sub(r'\n+', '\n', trecho)
+        trecho = re.sub(r'[ \t]+', ' ', trecho)
+        return trecho if len(trecho) > 30 else None
+
+    resultado["trecho_contribuicao_empregado"] = _extrair_trecho_da_posicao(
+        texto, pos_empregado,
+        pos_patronal if pos_patronal is not None and pos_empregado is not None and pos_patronal > pos_empregado else None,
+        max_chars=1800
     )
-    resultado["trecho_contribuicao_patronal"] = _extrair_trecho_contribuicao(
-        texto, marcadores_patronal, max_chars=1800
+    resultado["trecho_contribuicao_patronal"] = _extrair_trecho_da_posicao(
+        texto, pos_patronal,
+        pos_empregado if pos_empregado is not None and pos_patronal is not None and pos_empregado > pos_patronal else None,
+        max_chars=1800
     )
+
+    # Fallback: se ainda não achou trecho empregado, tenta busca por mais marcadores
+    if not resultado["trecho_contribuicao_empregado"]:
+        marcadores_empregado_extra = [
+            r'CONTRIBUI[\u00c7C][\u00c3A]O\s*SINDICAL\s*EMPREGADO',
+            r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL\s*EMPREGADO',
+            r'CONTRIBUI[\u00c7C][\u00c3A]O\s*DOS\s*EMPREGADOS',
+            r'CONTRIBUI[\u00c7C][\u00c3A]O\s*DOS\s*TRABALHADORES',
+            r'CONTRIBUI[\u00c7C][\u00c3A]O\s*NEGOCIAL\s*DOS\s*TRABALHADORES',
+            r'TAXA\s*NEGOCIAL\s*PROFISSIONAL',
+            r'TAXA\s*ASSISTENCIAL\s*PROFISSIONAL',
+        ]
+        for padrao in marcadores_empregado_extra:
+            m = re.search(padrao, texto, re.IGNORECASE)
+            if m:
+                resultado["trecho_contribuicao_empregado"] = _extrair_trecho_da_posicao(
+                    texto, m.start(), None, max_chars=1800
+                )
+                break
 
     # ============================================================
     # 4. CONTRIBUIÇÃO SINDICAL / NEGOCIAL EMPREGADO
