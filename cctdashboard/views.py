@@ -258,10 +258,15 @@ def importar_sindicatos(request):
 def lista_empresas(request):
     queryset = Empresa.objects.all()
     q = request.GET.get("q", "").strip()
+    ocultar_sem_sindicato = request.GET.get("ocultar_sem_sindicato", "").strip() == "1"
+
     if q:
         queryset = queryset.filter(
             Q(nome__icontains=q) | Q(codigo__icontains=q)
         )
+
+    if ocultar_sem_sindicato:
+        queryset = queryset.filter(sindicatos__isnull=False).distinct()
 
     paginator = Paginator(queryset, 20)
     page_number = request.GET.get("page")
@@ -270,6 +275,7 @@ def lista_empresas(request):
     context = {
         "page_obj": page_obj,
         "q": q,
+        "ocultar_sem_sindicato": ocultar_sem_sindicato,
     }
     return render(request, "cctdashboard/lista_empresas.html", context)
 
