@@ -20,6 +20,7 @@ class Sindicato(models.Model):
 class Empresa(models.Model):
     codigo = models.CharField(max_length=20, db_index=True)
     nome = models.CharField(max_length=255)
+    ativo = models.BooleanField(default=True, db_index=True, verbose_name="Ativo")
 
     class Meta:
         verbose_name = "Empresa"

@@ -256,17 +256,24 @@ def importar_sindicatos(request):
 
 @login_required
 def lista_empresas(request):
+    # Por padrao mostra apenas ativas; ?inativas=1 mostra apenas inativas
+    mostrar_inativas = request.GET.get("inativas", "").strip() == "1"
     queryset = Empresa.objects.all()
+    if mostrar_inativas:
+        queryset = queryset.filter(ativo=False)
+    else:
+        queryset = queryset.filter(ativo=True)
+
     q = request.GET.get("q", "").strip()
-    ocultar_sem_sindicato = request.GET.get("ocultar_sem_sindicato", "").strip() == "1"
+    sem_sindicato = request.GET.get("sem_sindicato", "").strip() == "1"
 
     if q:
         queryset = queryset.filter(
             Q(nome__icontains=q) | Q(codigo__icontains=q)
         )
 
-    if ocultar_sem_sindicato:
-        queryset = queryset.filter(sindicatos__isnull=False).distinct()
+    if sem_sindicato:
+        queryset = queryset.filter(sindicatos__isnull=True)
 
     paginator = Paginator(queryset, 20)
     page_number = request.GET.get("page")
@@ -275,7 +282,8 @@ def lista_empresas(request):
     context = {
         "page_obj": page_obj,
         "q": q,
-        "ocultar_sem_sindicato": ocultar_sem_sindicato,
+        "mostrar_inativas": mostrar_inativas,
+        "sem_sindicato": sem_sindicato,
     }
     return render(request, "cctdashboard/lista_empresas.html", context)
 
@@ -342,6 +350,26 @@ def excluir_empresa(request, pk):
         "voltar_url": "cctdashboard:detalhe_empresa",
         "voltar_pk": pk,
     })
+
+
+@login_required
+@require_POST
+def inativar_empresa(request, pk):
+    empresa = get_object_or_404(Empresa, pk=pk)
+    empresa.ativo = False
+    empresa.save(update_fields=["ativo"])
+    messages.success(request, "Empresa inativada com sucesso.")
+    return redirect("cctdashboard:detalhe_empresa", pk=pk)
+
+
+@login_required
+@require_POST
+def reativar_empresa(request, pk):
+    empresa = get_object_or_404(Empresa, pk=pk)
+    empresa.ativo = True
+    empresa.save(update_fields=["ativo"])
+    messages.success(request, "Empresa reativada com sucesso.")
+    return redirect("cctdashboard:detalhe_empresa", pk=pk)
 
 
 @login_required

@@ -7,29 +7,35 @@
     <span class="text-muted">Total: {{ page_obj.paginator.count }}</span>
 </div>
 
-<div class="flex gap-2 mb-4">
+<div class="d-flex flex-wrap gap-2 mb-4">
     <a href="{% url 'cctdashboard:criar_empresa' %}" class="btn btn-success">
         <i class="bi bi-plus-lg me-1"></i>Nova Empresa
     </a>
     <a href="{% url 'cctdashboard:importar_empresas' %}" class="btn btn-outline-success">
         <i class="bi bi-upload me-1"></i>Importar Excel
     </a>
+    <a href="?sem_sindicato=1{% if q %}&q={{ q }}{% endif %}" class="btn btn-outline-warning">
+        <i class="bi bi-exclamation-triangle me-1"></i>Empresas sem sindicato
+    </a>
+    {% if mostrar_inativas %}
+    <a href="{% url 'cctdashboard:lista_empresas' %}" class="btn btn-outline-primary">
+        <i class="bi bi-check-circle me-1"></i>Ver ativas
+    </a>
+    {% else %}
+    <a href="?inativas=1{% if q %}&q={{ q }}{% endif %}" class="btn btn-outline-secondary">
+        <i class="bi bi-eye-slash me-1"></i>Ver inativas
+    </a>
+    {% endif %}
 </div>
 
 <div class="card shadow-sm mb-4">
     <div class="card-body">
         <form method="get" class="row g-4 align-items-end">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <input type="text" name="q" class="form-control" placeholder="Buscar por nome ou código..." value="{{ q }}">
             </div>
-            <div class="col-md-2">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="ocultar_sem_sindicato" id="ocultar_sem_sindicato" value="1" {% if ocultar_sem_sindicato %}checked{% endif %}>
-                    <label class="form-check-label" for="ocultar_sem_sindicato">
-                        Ocultar sem sindicato
-                    </label>
-                </div>
-            </div>
+            {% if mostrar_inativas %}<input type="hidden" name="inativas" value="1">{% endif %}
+            {% if sem_sindicato %}<input type="hidden" name="sem_sindicato" value="1">{% endif %}
             <div class="col-md-2 grid">
                 <button type="submit" class="btn btn-success"><i class="bi bi-search me-1"></i>Buscar</button>
             </div>
@@ -46,6 +52,7 @@
                         <th>Código</th>
                         <th>Nome</th>
                         <th>Sindicatos</th>
+                        <th>Status</th>
                         <th class="text-end">Ações</th>
                     </tr>
                 </thead>
@@ -55,6 +62,13 @@
                         <td class="font-monospace">{{ empresa.codigo }}</td>
                         <td>{{ empresa.nome }}</td>
                         <td>{{ empresa.sindicatos.count }}</td>
+                        <td>
+                            {% if empresa.ativo %}
+                            <span class="badge bg-success">Ativa</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inativa</span>
+                            {% endif %}
+                        </td>
                         <td class="text-end">
                             <a href="{% url 'cctdashboard:detalhe_empresa' empresa.pk %}" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-eye me-1"></i>Ver
@@ -66,7 +80,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="text-center text-muted py-4">Nenhuma empresa encontrada.</td>
+                        <td colspan="5" class="text-center text-muted py-4">Nenhuma empresa encontrada.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -79,10 +93,10 @@
             <ul class="pagination justify-content-center mb-0">
                 {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1{% if q %}&q={{ q }}{% endif %}{% if ocultar_sem_sindicato %}&ocultar_sem_sindicato=1{% endif %}">&laquo;</a>
+                    <a class="page-link" href="?page=1{% if q %}&q={{ q }}{% endif %}{% if mostrar_inativas %}&inativas=1{% endif %}{% if sem_sindicato %}&sem_sindicato=1{% endif %}">&laquo;</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if ocultar_sem_sindicato %}&ocultar_sem_sindicato=1{% endif %}">&lsaquo;</a>
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if mostrar_inativas %}&inativas=1{% endif %}{% if sem_sindicato %}&sem_sindicato=1{% endif %}">&lsaquo;</a>
                 </li>
                 {% endif %}
                 <li class="page-item active">
@@ -90,10 +104,10 @@
                 </li>
                 {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if ocultar_sem_sindicato %}&ocultar_sem_sindicato=1{% endif %}">&rsaquo;</a>
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if mostrar_inativas %}&inativas=1{% endif %}{% if sem_sindicato %}&sem_sindicato=1{% endif %}">&rsaquo;</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if q %}&q={{ q }}{% endif %}{% if ocultar_sem_sindicato %}&ocultar_sem_sindicato=1{% endif %}">&raquo;</a>
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if q %}&q={{ q }}{% endif %}{% if mostrar_inativas %}&inativas=1{% endif %}{% if sem_sindicato %}&sem_sindicato=1{% endif %}">&raquo;</a>
                 </li>
                 {% endif %}
             </ul>
