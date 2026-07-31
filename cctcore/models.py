@@ -96,6 +96,16 @@ class DocumentoCCT(models.Model):
         verbose_name="Meses desconto contrib. sindical/negocial",
         help_text="Meses em que a contribuição é descontada (ex: MAR, MAI, AGO, OUT ou '12x ao ano')"
     )
+    trecho_contribuicao_empregado = models.TextField(
+        blank=True, null=True,
+        verbose_name="Trecho contribuição empregado",
+        help_text="Texto original da CCT referente à contribuição sindical/negocial dos empregados"
+    )
+    trecho_contribuicao_patronal = models.TextField(
+        blank=True, null=True,
+        verbose_name="Trecho contribuição patronal",
+        help_text="Texto original da CCT referente à contribuição sindical/negocial patronal"
+    )
     status_extracao = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDENTE
     )

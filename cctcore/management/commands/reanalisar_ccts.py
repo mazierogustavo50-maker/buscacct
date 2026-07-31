@@ -192,6 +192,22 @@ class Command(BaseCommand):
                         campos_atualizar.append("contribuicao_sindical_patronal")
                     mudou = True
 
+            if compl["trecho_contribuicao_empregado"] is not None:
+                if doc.trecho_contribuicao_empregado != compl["trecho_contribuicao_empregado"]:
+                    if not dry_run:
+                        doc.trecho_contribuicao_empregado = compl["trecho_contribuicao_empregado"]
+                    if "trecho_contribuicao_empregado" not in campos_atualizar:
+                        campos_atualizar.append("trecho_contribuicao_empregado")
+                    mudou = True
+
+            if compl["trecho_contribuicao_patronal"] is not None:
+                if doc.trecho_contribuicao_patronal != compl["trecho_contribuicao_patronal"]:
+                    if not dry_run:
+                        doc.trecho_contribuicao_patronal = compl["trecho_contribuicao_patronal"]
+                    if "trecho_contribuicao_patronal" not in campos_atualizar:
+                        campos_atualizar.append("trecho_contribuicao_patronal")
+                    mudou = True
+
             if compl["contribuicao_sindical_empregado_meses"] is not None:
                 if doc.contribuicao_sindical_empregado_meses != compl["contribuicao_sindical_empregado_meses"]:
                     if not dry_run:

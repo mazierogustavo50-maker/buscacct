@@ -1300,6 +1300,18 @@ def _thread_reanalisar(sindicato_codigo, com_ia, limite):
                 campos_atualizar.append("contribuicao_sindical_patronal")
                 mudou = True
 
+        if compl["trecho_contribuicao_empregado"] is not None:
+            if doc.trecho_contribuicao_empregado != compl["trecho_contribuicao_empregado"]:
+                doc.trecho_contribuicao_empregado = compl["trecho_contribuicao_empregado"]
+                campos_atualizar.append("trecho_contribuicao_empregado")
+                mudou = True
+
+        if compl["trecho_contribuicao_patronal"] is not None:
+            if doc.trecho_contribuicao_patronal != compl["trecho_contribuicao_patronal"]:
+                doc.trecho_contribuicao_patronal = compl["trecho_contribuicao_patronal"]
+                campos_atualizar.append("trecho_contribuicao_patronal")
+                mudou = True
+
         if compl["contribuicao_sindical_empregado_meses"] is not None:
             if doc.contribuicao_sindical_empregado_meses != compl["contribuicao_sindical_empregado_meses"]:
                 doc.contribuicao_sindical_empregado_meses = compl["contribuicao_sindical_empregado_meses"]

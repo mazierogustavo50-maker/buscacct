@@ -245,11 +245,50 @@ def extrair_dados_complementares_do_texto(texto):
         "contribuicao_sindical_empregado": None,
         "contribuicao_sindical_patronal": None,
         "contribuicao_sindical_empregado_meses": None,
+        "trecho_contribuicao_empregado": None,
+        "trecho_contribuicao_patronal": None,
     }
     if not texto or len(texto) < 50:
         return resultado
 
     texto_upper = texto.upper()
+
+    def _extrair_trecho_contribuicao(texto_original, padroes_marcador, max_chars=1500):
+        """
+        Busca no texto original pelos marcadores de contribuição e retorna
+        um trecho de até max_chars caracteres a partir do marcador.
+        Para no primeiro delimitador forte (CLÁUSULA, ARTIGO, TÍTULO, CAPÍTULO)
+        que apareça após o marcador, desde que esteja a mais de 300 chars de distância
+        (evita parar muito cedo).
+        """
+        for padrao in padroes_marcador:
+            m = re.search(padrao, texto_original, re.IGNORECASE)
+            if m:
+                inicio = m.start()
+                # Procura delimitadores de cláusula após o início
+                fim_candidatos = []
+                for delim_padrao in [
+                    r'\n\s*CL[ÁA]USULA',
+                    r'\n\s*ARTIGO',
+                    r'\n\s*T[ÍI]TULO',
+                    r'\n\s*CAP[ÍI]TULO',
+                    r'\n\s*SE[ÇC][ÃA]O',
+                    r'\n\s*SUBSE[ÇC][ÃA]O',
+                    r'\n\s*ANEXO',
+                ]:
+                    for dm in re.finditer(delim_padrao, texto_original[inicio + 300:]):
+                        fim_candidatos.append(inicio + 300 + dm.start())
+                        break  # só o primeiro de cada tipo
+                if fim_candidatos:
+                    fim = min(fim_candidatos)
+                else:
+                    fim = inicio + max_chars
+                trecho = texto_original[inicio:fim].strip()
+                # Normaliza quebras de linha e espaços excessivos
+                trecho = re.sub(r'\n+', '\n', trecho)
+                trecho = re.sub(r'[ \t]+', ' ', trecho)
+                return trecho
+        return None
 
     # ============================================================
     # 1. DATA BASE
@@ -347,6 +386,16 @@ def extrair_dados_complementares_do_texto(texto):
     else:
         secao_empregado = texto_upper
         secao_patronal = texto_upper
+
+    # ============================================================
+    # 3b. EXTRAÇÃO DOS TRECHOS DE TEXTO (empregado e patronal)
+    # ============================================================
+    resultado["trecho_contribuicao_empregado"] = _extrair_trecho_contribuicao(
+        texto, marcadores_empregado, max_chars=1800
+    )
+    resultado["trecho_contribuicao_patronal"] = _extrair_trecho_contribuicao(
+        texto, marcadores_patronal, max_chars=1800
+    )
 
     # ============================================================
     # 4. CONTRIBUIÇÃO SINDICAL / NEGOCIAL EMPREGADO
@@ -692,6 +741,10 @@ class Command(BaseCommand):
                 encontrado.append(f"contrib_empregado={compl['contribuicao_sindical_empregado']}")
             if compl["contribuicao_sindical_patronal"] is not None:
                 encontrado.append(f"contrib_patronal={compl['contribuicao_sindical_patronal']}")
+            if compl["trecho_contribuicao_empregado"]:
+                encontrado.append(f"trecho_empregado=OK({len(compl['trecho_contribuicao_empregado'])} chars)")
+            if compl["trecho_contribuicao_patronal"]:
+                encontrado.append(f"trecho_patronal=OK({len(compl['trecho_contribuicao_patronal'])} chars)")
 
             if encontrado:
                 self.stdout.write(f"  Encontrado: {', '.join(encontrado)}")
@@ -751,6 +804,20 @@ class Command(BaseCommand):
                     if not dry_run:
                         doc.contribuicao_sindical_patronal = novo_valor
                     campos_atualizar.append("contribuicao_sindical_patronal")
+                    mudou = True
+
+            if compl["trecho_contribuicao_empregado"] is not None:
+                if doc.trecho_contribuicao_empregado != compl["trecho_contribuicao_empregado"]:
+                    if not dry_run:
+                        doc.trecho_contribuicao_empregado = compl["trecho_contribuicao_empregado"]
+                    campos_atualizar.append("trecho_contribuicao_empregado")
+                    mudou = True
+
+            if compl["trecho_contribuicao_patronal"] is not None:
+                if doc.trecho_contribuicao_patronal != compl["trecho_contribuicao_patronal"]:
+                    if not dry_run:
+                        doc.trecho_contribuicao_patronal = compl["trecho_contribuicao_patronal"]
+                    campos_atualizar.append("trecho_contribuicao_patronal")
                     mudou = True
 
             if compl["contribuicao_sindical_empregado_meses"] is not None:

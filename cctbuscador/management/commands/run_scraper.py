@@ -1021,6 +1021,14 @@ class Command(BaseCommand):
                                         if doc.contribuicao_sindical_patronal != novo_valor:
                                             doc.contribuicao_sindical_patronal = novo_valor
                                             campos_pdf.append("contribuicao_sindical_patronal")
+                                    if compl_pdf["trecho_contribuicao_empregado"] is not None:
+                                        if doc.trecho_contribuicao_empregado != compl_pdf["trecho_contribuicao_empregado"]:
+                                            doc.trecho_contribuicao_empregado = compl_pdf["trecho_contribuicao_empregado"]
+                                            campos_pdf.append("trecho_contribuicao_empregado")
+                                    if compl_pdf["trecho_contribuicao_patronal"] is not None:
+                                        if doc.trecho_contribuicao_patronal != compl_pdf["trecho_contribuicao_patronal"]:
+                                            doc.trecho_contribuicao_patronal = compl_pdf["trecho_contribuicao_patronal"]
+                                            campos_pdf.append("trecho_contribuicao_patronal")
                                     if compl_pdf["contribuicao_sindical_empregado_meses"] is not None:
                                         if doc.contribuicao_sindical_empregado_meses != compl_pdf["contribuicao_sindical_empregado_meses"]:
                                             doc.contribuicao_sindical_empregado_meses = compl_pdf["contribuicao_sindical_empregado_meses"]

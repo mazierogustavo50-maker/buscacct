@@ -93,6 +93,24 @@
                         {% endif %}
                     </dd>
 
+                    <dt class="col-sm-4">Trecho Contrib. Empregado</dt>
+                    <dd class="col-sm-8">
+                        {% if documento.trecho_contribuicao_empregado %}
+                            <pre class="bg-light p-2 rounded border" style="white-space: pre-wrap; max-height: 300px; overflow-y: auto; font-size: 0.85rem;">{{ documento.trecho_contribuicao_empregado }}</pre>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </dd>
+
+                    <dt class="col-sm-4">Trecho Contrib. Patronal</dt>
+                    <dd class="col-sm-8">
+                        {% if documento.trecho_contribuicao_patronal %}
+                            <pre class="bg-light p-2 rounded border" style="white-space: pre-wrap; max-height: 300px; overflow-y: auto; font-size: 0.85rem;">{{ documento.trecho_contribuicao_patronal }}</pre>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </dd>
+
                     <dt class="col-sm-4">Status Extração</dt>
                     <dd class="col-sm-8">{{ documento.get_status_extracao_display }}</dd>
 
