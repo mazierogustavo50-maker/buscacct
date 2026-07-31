@@ -304,7 +304,6 @@ def extrair_dados_complementares_do_texto(texto):
     # ============================================================
     # 3. SEPARAÇÃO DE SEÇÕES: EMPREGADO vs PATRONAL
     # ============================================================
-    # Encontra o início de cada seção para evitar misturar valores
     marcadores_empregado = [
         r'CONTRIBUI[ÇC][ÃA]O\s*(?:NEGOCIAL|ASSISTENCIAL|SINDICAL)\s*PROFISSIONAL',
         r'CONTRIBUI[ÇC][ÃA]O\s*PROFISSIONAL',
@@ -352,93 +351,98 @@ def extrair_dados_complementares_do_texto(texto):
     # ============================================================
     # 4. CONTRIBUIÇÃO SINDICAL / NEGOCIAL EMPREGADO
     # ============================================================
-    # Estratégia: procurar na seção do empregado, priorizando valores
-    # próximos de palavras-chave de empregado (empregados, devida, descontado)
+    # Estratégia em 3 camadas:
+    #   A) Padrões específicos que combinam contexto + valor
+    #   B) Busca contextual por âncoras (trecho restrito ±250 chars)
+    #   C) Valores por extenso no trecho contextual
+    #   D) NENHUM fallback genérico na seção inteira
 
     def _extrair_valor_percentual(secao, palavras_chave_ancora, max_val=10000):
         """
         Procura na seção por valores percentuais ou em R$.
         Dá prioridade a valores próximos das palavras-chave de âncora.
+        NUNCA faz fallback genérico na seção inteira.
         """
-        # Primeiro: procurar por valores por extenso
-        extenso_map = {
-            'UM': 1, 'DOIS': 2, 'TRÊS': 3, 'TRES': 3, 'QUATRO': 4, 'CINCO': 5,
-            'SEIS': 6, 'SETE': 7, 'OITO': 8, 'NOVE': 9, 'DEZ': 10, 'ONZE': 11,
-            'DOZE': 12, 'TREZE': 13, 'CATORZE': 14, 'QUATORZE': 14, 'QUINZE': 15,
-            'DEZESSEIS': 16, 'DEZESSETE': 17, 'DEZOITO': 18, 'DEZENOVE': 19,
-            'VINTE': 20, 'TRINTA': 30, 'QUARENTA': 40, 'CINQUENTA': 50,
-            'SESSENTA': 60, 'SETENTA': 70, 'OITENTA': 80, 'NOVENTA': 90,
-            'CEM': 100, 'DUZENTOS': 200, 'TREZENTOS': 300, 'QUATROCENTOS': 400,
-            'QUINHENTOS': 500, 'SEISCENTOS': 600, 'SETECENTOS': 700,
-            'OITOCENTOS': 800, 'NOVECENTOS': 900, 'MIL': 1000,
-        }
-        # Padroniza: remove acentos
-        secao_norm = secao
-        secao_norm = re.sub(r'[ÁÀÂÃÄáàâãä]', 'A', secao_norm)
-        secao_norm = re.sub(r'[ÉÈÊËéèêë]', 'E', secao_norm)
-        secao_norm = re.sub(r'[ÍÌÎÏíìîï]', 'I', secao_norm)
-        secao_norm = re.sub(r'[ÓÒÔÕÖóòôõö]', 'O', secao_norm)
-        secao_norm = re.sub(r'[ÚÙÛÜúùûü]', 'U', secao_norm)
-        secao_norm = re.sub(r'[Çç]', 'C', secao_norm)
-        secao_norm = re.sub(r'[Êê]', 'E', secao_norm)
-        secao_norm = re.sub(r'[Ôô]', 'O', secao_norm)
-
-        # Procura por extenso: "TRÊS POR CENTO", "DOIS POR CENTO"
-        padroes_extenso = [
-            r'(UM|DOIS|TR[ÊE]S|QUATRO|CINCO|SEIS|SETE|OITO|NOVE|DEZ|ONZE|DOZE|TREZE|CATORZE|QUATORZE|QUINZE|DEZESSEIS|DEZESSETE|DEZOITO|DEZENOVE|VINTE|TRINTA|QUARENTA|CINQUENTA|SESSENTA|SETENTA|OITENTA|NOVENTA|CEM|DUZENTOS|TREZENTOS|QUATROCENTOS|QUINHENTOS|SEISCENTOS|SETECENTOS|OITOCENTOS|NOVECENTOS|MIL)\s+POR\s*CENTO',
-            r'(UM|DOIS|TR[ÊE]S|QUATRO|CINCO|SEIS|SETE|OITO|NOVE|DEZ|ONZE|DOZE|TREZE|CATORZE|QUATORZE|QUINZE|DEZESSEIS|DEZESSETE|DEZOITO|DEZENOVE|VINTE|TRINTA|QUARENTA|CINQUENTA|SESSENTA|SETENTA|OITENTA|NOVENTA|CEM|DUZENTOS|TREZENTOS|QUATROCENTOS|QUINHENTOS|SEISCENTOS|SETECENTOS|OITOCENTOS|NOVECENTOS|MIL)\s*\(\s*\w+\s*\)\s+POR\s*CENTO',
+        # ---- CAMADA A: Padrões específicos combinados ----
+        padroes_combinados = [
+            r'CONTRIBUI[ÇC][ÃA]O(?:\s*(?:NEGOCIAL|ASSISTENCIAL|SINDICAL))?\s*PROFISSIONAL[^\d]{0,300}([\d.,]+)\s*%',
+            r'CONTRIBUI[ÇC][ÃA]O(?:\s*(?:NEGOCIAL|ASSISTENCIAL|SINDICAL))?\s*PROFISSIONAL[^\d]{0,300}R\$\s*([\d.,]+)',
+            r'CONTRIBUI[ÇC][ÃA]O\s*(?:NEGOCIAL|ASSISTENCIAL)[^\d]{0,300}([\d.,]+)\s*%',
+            r'CONTRIBUI[ÇC][ÃA]O\s*(?:NEGOCIAL|ASSISTENCIAL)[^\d]{0,300}R\$\s*([\d.,]+)',
+            r'VALOR\s*CORRESPONDENTE[^\d]{0,100}A\s*([\d.,]+)\s*%',
+            r'VALOR\s*CORRESPONDENTE[^\d]{0,100}([\d.,]+)\s*%',
+            r'NO\s*VALOR\s*DE\s*R\$\s*([\d.,]+)',
+            r'TAXA\s*(?:NEGOCIAL|ASSISTENCIAL)[^\d]{0,200}([\d.,]+)\s*%',
+            r'TAXA\s*(?:NEGOCIAL|ASSISTENCIAL)[^\d]{0,200}R\$\s*([\d.,]+)',
         ]
-        for padrao_extenso in padroes_extenso:
-            m = re.search(padrao_extenso, secao_norm)
+        for padrao in padroes_combinados:
+            m = re.search(padrao, secao, re.DOTALL)
             if m:
-                palavra = m.group(1).strip().upper()
-                if palavra in extenso_map:
-                    val = extenso_map[palavra]
+                try:
+                    val_str = m.group(1).strip().replace(".", "").replace(",", ".")
+                    val = float(val_str)
                     if 0 < val < max_val:
-                        return val, True  # True = é percentual
+                        # Determina se é % ou R$ pelo padrão usado
+                        eh_pct = '%' in m.group(0) or 'POR CENTO' in m.group(0)
+                        return val, eh_pct
+                except (ValueError, AttributeError):
+                    continue
 
-        # Segundo: procurar por valores numéricos próximos de âncoras
-        # Busca contextual: divide a seção em trechos de ~800 chars e procura
-        # trechos que contenham palavras-chave de âncora
+        # ---- CAMADA B: Busca contextual por âncoras ----
         melhor_valor = None
         melhor_eh_percentual = False
 
         for ancora in palavras_chave_ancora:
             for match in re.finditer(ancora, secao):
-                inicio = max(0, match.start() - 300)
-                fim = min(len(secao), match.end() + 500)
+                inicio = max(0, match.start() - 250)
+                fim = min(len(secao), match.end() + 350)
                 trecho = secao[inicio:fim]
 
-                # Procura % no trecho
-                m_pct = re.search(r'([\d.,]+)\s*%', trecho)
-                if m_pct:
+                # Procura % no trecho (todos os matches, escolhe o mais próximo da âncora)
+                for m_pct in re.finditer(r'([\d.,]+)\s*%', trecho):
                     try:
                         val_str = m_pct.group(1).strip().replace(".", "").replace(",", ".")
                         val = float(val_str)
                         if 0 < val < max_val:
-                            melhor_valor = val
-                            melhor_eh_percentual = True
-                            break
+                            dist = abs(m_pct.start() - (match.end() - inicio))
+                            if melhor_valor is None or dist < melhor_dist:
+                                melhor_valor = val
+                                melhor_eh_percentual = True
+                                melhor_dist = dist
                     except (ValueError, AttributeError):
                         pass
 
                 # Procura R$ no trecho
-                m_rs = re.search(r'R\$\s*([\d.,]+)', trecho)
-                if m_rs:
+                for m_rs in re.finditer(r'R\$\s*([\d.,]+)', trecho):
                     try:
                         val_str = m_rs.group(1).strip().replace(".", "").replace(",", ".")
                         val = float(val_str)
                         if 0 < val < max_val:
-                            melhor_valor = val
-                            melhor_eh_percentual = False
-                            break
+                            dist = abs(m_rs.start() - (match.end() - inicio))
+                            if melhor_valor is None or dist < melhor_dist:
+                                melhor_valor = val
+                                melhor_eh_percentual = False
+                                melhor_dist = dist
                     except (ValueError, AttributeError):
                         pass
 
-                # Procura "por cento" por extenso no trecho
+                # ---- CAMADA C: Valores por extenso no trecho ----
+                extenso_map = {
+                    'UM': 1, 'DOIS': 2, 'TRÊS': 3, 'TRES': 3, 'QUATRO': 4, 'CINCO': 5,
+                    'SEIS': 6, 'SETE': 7, 'OITO': 8, 'NOVE': 9, 'DEZ': 10, 'ONZE': 11,
+                    'DOZE': 12, 'TREZE': 13, 'CATORZE': 14, 'QUATORZE': 14, 'QUINZE': 15,
+                    'DEZESSEIS': 16, 'DEZESSETE': 17, 'DEZOITO': 18, 'DEZENOVE': 19,
+                    'VINTE': 20, 'TRINTA': 30, 'QUARENTA': 40, 'CINQUENTA': 50,
+                    'SESSENTA': 60, 'SETENTA': 70, 'OITENTA': 80, 'NOVENTA': 90,
+                    'CEM': 100, 'DUZENTOS': 200, 'TREZENTOS': 300, 'QUATROCENTOS': 400,
+                    'QUINHENTOS': 500, 'SEISCENTOS': 600, 'SETECENTOS': 700,
+                    'OITOCENTOS': 800, 'NOVECENTOS': 900, 'MIL': 1000,
+                }
+                padroes_extenso = [
+                    r'(UM|DOIS|TR[ÊE]S|QUATRO|CINCO|SEIS|SETE|OITO|NOVE|DEZ|ONZE|DOZE|TREZE|CATORZE|QUATORZE|QUINZE|DEZESSEIS|DEZESSETE|DEZOITO|DEZENOVE|VINTE|TRINTA|QUARENTA|CINQUENTA|SESSENTA|SETENTA|OITENTA|NOVENTA|CEM|DUZENTOS|TREZENTOS|QUATROCENTOS|QUINHENTOS|SEISCENTOS|SETECENTOS|OITOCENTOS|NOVECENTOS|MIL)\s+POR\s*CENTO',
+                ]
                 for padrao_extenso in padroes_extenso:
-                    m_ext = re.search(padrao_extenso, trecho)
-                    if m_ext:
+                    for m_ext in re.finditer(padrao_extenso, trecho):
                         palavra = m_ext.group(1).strip().upper()
                         palavra = re.sub(r'[ÁÀÂÃÄáàâãä]', 'A', palavra)
                         palavra = re.sub(r'[ÉÈÊËéèêë]', 'E', palavra)
@@ -449,38 +453,20 @@ def extrair_dados_complementares_do_texto(texto):
                         if palavra in extenso_map:
                             val = extenso_map[palavra]
                             if 0 < val < max_val:
-                                melhor_valor = val
-                                melhor_eh_percentual = True
-                                break
-                if melhor_valor is not None:
-                    break
+                                dist = abs(m_ext.start() - (match.end() - inicio))
+                                if melhor_valor is None or dist < melhor_dist:
+                                    melhor_valor = val
+                                    melhor_eh_percentual = True
+                                    melhor_dist = dist
+
+            # Se já achou um valor próximo desta âncora, para
             if melhor_valor is not None:
                 break
 
         if melhor_valor is not None:
             return melhor_valor, melhor_eh_percentual
 
-        # Fallback: procura % ou R$ em toda a seção
-        m_pct = re.search(r'([\d.,]+)\s*%', secao)
-        if m_pct:
-            try:
-                val_str = m_pct.group(1).strip().replace(".", "").replace(",", ".")
-                val = float(val_str)
-                if 0 < val < max_val:
-                    return val, True
-            except (ValueError, AttributeError):
-                pass
-
-        m_rs = re.search(r'R\$\s*([\d.,]+)', secao)
-        if m_rs:
-            try:
-                val_str = m_rs.group(1).strip().replace(".", "").replace(",", ".")
-                val = float(val_str)
-                if 0 < val < max_val:
-                    return val, False
-            except (ValueError, AttributeError):
-                pass
-
+        # Sem fallback genérico — evita capturar reajustes, juros, multas etc.
         return None, False
 
     # Âncoras para empregado (do mais específico ao mais genérico)
@@ -513,8 +499,23 @@ def extrair_dados_complementares_do_texto(texto):
     }
     meses_encontrados = []
 
-    # Estratégia: procurar por "mês de XXXX" ou "mês de XXXX de YYYY"
-    # no contexto da seção do empregado
+    # Procura meses SOMENTE em trechos próximos de menções a contribuição/desconto
+    # na seção do empregado. Evita pegar meses aleatórios de outras cláusulas.
+    trechos_contribuicao = []
+    for m in re.finditer(r'CONTRIBUI[ÇC][ÃA]O', secao_empregado):
+        inicio = max(0, m.start() - 100)
+        fim = min(len(secao_empregado), m.end() + 400)
+        trechos_contribuicao.append(secao_empregado[inicio:fim])
+
+    # Também procura em trechos com "desconto", "cobrança", "devida"
+    for termo in [r'DESCONTO', r'COBRAN[ÇC]A', r'DEVIDA', r'VALOR\s*CORRESPONDENTE', r'RECOLHIDO']:
+        for m in re.finditer(termo, secao_empregado):
+            inicio = max(0, m.start() - 100)
+            fim = min(len(secao_empregado), m.end() + 300)
+            trecho = secao_empregado[inicio:fim]
+            if trecho not in trechos_contribuicao:
+                trechos_contribuicao.append(trecho)
+
     padroes_meses = [
         r'M[ÊE]S\s*DE\s*(\w+)(?:\s+DE\s+\d{4})?',
         r'DO\s*SAL[ÁA]RIO\s*DO\s*M[ÊE]S\s*DE\s*(\w+)(?:\s+DE\s+\d{4})?',
@@ -537,38 +538,30 @@ def extrair_dados_complementares_do_texto(texto):
         r'TODOS\s*OS\s*M[ÊE]S(?:ES)?',
     ]
 
-    for padrao in padroes_meses:
-        m = re.search(padrao, secao_empregado, re.DOTALL)
-        if m:
-            grupo = m.group(1).strip() if m.lastindex else None
-            if grupo:
-                # Pode ser lista: "JANEIRO, MARCO, MAIO e AGOSTO"
-                partes = re.split(r',|\s+E\s+|\s+OU\s+', grupo)
-                for parte in partes:
-                    parte_limpa = parte.strip().upper()
-                    parte_limpa = re.sub(r'[ÁÀÂÃÄáàâãä]', 'A', parte_limpa)
-                    parte_limpa = re.sub(r'[ÉÈÊËéèêë]', 'E', parte_limpa)
-                    parte_limpa = re.sub(r'[ÍÌÎÏíìîï]', 'I', parte_limpa)
-                    parte_limpa = re.sub(r'[ÓÒÔÕÖóòôõö]', 'O', parte_limpa)
-                    parte_limpa = re.sub(r'[ÚÙÛÜúùûü]', 'U', parte_limpa)
-                    parte_limpa = re.sub(r'[Çç]', 'C', parte_limpa)
-                    parte_limpa = re.sub(r'[^A-Z]', '', parte_limpa)
-                    if parte_limpa in meses_map and meses_map[parte_limpa] not in meses_encontrados:
-                        meses_encontrados.append(meses_map[parte_limpa])
-            elif not grupo:
-                if any(k in m.group(0) for k in ['12', 'DOZE', 'MENSAL', 'TODOS']):
-                    meses_encontrados = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ']
-                    break
-
-    # Também procura nomes de meses espalhados no texto em contexto de contribuição
-    if not meses_encontrados:
-        matches = re.finditer(r'CONTRIBUI[ÇC][ÃA]O.*?', secao_empregado)
-        for match in matches:
-            inicio = match.start()
-            trecho = secao_empregado[inicio:inicio+600]
-            for mes_nome, mes_sigla in meses_map.items():
-                if mes_nome in trecho and mes_sigla not in meses_encontrados:
-                    meses_encontrados.append(mes_sigla)
+    for trecho in trechos_contribuicao:
+        for padrao in padroes_meses:
+            m = re.search(padrao, trecho, re.DOTALL)
+            if m:
+                grupo = m.group(1).strip() if m.lastindex else None
+                if grupo:
+                    partes = re.split(r',|\s+E\s+|\s+OU\s+', grupo)
+                    for parte in partes:
+                        parte_limpa = parte.strip().upper()
+                        parte_limpa = re.sub(r'[ÁÀÂÃÄáàâãä]', 'A', parte_limpa)
+                        parte_limpa = re.sub(r'[ÉÈÊËéèêë]', 'E', parte_limpa)
+                        parte_limpa = re.sub(r'[ÍÌÎÏíìîï]', 'I', parte_limpa)
+                        parte_limpa = re.sub(r'[ÓÒÔÕÖóòôõö]', 'O', parte_limpa)
+                        parte_limpa = re.sub(r'[ÚÙÛÜúùûü]', 'U', parte_limpa)
+                        parte_limpa = re.sub(r'[Çç]', 'C', parte_limpa)
+                        parte_limpa = re.sub(r'[^A-Z]', '', parte_limpa)
+                        if parte_limpa in meses_map and meses_map[parte_limpa] not in meses_encontrados:
+                            meses_encontrados.append(meses_map[parte_limpa])
+                elif not grupo:
+                    if any(k in m.group(0) for k in ['12', 'DOZE', 'MENSAL', 'TODOS']):
+                        meses_encontrados = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ']
+                        break
+        if len(meses_encontrados) >= 12:
+            break
 
     # Ordena meses e remove duplicatas mantendo ordem
     ordem_meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ']
@@ -576,7 +569,7 @@ def extrair_dados_complementares_do_texto(texto):
     if meses_ordenados:
         resultado["contribuicao_sindical_empregado_meses"] = ", ".join(meses_ordenados)
     else:
-        resultado["contribuicao_sindical_empregado_meses"] = None
+        resultado["contribuicao_sindical_empregado_meses"] = ""
 
     # ============================================================
     # 6. CONTRIBUIÇÃO SINDICAL PATRONAL
