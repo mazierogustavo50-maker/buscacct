@@ -80,7 +80,18 @@
                     </dd>
 
                     <dt class="col-sm-4">Contrib. Sindical Patronal</dt>
-                    <dd class="col-sm-8">{{ documento.contribuicao_sindical_patronal|default:"-" }}</dd>
+                    <dd class="col-sm-8">
+                        {% if documento.contribuicao_sindical_patronal %}
+                            {{ documento.contribuicao_sindical_patronal }}
+                            {% if documento.contribuicao_sindical_patronal > 0 and documento.contribuicao_sindical_patronal < 100 %}
+                                %
+                            {% else %}
+                                (R$)
+                            {% endif %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </dd>
 
                     <dt class="col-sm-4">Status Extração</dt>
                     <dd class="col-sm-8">{{ documento.get_status_extracao_display }}</dd>

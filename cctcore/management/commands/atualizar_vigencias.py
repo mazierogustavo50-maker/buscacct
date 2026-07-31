@@ -236,6 +236,7 @@ def extrair_dados_complementares_do_texto(texto):
       - reajuste_percentual
       - contribuicao_sindical_empregado
       - contribuicao_sindical_patronal
+      - contribuicao_sindical_empregado_meses
     Retorna dict com as chaves acima.
     """
     resultado = {
@@ -301,54 +302,207 @@ def extrair_dados_complementares_do_texto(texto):
                 continue
 
     # ============================================================
-    # 3. CONTRIBUIÇÃO SINDICAL / NEGOCIAL EMPREGADO
+    # 3. SEPARAÇÃO DE SEÇÕES: EMPREGADO vs PATRONAL
     # ============================================================
-    padroes_empregado = [
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*(?:SINDICAL|NEGOCIAL|ASSISTENCIAL)\s*(?:DOS?\s*)?(?:EMPREGADOS?|TRABALHADORES?|EMPREGADO)\s*.*?([\d.,]+)\s*%',
-        r'TAXA\s*ASSISTENCIAL\s*(?:DOS?\s*)?(?:EMPREGADOS?|TRABALHADORES?)\s*.*?([\d.,]+)\s*%',
-        r'MENSALIDADE\s*(?:SINDICAL)?\s*(?:DOS?\s*)?(?:EMPREGADOS?|TRABALHADORES?)\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*NEGOCIAL\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*SINDICAL\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*(?:SINDICAL|NEGOCIAL)\s*.*?R\$\s*([\d.,]+)',
-        r'TAXA\s*ASSISTENCIAL\s*.*?R\$\s*([\d.,]+)',
-        # NOVOS PADRÕES
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*NEGOCIAL\s*PROFISSIONAL\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*NEGOCIAL\s*PROFISSIONAL\s*.*?R\$\s*([\d.,]+)',
-        r'TAXA\s*NEGOCIAL\s*.*?([\d.,]+)\s*%',
-        r'TAXA\s*NEGOCIAL\s*.*?R\$\s*([\d.,]+)',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL\s*.*?R\$\s*([\d.,]+)',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL\s*PROFISSIONAL\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL\s*PROFISSIONAL\s*.*?R\$\s*([\d.,]+)',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*PROFISSIONAL\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*PROFISSIONAL\s*.*?R\$\s*([\d.,]+)',
-        r'DESCONTADOS?\s*DO\s*EMPREGADO.*?([\d.,]+)\s*%',
-        r'DESCONTADOS?\s*DO\s*EMPREGADO.*?R\$\s*([\d.,]+)',
-        r'DEVIDA\s*POR\s*TODOS\s*OS\s*EMPREGADOS.*?([\d.,]+)\s*%',
-        r'DEVIDA\s*POR\s*TODOS\s*OS\s*EMPREGADOS.*?R\$\s*([\d.,]+)',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*CONFEDERATIVA\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*CONFEDERATIVA\s*.*?R\$\s*([\d.,]+)',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL\s*(?:SINDICAL)?\s*DOS?\s*EMPREGADOS?\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL\s*(?:SINDICAL)?\s*DOS?\s*EMPREGADOS?\s*.*?R\$\s*([\d.,]+)',
-        r'TAXA\s*CONFEDERATIVA\s*.*?([\d.,]+)\s*%',
-        r'TAXA\s*CONFEDERATIVA\s*.*?R\$\s*([\d.,]+)',
+    # Encontra o início de cada seção para evitar misturar valores
+    marcadores_empregado = [
+        r'CONTRIBUI[ÇC][ÃA]O\s*(?:NEGOCIAL|ASSISTENCIAL|SINDICAL)\s*PROFISSIONAL',
+        r'CONTRIBUI[ÇC][ÃA]O\s*PROFISSIONAL',
+        r'CONTRIBUI[ÇC][ÃA]O\s*(?:NEGOCIAL|ASSISTENCIAL)\s*(?:DOS?\s*)?EMPREGADOS',
+        r'CONTRIBUI[ÇC][ÃA]O\s*NEGOCIAL\s*EMPREGADO',
     ]
-    for padrao in padroes_empregado:
-        m = re.search(padrao, texto_upper, re.DOTALL)
+    marcadores_patronal = [
+        r'CONTRIBUI[ÇC][ÃA]O\s*(?:NEGOCIAL|SINDICAL|ASSISTENCIAL)\s*PATRONAL',
+        r'CONTRIBUI[ÇC][ÃA]O\s*PATRONAL',
+        r'CONTRIBUI[ÇC][ÃA]O\s*(?:DO|DOS)\s*EMPREGADOR',
+        r'CONTRIBUI[ÇC][ÃA]O\s*(?:NEGOCIAL|SINDICAL)\s*PATR[AÃ]O',
+    ]
+
+    pos_empregado = None
+    for padrao in marcadores_empregado:
+        m = re.search(padrao, texto_upper)
         if m:
-            try:
-                val_str = m.group(1).strip().replace(".", "").replace(",", ".")
-                val = float(val_str)
-                if 0 < val < 10000:
-                    resultado["contribuicao_sindical_empregado"] = val
-                    break
-            except (ValueError, AttributeError):
-                continue
+            pos_empregado = m.start()
+            break
+
+    pos_patronal = None
+    for padrao in marcadores_patronal:
+        m = re.search(padrao, texto_upper)
+        if m:
+            pos_patronal = m.start()
+            break
+
+    if pos_patronal is not None and pos_empregado is not None:
+        if pos_patronal < pos_empregado:
+            secao_patronal = texto_upper[pos_patronal:pos_empregado]
+            secao_empregado = texto_upper[pos_empregado:]
+        else:
+            secao_empregado = texto_upper[pos_empregado:pos_patronal]
+            secao_patronal = texto_upper[pos_patronal:]
+    elif pos_patronal is not None:
+        secao_patronal = texto_upper[pos_patronal:]
+        secao_empregado = texto_upper[:pos_patronal]
+    elif pos_empregado is not None:
+        secao_empregado = texto_upper[pos_empregado:]
+        secao_patronal = texto_upper[:pos_empregado]
+    else:
+        secao_empregado = texto_upper
+        secao_patronal = texto_upper
 
     # ============================================================
-    # 3b. MESES DE DESCONTO DA CONTRIBUIÇÃO
+    # 4. CONTRIBUIÇÃO SINDICAL / NEGOCIAL EMPREGADO
     # ============================================================
-    # Procura menção a meses específicos de desconto
+    # Estratégia: procurar na seção do empregado, priorizando valores
+    # próximos de palavras-chave de empregado (empregados, devida, descontado)
+
+    def _extrair_valor_percentual(secao, palavras_chave_ancora, max_val=10000):
+        """
+        Procura na seção por valores percentuais ou em R$.
+        Dá prioridade a valores próximos das palavras-chave de âncora.
+        """
+        # Primeiro: procurar por valores por extenso
+        extenso_map = {
+            'UM': 1, 'DOIS': 2, 'TRÊS': 3, 'TRES': 3, 'QUATRO': 4, 'CINCO': 5,
+            'SEIS': 6, 'SETE': 7, 'OITO': 8, 'NOVE': 9, 'DEZ': 10, 'ONZE': 11,
+            'DOZE': 12, 'TREZE': 13, 'CATORZE': 14, 'QUATORZE': 14, 'QUINZE': 15,
+            'DEZESSEIS': 16, 'DEZESSETE': 17, 'DEZOITO': 18, 'DEZENOVE': 19,
+            'VINTE': 20, 'TRINTA': 30, 'QUARENTA': 40, 'CINQUENTA': 50,
+            'SESSENTA': 60, 'SETENTA': 70, 'OITENTA': 80, 'NOVENTA': 90,
+            'CEM': 100, 'DUZENTOS': 200, 'TREZENTOS': 300, 'QUATROCENTOS': 400,
+            'QUINHENTOS': 500, 'SEISCENTOS': 600, 'SETECENTOS': 700,
+            'OITOCENTOS': 800, 'NOVECENTOS': 900, 'MIL': 1000,
+        }
+        # Padroniza: remove acentos
+        secao_norm = secao
+        secao_norm = re.sub(r'[ÁÀÂÃÄáàâãä]', 'A', secao_norm)
+        secao_norm = re.sub(r'[ÉÈÊËéèêë]', 'E', secao_norm)
+        secao_norm = re.sub(r'[ÍÌÎÏíìîï]', 'I', secao_norm)
+        secao_norm = re.sub(r'[ÓÒÔÕÖóòôõö]', 'O', secao_norm)
+        secao_norm = re.sub(r'[ÚÙÛÜúùûü]', 'U', secao_norm)
+        secao_norm = re.sub(r'[Çç]', 'C', secao_norm)
+        secao_norm = re.sub(r'[Êê]', 'E', secao_norm)
+        secao_norm = re.sub(r'[Ôô]', 'O', secao_norm)
+
+        # Procura por extenso: "TRÊS POR CENTO", "DOIS POR CENTO"
+        padroes_extenso = [
+            r'(UM|DOIS|TR[ÊE]S|QUATRO|CINCO|SEIS|SETE|OITO|NOVE|DEZ|ONZE|DOZE|TREZE|CATORZE|QUATORZE|QUINZE|DEZESSEIS|DEZESSETE|DEZOITO|DEZENOVE|VINTE|TRINTA|QUARENTA|CINQUENTA|SESSENTA|SETENTA|OITENTA|NOVENTA|CEM|DUZENTOS|TREZENTOS|QUATROCENTOS|QUINHENTOS|SEISCENTOS|SETECENTOS|OITOCENTOS|NOVECENTOS|MIL)\s+POR\s*CENTO',
+            r'(UM|DOIS|TR[ÊE]S|QUATRO|CINCO|SEIS|SETE|OITO|NOVE|DEZ|ONZE|DOZE|TREZE|CATORZE|QUATORZE|QUINZE|DEZESSEIS|DEZESSETE|DEZOITO|DEZENOVE|VINTE|TRINTA|QUARENTA|CINQUENTA|SESSENTA|SETENTA|OITENTA|NOVENTA|CEM|DUZENTOS|TREZENTOS|QUATROCENTOS|QUINHENTOS|SEISCENTOS|SETECENTOS|OITOCENTOS|NOVECENTOS|MIL)\s*\(\s*\w+\s*\)\s+POR\s*CENTO',
+        ]
+        for padrao_extenso in padroes_extenso:
+            m = re.search(padrao_extenso, secao_norm)
+            if m:
+                palavra = m.group(1).strip().upper()
+                if palavra in extenso_map:
+                    val = extenso_map[palavra]
+                    if 0 < val < max_val:
+                        return val, True  # True = é percentual
+
+        # Segundo: procurar por valores numéricos próximos de âncoras
+        # Busca contextual: divide a seção em trechos de ~800 chars e procura
+        # trechos que contenham palavras-chave de âncora
+        melhor_valor = None
+        melhor_eh_percentual = False
+
+        for ancora in palavras_chave_ancora:
+            for match in re.finditer(ancora, secao):
+                inicio = max(0, match.start() - 300)
+                fim = min(len(secao), match.end() + 500)
+                trecho = secao[inicio:fim]
+
+                # Procura % no trecho
+                m_pct = re.search(r'([\d.,]+)\s*%', trecho)
+                if m_pct:
+                    try:
+                        val_str = m_pct.group(1).strip().replace(".", "").replace(",", ".")
+                        val = float(val_str)
+                        if 0 < val < max_val:
+                            melhor_valor = val
+                            melhor_eh_percentual = True
+                            break
+                    except (ValueError, AttributeError):
+                        pass
+
+                # Procura R$ no trecho
+                m_rs = re.search(r'R\$\s*([\d.,]+)', trecho)
+                if m_rs:
+                    try:
+                        val_str = m_rs.group(1).strip().replace(".", "").replace(",", ".")
+                        val = float(val_str)
+                        if 0 < val < max_val:
+                            melhor_valor = val
+                            melhor_eh_percentual = False
+                            break
+                    except (ValueError, AttributeError):
+                        pass
+
+                # Procura "por cento" por extenso no trecho
+                for padrao_extenso in padroes_extenso:
+                    m_ext = re.search(padrao_extenso, trecho)
+                    if m_ext:
+                        palavra = m_ext.group(1).strip().upper()
+                        palavra = re.sub(r'[ÁÀÂÃÄáàâãä]', 'A', palavra)
+                        palavra = re.sub(r'[ÉÈÊËéèêë]', 'E', palavra)
+                        palavra = re.sub(r'[ÍÌÎÏíìîï]', 'I', palavra)
+                        palavra = re.sub(r'[ÓÒÔÕÖóòôõö]', 'O', palavra)
+                        palavra = re.sub(r'[ÚÙÛÜúùûü]', 'U', palavra)
+                        palavra = re.sub(r'[Çç]', 'C', palavra)
+                        if palavra in extenso_map:
+                            val = extenso_map[palavra]
+                            if 0 < val < max_val:
+                                melhor_valor = val
+                                melhor_eh_percentual = True
+                                break
+                if melhor_valor is not None:
+                    break
+            if melhor_valor is not None:
+                break
+
+        if melhor_valor is not None:
+            return melhor_valor, melhor_eh_percentual
+
+        # Fallback: procura % ou R$ em toda a seção
+        m_pct = re.search(r'([\d.,]+)\s*%', secao)
+        if m_pct:
+            try:
+                val_str = m_pct.group(1).strip().replace(".", "").replace(",", ".")
+                val = float(val_str)
+                if 0 < val < max_val:
+                    return val, True
+            except (ValueError, AttributeError):
+                pass
+
+        m_rs = re.search(r'R\$\s*([\d.,]+)', secao)
+        if m_rs:
+            try:
+                val_str = m_rs.group(1).strip().replace(".", "").replace(",", ".")
+                val = float(val_str)
+                if 0 < val < max_val:
+                    return val, False
+            except (ValueError, AttributeError):
+                pass
+
+        return None, False
+
+    # Âncoras para empregado (do mais específico ao mais genérico)
+    palavras_chave_empregado = [
+        r'CONTRIBUI[ÇC][ÃA]O\s*(?:NEGOCIAL|ASSISTENCIAL)\s*PROFISSIONAL',
+        r'CONTRIBUI[ÇC][ÃA]O\s*PROFISSIONAL',
+        r'DEVIDA\s+POR\s+TODOS\s+OS\s+EMPREGADOS',
+        r'INTEGRANTES\s*DA\s*CATEGORIA\s*PROFISSIONAL',
+        r'DO\s*SAL[ÁA]RIO\s*DO\s*M[ÊE]S',
+        r'DESCONTADOS?\s*DO\s*EMPREGADO',
+        r'TAXA\s*(?:NEGOCIAL|ASSISTENCIAL)',
+    ]
+
+    val_emp, eh_pct_emp = _extrair_valor_percentual(
+        secao_empregado, palavras_chave_empregado, max_val=10000
+    )
+    if val_emp is not None:
+        resultado["contribuicao_sindical_empregado"] = val_emp
+
+    # ============================================================
+    # 5. MESES DE DESCONTO DA CONTRIBUIÇÃO (empregado)
+    # ============================================================
     meses_map = {
         'JANEIRO': 'JAN', 'FEVEREIRO': 'FEV', 'MARCO': 'MAR', 'ABRIL': 'ABR',
         'MAIO': 'MAI', 'JUNHO': 'JUN', 'JULHO': 'JUL', 'AGOSTO': 'AGO',
@@ -359,71 +513,59 @@ def extrair_dados_complementares_do_texto(texto):
     }
     meses_encontrados = []
 
-    # Estratégia 3b.1: "desconto no mês de XXXXX" ou "descontada em XXXXX"
+    # Estratégia: procurar por "mês de XXXX" ou "mês de XXXX de YYYY"
+    # no contexto da seção do empregado
     padroes_meses = [
-        r'(?:DESCONTO|DESCONTADA|COBRAN[\u00c7C]A|ARRECADA[\u00c7C][\u00c3A]O)\s*(?:NO|NA|EM)\s*M[\u00caE]S\s*DE\s*(\w+)',
-        r'(?:DESCONTO|DESCONTADA|COBRAN[\u00c7C]A)\s*(?:NO|NA|EM)\s*(\w+)',
-        r'COBRAN[\u00c7C]A\s*ESPECIAL\s*(?:NO|NA|EM)\s*(\w+)',
-        r'COBRAN[\u00c7C]A\s*(?:NEGOCIAL|SINDICAL|ASSISTENCIAL)\s*(?:NO|NA|EM)\s*(\w+)',
+        r'M[ÊE]S\s*DE\s*(\w+)(?:\s+DE\s+\d{4})?',
+        r'DO\s*SAL[ÁA]RIO\s*DO\s*M[ÊE]S\s*DE\s*(\w+)(?:\s+DE\s+\d{4})?',
+        r'DESCONTADO.*?M[ÊE]S\s*DE\s*(\w+)(?:\s+DE\s+\d{4})?',
+        r'COBRAN[ÇC]A.*?M[ÊE]S\s*DE\s*(\w+)(?:\s+DE\s+\d{4})?',
+        r'NO\s*M[ÊE]S\s*DE\s*(\w+)(?:\s+DE\s+\d{4})?',
+        r'EM\s*(\w+)(?:\s+DE\s+\d{4})?.*?DESCONTO',
+        r'NOS?\s*M[ÊE]S(?:ES)?\s*DE\s*(.+?)(?:\.|;|,)',
+        r'(?:DESCONTO|DESCONTADA|COBRAN[ÇC]A|ARRECADA[ÇC][ÃA]O)\s*(?:NO|NA|EM)\s*M[ÊE]S\s*DE\s*(\w+)',
+        r'(?:DESCONTO|DESCONTADA|COBRAN[ÇC]A)\s*(?:NO|NA|EM)\s*(\w+)',
         r'VERBA\s*DESCONTADA\s*(?:NO|NA|EM)\s*(\w+)',
-        r'IMPORT[\u00c2A]NCIA\s*DESCONTADA\s*(?:NO|NA|EM)\s*(\w+)',
-        r'RETEN[\u00c7C][\u00c3A]O\s*(?:NO|NA|EM)\s*(\w+)',
-        r'ARRECADA[\u00c7C][\u00c3A]O\s*(?:NO|NA|EM)\s*(\w+)',
+        r'IMPORT[ÂA]NCIA\s*DESCONTADA\s*(?:NO|NA|EM)\s*(\w+)',
+        r'RETEN[ÇC][ÃA]O\s*(?:NO|NA|EM)\s*(\w+)',
+        r'ARRECADA[ÇC][ÃA]O\s*(?:NO|NA|EM)\s*(\w+)',
         r'DESCONTAR\s*(?:NO|NA|EM)\s*(\w+)',
         r'COBRAR\s*(?:NO|NA|EM)\s*(\w+)',
-        # Padrão de lista: "nos meses de JANEIRO, MARCO, MAIO e AGOSTO"
-        r'(?:NOS?\s*M[\u00caE]S(?:ES)?\s*DE)\s*(.+?)(?:\.|;|,)',
-        r'(?:DESCONTO|DESCONTADA)\s*NOS?\s*M[\u00caE]S(?:ES)?\s*DE\s*(.+?)(?:\.|;|,)',
-        r'(?:COBRAN[\u00c7C]A)\s*NOS?\s*M[\u00caE]S(?:ES)?\s*DE\s*(.+?)(?:\.|;|,)',
-        # Padrão: "mensal" = 12x
-        r'12\s*(?:PARCELAS?|VEZES?|X|PRESTA[\u00c7C][\u00d5O]ES?)',
-        r'DOZE\s*(?:PARCELAS?|VEZES?|PRESTA[\u00c7C][\u00d5O]ES?)',
+        r'12\s*(?:PARCELAS?|VEZES?|X|PRESTA[ÇC][ÕO]ES?)',
+        r'DOZE\s*(?:PARCELAS?|VEZES?|PRESTA[ÇC][ÕO]ES?)',
         r'MENSALMENTE|MENSAL',
-        r'TODOS\s*OS\s*M[\u00caE]S(?:ES)?',
+        r'TODOS\s*OS\s*M[ÊE]S(?:ES)?',
     ]
+
     for padrao in padroes_meses:
-        m = re.search(padrao, texto_upper, re.DOTALL)
+        m = re.search(padrao, secao_empregado, re.DOTALL)
         if m:
             grupo = m.group(1).strip() if m.lastindex else None
-            # Se for padrão de lista de meses (captura grupo genérico)
-            if grupo and ('E' in grupo or ',' in grupo or 'E' in grupo):
-                # Quebra por vírgula, 'E', 'OU'
+            if grupo:
+                # Pode ser lista: "JANEIRO, MARCO, MAIO e AGOSTO"
                 partes = re.split(r',|\s+E\s+|\s+OU\s+', grupo)
                 for parte in partes:
                     parte_limpa = parte.strip().upper()
-                    # Remove acentos
-                    parte_limpa = re.sub(r'[\u00c1\u00c0\u00c2\u00c3\u00c4\u00e1\u00e0\u00e2\u00e3\u00e4]', 'A', parte_limpa)
-                    parte_limpa = re.sub(r'[\u00c9\u00c8\u00ca\u00cb\u00e9\u00e8\u00ea\u00eb]', 'E', parte_limpa)
-                    parte_limpa = re.sub(r'[\u00cd\u00cc\u00ce\u00cf\u00ed\u00ec\u00ee\u00ef]', 'I', parte_limpa)
-                    parte_limpa = re.sub(r'[\u00d3\u00d2\u00d4\u00d5\u00d6\u00f3\u00f2\u00f4\u00f5\u00f6]', 'O', parte_limpa)
-                    parte_limpa = re.sub(r'[\u00da\u00d9\u00db\u00dc\u00fa\u00f9\u00fb\u00fc]', 'U', parte_limpa)
-                    parte_limpa = re.sub(r'[\u00c7\u00e7]', 'C', parte_limpa)
+                    parte_limpa = re.sub(r'[ÁÀÂÃÄáàâãä]', 'A', parte_limpa)
+                    parte_limpa = re.sub(r'[ÉÈÊËéèêë]', 'E', parte_limpa)
+                    parte_limpa = re.sub(r'[ÍÌÎÏíìîï]', 'I', parte_limpa)
+                    parte_limpa = re.sub(r'[ÓÒÔÕÖóòôõö]', 'O', parte_limpa)
+                    parte_limpa = re.sub(r'[ÚÙÛÜúùûü]', 'U', parte_limpa)
+                    parte_limpa = re.sub(r'[Çç]', 'C', parte_limpa)
                     parte_limpa = re.sub(r'[^A-Z]', '', parte_limpa)
-                    if parte_limpa in meses_map:
+                    if parte_limpa in meses_map and meses_map[parte_limpa] not in meses_encontrados:
                         meses_encontrados.append(meses_map[parte_limpa])
-            elif grupo:
-                # Mês único
-                parte_limpa = re.sub(r'[\u00c1\u00c0\u00c2\u00c3\u00c4\u00e1\u00e0\u00e2\u00e3\u00e4]', 'A', grupo.upper())
-                parte_limpa = re.sub(r'[\u00c9\u00c8\u00ca\u00cb\u00e9\u00e8\u00ea\u00eb]', 'E', parte_limpa)
-                parte_limpa = re.sub(r'[\u00cd\u00cc\u00ce\u00cf\u00ed\u00ec\u00ee\u00ef]', 'I', parte_limpa)
-                parte_limpa = re.sub(r'[\u00d3\u00d2\u00d4\u00d5\u00d6\u00f3\u00f2\u00f4\u00f5\u00f6]', 'O', parte_limpa)
-                parte_limpa = re.sub(r'[\u00da\u00d9\u00db\u00dc\u00fa\u00f9\u00fb\u00fc]', 'U', parte_limpa)
-                parte_limpa = re.sub(r'[\u00c7\u00e7]', 'C', parte_limpa)
-                parte_limpa = re.sub(r'[^A-Z]', '', parte_limpa)
-                if parte_limpa in meses_map:
-                    meses_encontrados.append(meses_map[parte_limpa])
-            elif not grupo and ('12' in m.group(0) or 'DOZE' in m.group(0) or 'MENSAL' in m.group(0) or 'TODOS' in m.group(0)):
-                # 12x ao ano = todos os meses
-                meses_encontrados = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ']
-                break
+            elif not grupo:
+                if any(k in m.group(0) for k in ['12', 'DOZE', 'MENSAL', 'TODOS']):
+                    meses_encontrados = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ']
+                    break
 
     # Também procura nomes de meses espalhados no texto em contexto de contribuição
     if not meses_encontrados:
-        # Procura por "CONTRIBUIÇÃO" seguido de até 500 chars e depois um mês
-        matches = re.finditer(r'CONTRIBUI[\u00c7C][\u00c3A]O.*?', texto_upper)
+        matches = re.finditer(r'CONTRIBUI[ÇC][ÃA]O.*?', secao_empregado)
         for match in matches:
             inicio = match.start()
-            trecho = texto_upper[inicio:inicio+600]
+            trecho = secao_empregado[inicio:inicio+600]
             for mes_nome, mes_sigla in meses_map.items():
                 if mes_nome in trecho and mes_sigla not in meses_encontrados:
                     meses_encontrados.append(mes_sigla)
@@ -437,26 +579,21 @@ def extrair_dados_complementares_do_texto(texto):
         resultado["contribuicao_sindical_empregado_meses"] = None
 
     # ============================================================
-    # 4. CONTRIBUIÇÃO SINDICAL PATRONAL
+    # 6. CONTRIBUIÇÃO SINDICAL PATRONAL
     # ============================================================
-    padroes_patronal = [
-        r'CONTRIBUI[ÇC][ÃA]O\s*(?:SINDICAL|NEGOCIAL|ASSISTENCIAL)\s*(?:DOS?\s*)?(?:PATRONAL|PATRONAIS|EMPREGADORES?|EMPRESAS?)\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[ÇC][ÃA]O\s*PATRONAL\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[ÇC][ÃA]O\s*(?:SINDICAL|NEGOCIAL)\s*(?:DO\s*)?(?:EMPREGADOR|PATR[ÃA]O)\s*.*?([\d.,]+)\s*%',
-        r'CONTRIBUI[ÇC][ÃA]O\s*(?:SINDICAL|NEGOCIAL)\s*(?:DO\s*)?EMPREGADOR\s*.*?R\$\s*([\d.,]+)',
-        r'CONTRIBUI[ÇC][ÃA]O\s*PATRONAL\s*.*?R\$\s*([\d.,]+)',
-    ]
-    for padrao in padroes_patronal:
-        m = re.search(padrao, texto_upper, re.DOTALL)
-        if m:
-            try:
-                val_str = m.group(1).strip().replace(".", "").replace(",", ".")
-                val = float(val_str)
-                if 0 < val < 100000:
-                    resultado["contribuicao_sindical_patronal"] = val
-                    break
-            except (ValueError, AttributeError):
-                continue
+    if secao_patronal:
+        palavras_chave_patronal = [
+            r'CONTRIBUI[ÇC][ÃA]O\s*(?:NEGOCIAL|SINDICAL|ASSISTENCIAL)\s*PATRONAL',
+            r'CONTRIBUI[ÇC][ÃA]O\s*PATRONAL',
+            r'FOLHA\s*DE\s*PAGAMENTO',
+            r'SOBRE\s*O\s*VALOR\s*TOTAL',
+            r'EMPREGADORES\s*FILIADOS',
+        ]
+        val_pat, eh_pct_pat = _extrair_valor_percentual(
+            secao_patronal, palavras_chave_patronal, max_val=100000
+        )
+        if val_pat is not None:
+            resultado["contribuicao_sindical_patronal"] = val_pat
 
     return resultado
 
