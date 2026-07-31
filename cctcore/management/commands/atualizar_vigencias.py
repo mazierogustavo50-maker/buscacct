@@ -344,6 +344,17 @@ def extrair_dados_complementares_do_texto(texto):
     # 3. SEPARAÇÃO DE SEÇÕES: EMPREGADO vs PATRONAL
     # ============================================================
     marcadores_empregado = [
+        # Flexíveis: permitem texto intermediário (até 50 chars)
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}SINDICAL.{0,50}(?:DOS?\s*)?EMPREGAD',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}NEGOCIAL(?!\s*PATRONAL)',  # negocial que não seja patronal
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}ASSISTENCIAL(?!\s*PATRONAL)',  # assistencial que não seja patronal
+        r'TAXA\s*NEGOCIAL(?!\s*PATRONAL)',
+        r'TAXA\s*ASSISTENCIAL(?!\s*PATRONAL)',
+        r'TAXA\s*SINDICAL(?!\s*PATRONAL)',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}PROFISSIONAL',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}(?:NEGOCIAL|ASSISTENCIAL).{0,50}(?:DOS?\s*)?EMPREGAD',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}NEGOCIAL.{0,20}EMPREGAD',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}DOS\s*TRABALHAD',
         # Padrões mais flexíveis: permitem texto intermediário (até 50 chars)
         r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}(?:NEGOCIAL|ASSISTENCIAL|SINDICAL).{0,50}PROFISSIONAL',
         r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,30}PROFISSIONAL',
@@ -356,8 +367,13 @@ def extrair_dados_complementares_do_texto(texto):
         r'CONTRIBUI[\u00c7C][\u00c3A]O\s*NEGOCIAL\s*EMPREGADO',
     ]
     marcadores_patronal = [
-        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}(?:NEGOCIAL|SINDICAL|ASSISTENCIAL).{0,50}PATRONAL',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}NEGOCIAL.{0,50}PATRONAL',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}ASSISTENCIAL.{0,50}PATRONAL',
+        r'TAXA\s*NEGOCIAL.{0,30}PATRONAL',
+        r'TAXA\s*ASSISTENCIAL.{0,30}PATRONAL',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}EMPREGADOR',
         r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}PATRONAL',
+        r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}(?:NEGOCIAL|SINDICAL|ASSISTENCIAL).{0,50}PATRONAL',
         r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,30}(?:DO|DOS)\s*EMPREGADOR',
         r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}(?:NEGOCIAL|SINDICAL).{0,20}PATR[A\u00c3]O',
         # Padrões estritos originais
@@ -367,19 +383,22 @@ def extrair_dados_complementares_do_texto(texto):
         r'CONTRIBUI[\u00c7C][\u00c3A]O\s*(?:NEGOCIAL|SINDICAL)\s*PATR[A\u00c3]O',
     ]
 
+    # Colhe TODAS as posições de TODOS os marcadores (não apenas o primeiro match).
+    # Depois usa a posição mais cedo no texto, garantindo que a primeira cláusula
+    # de contribuição empregado seja capturada mesmo se houver vários tipos.
     pos_empregado = None
     for padrao in marcadores_empregado:
         m = re.search(padrao, texto_upper)
         if m:
-            pos_empregado = m.start()
-            break
+            if pos_empregado is None or m.start() < pos_empregado:
+                pos_empregado = m.start()
 
     pos_patronal = None
     for padrao in marcadores_patronal:
         m = re.search(padrao, texto_upper)
         if m:
-            pos_patronal = m.start()
-            break
+            if pos_patronal is None or m.start() < pos_patronal:
+                pos_patronal = m.start()
 
     if pos_patronal is not None and pos_empregado is not None:
         if pos_patronal < pos_empregado:
@@ -423,7 +442,7 @@ def extrair_dados_complementares_do_texto(texto):
             r'\n\s*ANEXO',
         ]:
             m = re.search(delim, trecho_busca)
-            if m and m.start() > 100:  # evita parar muito cedo
+            if m and m.start() > 200:  # evita parar muito cedo
                 fim_delimitadores.append(inicio + m.start())
         if fim_delimitadores and pos_fim is not None:
             fim = min(min(fim_delimitadores), pos_fim)
@@ -432,21 +451,24 @@ def extrair_dados_complementares_do_texto(texto):
         elif pos_fim is not None:
             fim = pos_fim
         else:
-            fim = inicio + max_chars
+            # Fallback: se nenhum delimitador encontrado, amplia a busca
+            fim = inicio + 2500
         trecho = texto_original[inicio:fim].strip()
         trecho = re.sub(r'\n+', '\n', trecho)
         trecho = re.sub(r'[ \t]+', ' ', trecho)
-        return trecho if len(trecho) > 20 else None
+        if len(trecho) < 30:
+            return None
+        return trecho
 
     resultado["trecho_contribuicao_empregado"] = _extrair_trecho_da_posicao(
         texto, pos_empregado,
         pos_patronal if pos_patronal is not None and pos_empregado is not None and pos_patronal > pos_empregado else None,
-        max_chars=1800
+        max_chars=2500
     )
     resultado["trecho_contribuicao_patronal"] = _extrair_trecho_da_posicao(
         texto, pos_patronal,
         pos_empregado if pos_empregado is not None and pos_patronal is not None and pos_empregado > pos_patronal else None,
-        max_chars=1800
+        max_chars=2500
     )
 
     # Fallback: se ainda não achou trecho empregado, tenta busca por mais marcadores
@@ -460,6 +482,18 @@ def extrair_dados_complementares_do_texto(texto):
             r'CONTRIBUI[\u00c7C][\u00c3A]O.{0,50}NEGOCIAL.{0,30}TRABALHADORES',
             r'TAXA\s*NEGOCIAL.{0,30}PROFISSIONAL',
             r'TAXA\s*ASSISTENCIAL.{0,30}PROFISSIONAL',
+            # Fallback amplo: captura casos sem "EMPREGADO" explícito
+            r'TAXA\s*NEGOCIAL',
+            r'TAXA\s*ASSISTENCIAL',
+            r'TAXA\s*SINDICAL',
+            r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL',
+            r'CONTRIBUI[\u00c7C][\u00c3A]O\s*NEGOCIAL(?!.*PATRONAL)',
+            r'CONTRIBUI[\u00c7C][\u00c3A]O\s*SINDICAL(?!.*PATRONAL)',
+            r'CONTRIBUI[\u00c7C][\u00c3A]O\s*DOS\s*EMPREGAD',
+            r'CONTRIBUI[\u00c7C][\u00c3A]O\s*DOS\s*TRABALHAD',
+            r'DESCONTO\s+(?:DA|DO)\s+CONTRIBUI',
+            r'DESCONTO\s+PREVIDENCI[ÁA]RIA',
+            r'EMPREGADO.*?CONTRIBUI[\u00c7C][\u00c3A]O',
             # Estritos originais
             r'CONTRIBUI[\u00c7C][\u00c3A]O\s*SINDICAL\s*EMPREGADO',
             r'CONTRIBUI[\u00c7C][\u00c3A]O\s*ASSISTENCIAL\s*EMPREGADO',
@@ -473,7 +507,7 @@ def extrair_dados_complementares_do_texto(texto):
             m = re.search(padrao, texto, re.IGNORECASE)
             if m:
                 resultado["trecho_contribuicao_empregado"] = _extrair_trecho_da_posicao(
-                    texto, m.start(), None, max_chars=1800
+                    texto, m.start(), None, max_chars=2500
                 )
                 break
 
@@ -607,6 +641,11 @@ def extrair_dados_complementares_do_texto(texto):
         r'DO\s*SAL[ÁA]RIO\s*DO\s*M[ÊE]S',
         r'DESCONTADOS?\s*DO\s*EMPREGADO',
         r'TAXA\s*(?:NEGOCIAL|ASSISTENCIAL)',
+        r'TAXA\s*NEGOCIAL',
+        r'TAXA\s*ASSISTENCIAL',
+        r'CONTRIBUI[ÇC][ÃA]O\s*ASSISTENCIAL(?!.*PATRONAL)',
+        r'CONTRIBUI[ÇC][ÃA]O\s*NEGOCIAL(?!.*PATRONAL)',
+        r'CONTRIBUI[ÇC][ÃA]O\s*SINDICAL(?!.*PATRONAL)',
     ]
 
     val_emp, eh_pct_emp = _extrair_valor_percentual(

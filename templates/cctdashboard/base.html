@@ -50,13 +50,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link{% if request.resolver_match.url_name == 'atualizar_vigencias' %} active{% endif %}" href="{% url 'cctdashboard:atualizar_vigencias' %}">
-                            <i class="bi bi-arrow-repeat me-1"></i>Atualizar Vigências
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link{% if request.resolver_match.url_name == 'reanalisar_disponiveis' %} active{% endif %}" href="{% url 'cctdashboard:reanalisar_disponiveis' %}">
-                            <i class="bi bi-arrow-counterclockwise me-1"></i>Reanalisar
+                        <a class="nav-link{% if request.resolver_match.url_name == 'analisar_ccts' %} active{% endif %}" href="{% url 'cctdashboard:analisar_ccts' %}">
+                            <i class="bi bi-gear-wide-connected me-1"></i>Analisar CCTs
                         </a>
                     </li>
                     <li class="nav-item">

@@ -47,8 +47,9 @@ urlpatterns = [
     path("agendamentos/<int:pk>/excluir/", views.excluir_agendamento, name="excluir_agendamento"),
     # Relatório
     path("relatorio/", views.relatorio_execucoes, name="relatorio_execucoes"),
-    # Atualizar vigências de documentos existentes
+    # Analisar CCTs (visão unificada: datas / completo / completo+IA)
+    path("analisar-ccts/", views.analisar_ccts, name="analisar_ccts"),
+    # URLs mantidas por compatibilidade — redirecionam para a visão unificada
     path("atualizar-vigencias/", views.atualizar_vigencias, name="atualizar_vigencias"),
-    # Reanalisar CCTs já disponíveis
     path("reanalisar-disponiveis/", views.reanalisar_disponiveis, name="reanalisar_disponiveis"),
 ]
