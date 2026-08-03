@@ -1179,7 +1179,7 @@ def _thread_analisar_ccts(sindicato_codigo, modo, apenas_vazios, limite):
             _estado_analisar["erros"] += 1
             continue
 
-        texto = extrair_texto_pdf(caminho_pdf, max_paginas=10)
+        texto = extrair_texto_pdf(caminho_pdf)
         if not texto or texto.startswith("[ERRO"):
             _estado_analisar["erro_pdf"] += 1
             _estado_analisar["erros"] += 1

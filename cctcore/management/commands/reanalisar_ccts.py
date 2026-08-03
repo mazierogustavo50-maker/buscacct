@@ -123,7 +123,7 @@ class Command(BaseCommand):
                 continue
 
             # Extrai texto do PDF
-            texto = extrair_texto_pdf(caminho_pdf, max_paginas=10)
+            texto = extrair_texto_pdf(caminho_pdf)
             if not texto or texto.startswith("[ERRO"):
                 self.stdout.write(self.style.WARNING(f"  Falha ao extrair texto do PDF."))
                 erros += 1
@@ -227,6 +227,9 @@ class Command(BaseCommand):
                 sem_mudanca += 1
 
             # --- Análise com IA (opcional) ---
+            if com_ia and analisar_cct_com_ia is None:
+                self.stdout.write("  IA indisponível: integração não carregada.")
+                erros += 1
             if com_ia and not dry_run and analisar_cct_com_ia:
                 try:
                     resultado = analisar_cct_com_ia(texto)
@@ -280,6 +283,19 @@ class Command(BaseCommand):
                             doc.contribuicao_sindical_patronal = cp
                             if "contribuicao_sindical_patronal" not in campos_ia:
                                 campos_ia.append("contribuicao_sindical_patronal")
+
+                        meses_ia = ia_json.get("contribuicao_sindical_empregado_meses")
+                        if isinstance(meses_ia, list):
+                            nomes = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"]
+                            validos = sorted({int(m) for m in meses_ia if str(m).isdigit() and 1 <= int(m) <= 12})
+                            if validos:
+                                doc.contribuicao_sindical_empregado_meses = ", ".join(nomes[m - 1] for m in validos)
+                                campos_ia.append("contribuicao_sindical_empregado_meses")
+                        for chave, campo in (("evidencia_empregado", "trecho_contribuicao_empregado"), ("evidencia_patronal", "trecho_contribuicao_patronal")):
+                            evidencia = ia_json.get(chave)
+                            if evidencia:
+                                setattr(doc, campo, str(evidencia))
+                                campos_ia.append(campo)
 
                         doc.status_analise_ia = DocumentoCCT.STATUS_ANALISE_CONCLUIDO
                         doc.analise_ia_json = ia_json

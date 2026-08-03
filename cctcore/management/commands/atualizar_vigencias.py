@@ -84,7 +84,7 @@ def extrair_datas_do_texto(texto):
 
     # Estratégia 1a: "VIGENCIA DE DD/MM/AAAA A DD/MM/AAAA"
     m = re.search(
-        r'VIGEN[CGÇ][IA]*\s*(?:DE)?\s*(\d{2}[/-]\d{2}[/-]\d{4})\s*(?:A|AT[EÉ]|–|-)\s*(\d{2}[/-]\d{2}[/-]\d{4})',
+        r'VIG[ÊE]NCI?A\s*(?:DE)?\s*(\d{2}[/-]\d{2}[/-]\d{4})\s*(?:A|AT[EÉ]|–|-)\s*(\d{2}[/-]\d{2}[/-]\d{4})',
         texto_upper
     )
     if m:
@@ -94,7 +94,7 @@ def extrair_datas_do_texto(texto):
     # Estratégia 1b: "VIGÊNCIA: DD/MM/AAAA - DD/MM/AAAA"
     if not resultado["data_inicio"]:
         m = re.search(
-            r'VIGEN[CGÇ][IA]*\s*[:\-]\s*(\d{2}[/-]\d{2}[/-]\d{4})\s*(?:A|AT[EÉ]|–|-)\s*(\d{2}[/-]\d{2}[/-]\d{4})',
+            r'VIG[ÊE]NCI?A\s*[:\-]\s*(\d{2}[/-]\d{2}[/-]\d{4})\s*(?:A|AT[EÉ]|–|-)\s*(\d{2}[/-]\d{2}[/-]\d{4})', 
             texto_upper
         )
         if m:
@@ -104,7 +104,7 @@ def extrair_datas_do_texto(texto):
     # Estratégia 1c: "PERÍODO DE VIGÊNCIA" ou "PRAZO DE VIGÊNCIA"
     if not resultado["data_inicio"]:
         m = re.search(
-            r'(?:PER[IÍ]ODO|PRAZO)\s*DE\s*VIGEN[CGÇ][IA]*.*?([\d]{2}[/-][\d]{2}[/-][\d]{4}).*?(?:A|AT[EÉ]|–|-).*?([\d]{2}[/-][\d]{2}[/-][\d]{4})',
+            r'(?:PER[IÍ]ODO|PRAZO)\s*DE\s*VIG[ÊE]NCI?A.*?([\d]{2}[/-][\d]{2}[/-][\d]{4}).*?(?:A|AT[EÉ]|–|-).*?([\d]{2}[/-][\d]{2}[/-][\d]{4})',
             texto_upper, re.DOTALL
         )
         if m:
@@ -834,7 +834,7 @@ class Command(BaseCommand):
                 continue
 
             # Extrai texto do PDF
-            texto = extrair_texto_pdf(caminho_pdf, max_paginas=10)
+            texto = extrair_texto_pdf(caminho_pdf)
             if not texto or texto.startswith("[ERRO"):
                 self.stdout.write(self.style.WARNING(f"  Falha ao extrair texto do PDF."))
                 erro_pdf += 1
