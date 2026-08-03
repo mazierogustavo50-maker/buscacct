@@ -2,8 +2,11 @@ import json
 import os
 import pdfplumber
 import requests
-from django.conf import settings
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
+from django.conf import settings
 
 
 def extrair_texto_pdf(caminho_pdf: str, max_paginas: int = 0) -> str:
@@ -33,6 +36,41 @@ def extrair_texto_pdf(caminho_pdf: str, max_paginas: int = 0) -> str:
         return f"[ERRO ao ler PDF: {e}]"
 
     return "\n\n".join(texto_paginas)
+
+
+def garantir_ocr_pdf(caminho_pdf: str, modo: str = "auto", idioma: str = "por+eng") -> str:
+    """Garante PDF pesquisável. Retorna o mesmo caminho ou uma cópia com sufixo _ocr."""
+    if not caminho_pdf or modo == "nunca":
+        return caminho_pdf
+    caminho = Path(caminho_pdf)
+    if not caminho.exists() or caminho.suffix.lower() != ".pdf":
+        return caminho_pdf
+    texto_atual = extrair_texto_pdf(str(caminho), max_paginas=3)
+    precisa = modo == "sempre" or len("".join(texto_atual.split())) < 80
+    if not precisa:
+        return caminho_pdf
+    ocr_path = caminho.with_name(f"{caminho.stem}_ocr.pdf")
+    if ocr_path.exists() and ocr_path.stat().st_mtime >= caminho.stat().st_mtime and modo != "sempre":
+        return str(ocr_path)
+    comando = shutil.which("ocrmypdf")
+    if not comando:
+        comando = shutil.which("ocrmypdf.exe")
+    if not comando:
+        raise RuntimeError("OCR indisponível: instale o OCRmyPDF e o Tesseract com idioma por.")
+    temporario = Path(tempfile.mkstemp(suffix=".pdf")[1])
+    try:
+        resultado = subprocess.run(
+            [comando, "--skip-text" if modo == "auto" else "--force-ocr", "-l", idioma,
+             "--deskew", "--clean", str(caminho), str(temporario)],
+            capture_output=True, text=True, timeout=600,
+        )
+        if resultado.returncode != 0 or not temporario.exists() or temporario.stat().st_size == 0:
+            raise RuntimeError((resultado.stderr or resultado.stdout or "OCR falhou")[-1000:])
+        os.replace(temporario, ocr_path)
+        return str(ocr_path)
+    finally:
+        if temporario.exists():
+            temporario.unlink(missing_ok=True)
 
 
 def analisar_cct_com_ia(texto: str) -> dict:

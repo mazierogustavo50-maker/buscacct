@@ -22,6 +22,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg \
     unzip \
     curl \
+    tesseract-ocr \
+    tesseract-ocr-por \
+    poppler-utils \
+    ghostscript \
     libreoffice-writer \
     libreoffice-common \
     # Dependências obrigatórias do Google Chrome em container

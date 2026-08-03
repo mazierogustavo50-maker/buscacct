@@ -18,7 +18,7 @@ import unicodedata
 from cctcore.models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT
 from cctbuscador.models import ExecucaoScraper, AgendamentoScraper
 from .forms import SindicatoForm, EmpresaForm, ImportarSindicatosForm, ImportarEmpresasForm
-from cctcore.services import extrair_texto_pdf
+from cctcore.services import extrair_texto_pdf, garantir_ocr_pdf
 
 
 @login_required
@@ -1099,7 +1099,6 @@ def excluir_agendamento(request, pk):
 # ============================================================
 
 import threading
-from cctcore.services import extrair_texto_pdf
 
 # ============================================================
 # ANALISAR CCTs (visão unificada de datas + dados complementares)
@@ -1118,7 +1117,7 @@ _estado_analisar = {
 }
 
 
-def _thread_analisar_ccts(sindicato_codigo, modo, apenas_vazios, limite):
+def _thread_analisar_ccts(sindicato_codigo, modo, apenas_vazios, limite, modo_ocr="auto"):
     """Executa a análise de CCTs em segundo plano.
 
     ``modo`` controla o escopo da reanálise:
@@ -1178,6 +1177,17 @@ def _thread_analisar_ccts(sindicato_codigo, modo, apenas_vazios, limite):
             )
             _estado_analisar["erros"] += 1
             continue
+
+        if modo_ocr == "somente" and extrair_texto_pdf(caminho_pdf, max_paginas=3).strip():
+            _estado_analisar["mensagens"].append("  [OCR] Ignorado: PDF já possui texto nativo.")
+            continue
+        try:
+            caminho_ocr = garantir_ocr_pdf(caminho_pdf, modo="sempre" if modo_ocr in ("sempre", "somente") else "auto")
+            if caminho_ocr != caminho_pdf:
+                _estado_analisar["mensagens"].append(f"  [OCR] PDF pesquisável gerado: {os.path.basename(caminho_ocr)}")
+                caminho_pdf = caminho_ocr
+        except Exception as exc_ocr:
+            _estado_analisar["mensagens"].append(f"  [AVISO] OCR não executado: {exc_ocr}")
 
         texto = extrair_texto_pdf(caminho_pdf)
         if not texto or texto.startswith("[ERRO"):
@@ -1326,9 +1336,12 @@ def analisar_ccts(request):
             except ValueError:
                 limite = 0
 
+            modo_ocr = request.POST.get("modo_ocr", "auto").strip()
+            if modo_ocr not in ("auto", "sempre", "somente"):
+                modo_ocr = "auto"
             t = threading.Thread(
                 target=_thread_analisar_ccts,
-                args=(sindicato_codigo, modo, apenas_vazios, limite),
+                args=(sindicato_codigo, modo, apenas_vazios, limite, modo_ocr),
                 daemon=True,
             )
             t.start()

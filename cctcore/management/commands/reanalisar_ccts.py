@@ -6,7 +6,7 @@ from django.db import connection
 from pathlib import Path
 
 from cctcore.models import DocumentoCCT
-from cctcore.services import extrair_texto_pdf
+from cctcore.services import extrair_texto_pdf, garantir_ocr_pdf
 try:
     from cctcore.services import analisar_cct_com_ia
 except ImportError:
@@ -76,14 +76,16 @@ class Command(BaseCommand):
         parser.add_argument(
             "--dry-run",
             action="store_true",
-            help="Simula a execu\u00e7\u00e3o sem salvar no banco.",
+            help="Simula a execução sem salvar no banco.",
         )
+        parser.add_argument("--ocr", choices=("auto", "sempre", "nunca", "somente"), default="auto", help="OCR automático, forçado, desativado ou somente PDFs sem texto.")
 
     def handle(self, *args, **options):
         sindicato_codigo = options.get("sindicato_codigo")
         com_ia = options.get("com_ia")
         limite = options.get("limite")
         dry_run = options.get("dry_run")
+        modo_ocr = options.get("ocr", "auto")
 
         queryset = DocumentoCCT.objects.filter(ativo=True).exclude(
             arquivo_pdf=""
@@ -123,6 +125,16 @@ class Command(BaseCommand):
                 continue
 
             # Extrai texto do PDF
+            if modo_ocr == "somente" and extrair_texto_pdf(caminho_pdf, max_paginas=3).strip():
+                self.stdout.write("  OCR ignorado: PDF já possui texto nativo.")
+                continue
+            try:
+                caminho_ocr = garantir_ocr_pdf(caminho_pdf, modo="sempre" if modo_ocr in ("sempre", "somente") else modo_ocr)
+                if caminho_ocr != caminho_pdf:
+                    self.stdout.write(f"  OCR gerado: {os.path.basename(caminho_ocr)}")
+                    caminho_pdf = caminho_ocr
+            except Exception as exc_ocr:
+                self.stdout.write(f"  OCR não executado: {exc_ocr}")
             texto = extrair_texto_pdf(caminho_pdf)
             if not texto or texto.startswith("[ERRO"):
                 self.stdout.write(self.style.WARNING(f"  Falha ao extrair texto do PDF."))

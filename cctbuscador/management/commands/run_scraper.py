@@ -935,6 +935,13 @@ class Command(BaseCommand):
                             ext_arq = os.path.splitext(destino_final)[1].lower()
                             if ext_arq in ('.doc', '.docx'):
                                 destino_final = converter_para_pdf(destino_final)
+                            if str(destino_final).lower().endswith('.pdf'):
+                                try:
+                                    from cctcore.services import garantir_ocr_pdf
+                                    destino_final = garantir_ocr_pdf(destino_final, modo="auto")
+                                    self.log(f"  [OCR] PDF pesquisável: {os.path.basename(destino_final)}")
+                                except Exception as exc_ocr:
+                                    self.log(f"  [AVISO] OCR não executado: {exc_ocr}")
 
                             nome_final = os.path.basename(destino_final)
                             self.rel_baixados.append((cnpj_formatado, sindicato_esperado, nome_final))
@@ -985,7 +992,7 @@ class Command(BaseCommand):
                                 from cctcore.services import extrair_texto_pdf as _extrair_texto_pdf
                                 from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto as _extrair_datas_do_texto
                                 from cctcore.management.commands.atualizar_vigencias import extrair_dados_complementares_do_texto as _extrair_compl
-                                texto_pdf = _extrair_texto_pdf(caminho_relativo, max_paginas=10)
+                                texto_pdf = _extrair_texto_pdf(caminho_relativo)
                                 if texto_pdf and not texto_pdf.startswith("[ERRO"):
                                     datas_pdf = _extrair_datas_do_texto(texto_pdf)
                                     compl_pdf = _extrair_compl(texto_pdf)
