@@ -4,8 +4,12 @@ from django.conf import settings
 from pathlib import Path
 
 
-def extrair_texto_pdf(caminho_pdf: str, max_paginas: int = 30) -> str:
-    """Extrai texto de um PDF usando pdfplumber."""
+def extrair_texto_pdf(caminho_pdf: str, max_paginas: int = 100) -> str:
+    """Extrai texto de PDFs textuais, preservando páginas para evidência.
+
+    PDFs digitalizados continuam exigindo OCR externo (OCRmyPDF/Tesseract);
+    retornamos texto vazio para que o fluxo possa marcar o documento para revisão.
+    """
     if not caminho_pdf:
         return ""
     if os.path.isabs(caminho_pdf):

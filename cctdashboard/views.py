@@ -893,6 +893,63 @@ def relatorio_empresas_sindicato_pdf(request):
 
 
 # ============================================================
+# RELATÓRIO PROFISSIONAL DE CONTRIBUIÇÕES
+# ============================================================
+
+@login_required
+def filtro_relatorio_contribuicoes(request):
+    sindicatos = Sindicato.objects.order_by("nome")
+    sindicato_id = request.GET.get("sindicato", "").strip()
+    tipo = request.GET.get("tipo", "todas").strip()
+    empresa_id = request.GET.get("empresa", "").strip()
+    sindicatos_ids = [sindicato_id] if sindicato_id.isdigit() else []
+    empresas = Empresa.objects.filter(sindicatos__sindicato_id__in=sindicatos_ids).distinct().order_by("nome") if sindicatos_ids else Empresa.objects.none()
+    return render(request, "cctdashboard/filtro_relatorio_contribuicoes.html", {
+        "sindicatos": sindicatos,
+        "empresas": empresas,
+        "sindicato_id": sindicato_id,
+        "empresa_id": empresa_id,
+        "tipo": tipo,
+    })
+
+
+@login_required
+def relatorio_contribuicoes_pdf(request):
+    """Emite relatório PDF objetivo de empresas e contribuições extraídas das CCTs."""
+    from xhtml2pdf import pisa
+    from django.template.loader import render_to_string
+
+    sindicato_id = request.GET.get("sindicato", "").strip()
+    tipo = request.GET.get("tipo", "todas").strip()
+    empresa_id = request.GET.get("empresa", "").strip()
+    if not sindicato_id:
+        messages.error(request, "Selecione um sindicato para gerar o relatório.")
+        return redirect("cctdashboard:filtro_relatorio_contribuicoes")
+    sindicato = get_object_or_404(Sindicato, pk=sindicato_id)
+    empresas = Empresa.objects.filter(sindicatos__sindicato=sindicato, ativo=True).distinct().order_by("nome")
+    if empresa_id.isdigit():
+        empresas = empresas.filter(pk=empresa_id)
+    documentos = DocumentoCCT.objects.filter(sindicato=sindicato, ativo=True).order_by("-data_inicio_vigencia")
+    documento = documentos.first()
+    if tipo == "empregado":
+        documentos = documentos.exclude(contribuicao_sindical_empregado__isnull=True, trecho_contribuicao_empregado__isnull=True)
+    elif tipo == "patronal":
+        documentos = documentos.exclude(contribuicao_sindical_patronal__isnull=True, trecho_contribuicao_patronal__isnull=True)
+    linhas = [{"empresa": empresa, "documento": documento} for empresa in empresas]
+    html_string = render_to_string("cctdashboard/relatorio_contribuicoes_pdf.html", {
+        "sindicato": sindicato, "empresas": empresas, "documentos": documentos,
+        "documento": documento, "linhas": linhas, "tipo": tipo,
+        "data_geracao": timezone.localtime().strftime("%d/%m/%Y %H:%M"),
+    })
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="relatorio_contribuicoes_{sindicato.codigo}.pdf"'
+    resultado = pisa.CreatePDF(html_string, dest=response)
+    if resultado.err:
+        return HttpResponse("Não foi possível gerar o PDF.", status=500)
+    return response
+
+
+# ============================================================
 # AGENDAMENTO DO SCRAPER
 # ============================================================
 

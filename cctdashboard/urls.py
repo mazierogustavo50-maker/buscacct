@@ -24,6 +24,8 @@ urlpatterns = [
     # Filtro de empresas por sindicato + relatório PDF
     path("relatorio/empresas-por-sindicato/", views.filtrar_empresas_por_sindicato, name="filtro_empresas_por_sindicato"),
     path("relatorio/empresas-por-sindicato/pdf/", views.relatorio_empresas_sindicato_pdf, name="relatorio_empresas_sindicato_pdf"),
+    path("relatorios/contribuicoes/", views.filtro_relatorio_contribuicoes, name="filtro_relatorio_contribuicoes"),
+    path("relatorios/contribuicoes/pdf/", views.relatorio_contribuicoes_pdf, name="relatorio_contribuicoes_pdf"),
     # Documentos
     path("documentos/", views.lista_documentos, name="lista_documentos"),
     path("documentos/<int:pk>/", views.detalhe_documento, name="detalhe_documento"),
