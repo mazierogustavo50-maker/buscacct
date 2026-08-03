@@ -12,6 +12,8 @@ import pandas as pd
 import subprocess
 import sys
 import os
+import re
+import unicodedata
 
 from cctcore.models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT
 from cctbuscador.models import ExecucaoScraper, AgendamentoScraper
@@ -896,32 +898,59 @@ def relatorio_empresas_sindicato_pdf(request):
 # RELATÓRIO PROFISSIONAL DE CONTRIBUIÇÕES
 # ============================================================
 
+MESES_RELATORIO = {
+    1: ("janeiro", "jan"), 2: ("fevereiro", "fev"), 3: ("março", "mar"),
+    4: ("abril", "abr"), 5: ("maio", "mai"), 6: ("junho", "jun"),
+    7: ("julho", "jul"), 8: ("agosto", "ago"), 9: ("setembro", "set"),
+    10: ("outubro", "out"), 11: ("novembro", "nov"), 12: ("dezembro", "dez"),
+}
+
+
+def _normalizar_mes_relatorio(texto):
+    valor = unicodedata.normalize("NFKD", texto or "").encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+", " ", valor).strip()
+
+
+def _meses_do_desconto(texto):
+    """Converte texto extraído (MAR, março, 12x ao ano) em meses 1..12."""
+    texto = _normalizar_mes_relatorio(texto)
+    if not texto:
+        return set()
+    if re.search(r"\b(?:12\s*x|12\s*vezes|mensalmente|todos\s+os\s+meses|cada\s+mes)\b", texto):
+        return set(range(1, 13))
+    encontrados = set()
+    for numero, nomes in MESES_RELATORIO.items():
+        for nome in nomes:
+            if re.search(rf"\b{re.escape(nome)}(?:o|es)?\b", texto):
+                encontrados.add(numero)
+    return encontrados
+
+
 @login_required
 def filtro_relatorio_contribuicoes(request):
     sindicatos = Sindicato.objects.order_by("nome")
     sindicato_id = request.GET.get("sindicato", "").strip()
     tipo = request.GET.get("tipo", "todas").strip()
     empresa_id = request.GET.get("empresa", "").strip()
+    mes = request.GET.get("mes", "").strip()
     sindicatos_ids = [sindicato_id] if sindicato_id.isdigit() else []
     empresas = Empresa.objects.filter(sindicatos__sindicato_id__in=sindicatos_ids).distinct().order_by("nome") if sindicatos_ids else Empresa.objects.none()
     return render(request, "cctdashboard/filtro_relatorio_contribuicoes.html", {
-        "sindicatos": sindicatos,
-        "empresas": empresas,
-        "sindicato_id": sindicato_id,
-        "empresa_id": empresa_id,
-        "tipo": tipo,
+        "sindicatos": sindicatos, "empresas": empresas, "sindicato_id": sindicato_id,
+        "empresa_id": empresa_id, "tipo": tipo, "mes": mes, "meses_relatorio": MESES_RELATORIO,
     })
 
 
 @login_required
 def relatorio_contribuicoes_pdf(request):
-    """Emite relatório PDF objetivo de empresas e contribuições extraídas das CCTs."""
+    """Emite PDF filtrável pelo mês em que ocorre o desconto do empregado."""
     from xhtml2pdf import pisa
     from django.template.loader import render_to_string
 
     sindicato_id = request.GET.get("sindicato", "").strip()
     tipo = request.GET.get("tipo", "todas").strip()
     empresa_id = request.GET.get("empresa", "").strip()
+    mes = request.GET.get("mes", "").strip()
     if not sindicato_id:
         messages.error(request, "Selecione um sindicato para gerar o relatório.")
         return redirect("cctdashboard:filtro_relatorio_contribuicoes")
@@ -929,23 +958,26 @@ def relatorio_contribuicoes_pdf(request):
     empresas = Empresa.objects.filter(sindicatos__sindicato=sindicato, ativo=True).distinct().order_by("nome")
     if empresa_id.isdigit():
         empresas = empresas.filter(pk=empresa_id)
-    documentos = DocumentoCCT.objects.filter(sindicato=sindicato, ativo=True).order_by("-data_inicio_vigencia")
-    documento = documentos.first()
+    documentos = list(DocumentoCCT.objects.filter(sindicato=sindicato, ativo=True).order_by("-data_inicio_vigencia"))
     if tipo == "empregado":
-        documentos = documentos.exclude(contribuicao_sindical_empregado__isnull=True, trecho_contribuicao_empregado__isnull=True)
+        documentos = [d for d in documentos if d.contribuicao_sindical_empregado is not None or d.trecho_contribuicao_empregado]
     elif tipo == "patronal":
-        documentos = documentos.exclude(contribuicao_sindical_patronal__isnull=True, trecho_contribuicao_patronal__isnull=True)
+        documentos = [d for d in documentos if d.contribuicao_sindical_patronal is not None or d.trecho_contribuicao_patronal]
+    mes_numero = int(mes) if mes.isdigit() and 1 <= int(mes) <= 12 else None
+    if mes_numero:
+        documentos = [d for d in documentos if mes_numero in _meses_do_desconto(d.contribuicao_sindical_empregado_meses)]
+    documento = documentos[0] if documentos else None
     linhas = [{"empresa": empresa, "documento": documento} for empresa in empresas]
     html_string = render_to_string("cctdashboard/relatorio_contribuicoes_pdf.html", {
-        "sindicato": sindicato, "empresas": empresas, "documentos": documentos,
-        "documento": documento, "linhas": linhas, "tipo": tipo,
+        "sindicato": sindicato, "empresas": empresas, "documentos": documentos, "documento": documento,
+        "linhas": linhas, "tipo": tipo, "mes": mes_numero, "mes_nome": MESES_RELATORIO.get(mes_numero, ("",))[0] if mes_numero else "Todos",
         "data_geracao": timezone.localtime().strftime("%d/%m/%Y %H:%M"),
     })
     response = HttpResponse(content_type="application/pdf")
     response["Content-Disposition"] = f'inline; filename="relatorio_contribuicoes_{sindicato.codigo}.pdf"'
     resultado = pisa.CreatePDF(html_string, dest=response)
     if resultado.err:
-        return HttpResponse("Não foi possível gerar o PDF.", status=500)
+        return HttpResponse(b"Nao foi possivel gerar o PDF.", content_type="text/plain", status=500)
     return response
 
 
