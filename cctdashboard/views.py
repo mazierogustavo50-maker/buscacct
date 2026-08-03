@@ -921,7 +921,8 @@ def _meses_do_desconto(texto):
     encontrados = set()
     for numero, nomes in MESES_RELATORIO.items():
         for nome in nomes:
-            if re.search(rf"\b{re.escape(nome)}(?:o|es)?\b", texto):
+            nome_normalizado = _normalizar_mes_relatorio(nome)
+            if re.search(rf"\b{re.escape(nome_normalizado)}(?:o|es)?\b", texto):
                 encontrados.add(numero)
     return encontrados
 
