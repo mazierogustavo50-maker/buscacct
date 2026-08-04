@@ -5,6 +5,7 @@ class Sindicato(models.Model):
     codigo = models.CharField(max_length=20, unique=True, db_index=True)
     cnpj = models.CharField(max_length=14, blank=True, db_index=True)
     nome = models.CharField(max_length=255)
+    apelido = models.CharField(max_length=100, blank=True, db_index=True)
     sem_documentos = models.BooleanField(default=False, verbose_name="Sem documentos na última busca")
     data_ultima_busca = models.DateTimeField(null=True, blank=True, verbose_name="Data da última busca")
 

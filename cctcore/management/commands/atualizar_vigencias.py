@@ -414,8 +414,8 @@ def extrair_dados_complementares_do_texto(texto):
         secao_empregado = texto_upper[pos_empregado:]
         secao_patronal = texto_upper[:pos_empregado]
     else:
-        secao_empregado = texto_upper
-        secao_patronal = texto_upper
+        secao_empregado = None
+        secao_patronal = None
 
     # ============================================================
     # 3b. EXTRAÇÃO DOS TRECHOS DE TEXTO (empregado e patronal)
@@ -510,6 +510,13 @@ def extrair_dados_complementares_do_texto(texto):
                     texto, m.start(), None, max_chars=2500
                 )
                 break
+
+    # Deduplicação: se os trechos forem idênticos ou um contém inteiramente o outro, anula o empregado
+    trecho_emp = resultado.get("trecho_contribuicao_empregado")
+    trecho_pat = resultado.get("trecho_contribuicao_patronal")
+    if trecho_emp and trecho_pat:
+        if trecho_emp == trecho_pat or trecho_emp in trecho_pat or trecho_pat in trecho_emp:
+            resultado["trecho_contribuicao_empregado"] = None
 
     # ============================================================
     # 4. CONTRIBUIÇÃO SINDICAL / NEGOCIAL EMPREGADO
@@ -648,11 +655,12 @@ def extrair_dados_complementares_do_texto(texto):
         r'CONTRIBUI[ÇC][ÃA]O\s*SINDICAL(?!.*PATRONAL)',
     ]
 
-    val_emp, eh_pct_emp = _extrair_valor_percentual(
-        secao_empregado, palavras_chave_empregado, max_val=10000
-    )
-    if val_emp is not None:
-        resultado["contribuicao_sindical_empregado"] = val_emp
+    if secao_empregado:
+        val_emp, eh_pct_emp = _extrair_valor_percentual(
+            secao_empregado, palavras_chave_empregado, max_val=10000
+        )
+        if val_emp is not None:
+            resultado["contribuicao_sindical_empregado"] = val_emp
 
     # ============================================================
     # 5. MESES DE DESCONTO DA CONTRIBUIÇÃO (empregado)
@@ -670,19 +678,20 @@ def extrair_dados_complementares_do_texto(texto):
     # Procura meses SOMENTE em trechos próximos de menções a contribuição/desconto
     # na seção do empregado. Evita pegar meses aleatórios de outras cláusulas.
     trechos_contribuicao = []
-    for m in re.finditer(r'CONTRIBUI[ÇC][ÃA]O', secao_empregado):
-        inicio = max(0, m.start() - 100)
-        fim = min(len(secao_empregado), m.end() + 400)
-        trechos_contribuicao.append(secao_empregado[inicio:fim])
-
-    # Também procura em trechos com "desconto", "cobrança", "devida"
-    for termo in [r'DESCONTO', r'COBRAN[ÇC]A', r'DEVIDA', r'VALOR\s*CORRESPONDENTE', r'RECOLHIDO']:
-        for m in re.finditer(termo, secao_empregado):
+    if secao_empregado:
+        for m in re.finditer(r'CONTRIBUI[ÇC][ÃA]O', secao_empregado):
             inicio = max(0, m.start() - 100)
-            fim = min(len(secao_empregado), m.end() + 300)
-            trecho = secao_empregado[inicio:fim]
-            if trecho not in trechos_contribuicao:
-                trechos_contribuicao.append(trecho)
+            fim = min(len(secao_empregado), m.end() + 400)
+            trechos_contribuicao.append(secao_empregado[inicio:fim])
+
+        # Também procura em trechos com "desconto", "cobrança", "devida"
+        for termo in [r'DESCONTO', r'COBRAN[ÇC]A', r'DEVIDA', r'VALOR\s*CORRESPONDENTE', r'RECOLHIDO']:
+            for m in re.finditer(termo, secao_empregado):
+                inicio = max(0, m.start() - 100)
+                fim = min(len(secao_empregado), m.end() + 300)
+                trecho = secao_empregado[inicio:fim]
+                if trecho not in trechos_contribuicao:
+                    trechos_contribuicao.append(trecho)
 
     padroes_meses = [
         r'M[ÊE]S\s*DE\s*(\w+)(?:\s+DE\s+\d{4})?',

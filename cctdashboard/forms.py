@@ -5,15 +5,17 @@ from cctcore.models import Sindicato, Empresa, EmpresaSindicato, EmpresaDocument
 class SindicatoForm(forms.ModelForm):
     class Meta:
         model = Sindicato
-        fields = ["codigo", "nome", "cnpj"]
+        fields = ["codigo", "nome", "apelido", "cnpj"]
         widgets = {
             "codigo": forms.TextInput(attrs={"class": "form-control", "placeholder": "Código do sindicato"}),
             "nome": forms.TextInput(attrs={"class": "form-control", "placeholder": "Nome do sindicato"}),
+            "apelido": forms.TextInput(attrs={"class": "form-control", "placeholder": "Apelido do sindicato"}),
             "cnpj": forms.TextInput(attrs={"class": "form-control", "placeholder": "CNPJ (somente números)"}),
         }
         labels = {
             "codigo": "Código",
             "nome": "Nome do Sindicato",
+            "apelido": "Apelido",
             "cnpj": "CNPJ",
         }
 

@@ -20,7 +20,7 @@
     <div class="card-body">
         <form method="get" class="row g-4">
             <div class="col-md-10">
-                <input type="text" name="q" class="form-control" placeholder="Buscar por nome, código ou CNPJ..." value="{{ q }}">
+                <input type="text" name="q" class="form-control" placeholder="Buscar por nome, apelido, código ou CNPJ..." value="{{ q }}">
             </div>
             <div class="col-md-2 grid">
                 <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>Buscar</button>
@@ -46,7 +46,12 @@
                     <tr>
                         <td class="font-monospace">{{ sindicato.codigo }}</td>
                         <td>{{ sindicato.cnpj|default:"-" }}</td>
-                        <td>{{ sindicato.nome }}</td>
+                        <td>
+                            {{ sindicato.nome }}
+                            {% if sindicato.apelido %}
+                                <br><small class="text-muted">{{ sindicato.apelido }}</small>
+                            {% endif %}
+                        </td>
                         <td class="text-end">
                             <a href="{% url 'cctdashboard:detalhe_sindicato' sindicato.pk %}" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-eye me-1"></i>Ver

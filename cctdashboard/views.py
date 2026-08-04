@@ -122,7 +122,7 @@ def lista_sindicatos(request):
     q = request.GET.get("q", "").strip()
     if q:
         queryset = queryset.filter(
-            Q(nome__icontains=q) | Q(codigo__icontains=q) | Q(cnpj__icontains=q)
+            Q(nome__icontains=q) | Q(codigo__icontains=q) | Q(cnpj__icontains=q) | Q(apelido__icontains=q)
         )
 
     paginator = Paginator(queryset, 20)
@@ -967,21 +967,78 @@ def relatorio_contribuicoes_pdf(request):
     mes_numero = int(mes) if mes.isdigit() and 1 <= int(mes) <= 12 else None
     if mes_numero:
         documentos = [d for d in documentos if mes_numero in _meses_do_desconto(d.contribuicao_sindical_empregado_meses)]
-    documento_padrao = documentos[0] if documentos else None
-    linhas = []
-    for empresa in empresas:
-        documento = documento_padrao
-        if (empresa.convencao_aplicada_id and empresa.sindicato_aplicado_id == sindicato.pk
-                and empresa.convencao_aplicada and empresa.convencao_aplicada.ativo):
-            documento = empresa.convencao_aplicada
-        linhas.append({"empresa": empresa, "documento": documento})
+    # Monta estrutura por documento
+    documento_padrao = None
+    if len(documentos) > 1:
+        documentos_com_linhas = []
+        for doc in documentos:
+            linhas_doc = [{"empresa": e, "documento": doc} for e in empresas]
+            documentos_com_linhas.append({"documento": doc, "linhas": linhas_doc})
+    else:
+        documento_padrao = documentos[0] if documentos else None
+        linhas = []
+        for empresa in empresas:
+            documento = documento_padrao
+            if (empresa.convencao_aplicada_id and empresa.sindicato_aplicado_id == sindicato.pk
+                    and empresa.convencao_aplicada and empresa.convencao_aplicada.ativo):
+                documento = empresa.convencao_aplicada
+            linhas.append({"empresa": empresa, "documento": documento})
+        documentos_com_linhas = [{"documento": documento_padrao, "linhas": linhas}]
     html_string = render_to_string("cctdashboard/relatorio_contribuicoes_pdf.html", {
-        "sindicato": sindicato, "empresas": empresas, "documentos": documentos, "documento": documento_padrao,
-        "linhas": linhas, "tipo": tipo, "mes": mes_numero, "mes_nome": MESES_RELATORIO.get(mes_numero, ("",))[0] if mes_numero else "Todos",
+        "sindicato": sindicato, "empresas": empresas, "documentos": documentos,
+        "documento": documento_padrao if len(documentos) <= 1 else None,
+        "documentos_com_linhas": documentos_com_linhas, "tipo": tipo, "mes": mes_numero,
+        "mes_nome": MESES_RELATORIO.get(mes_numero, ("",))[0] if mes_numero else "Todos",
         "data_geracao": timezone.localtime().strftime("%d/%m/%Y %H:%M"),
     })
     response = HttpResponse(content_type="application/pdf")
     response["Content-Disposition"] = f'inline; filename="relatorio_contribuicoes_{sindicato.codigo}.pdf"'
+    resultado = pisa.CreatePDF(html_string, dest=response)
+    if resultado.err:
+        return HttpResponse(b"Nao foi possivel gerar o PDF.", content_type="text/plain", status=500)
+    return response
+
+
+@login_required
+def filtro_relatorio_desconto_mensal(request):
+    mes = request.GET.get("mes", "").strip()
+    return render(request, "cctdashboard/filtro_relatorio_desconto_mensal.html", {
+        "mes": mes, "meses_relatorio": MESES_RELATORIO,
+    })
+
+
+@login_required
+def relatorio_desconto_mensal_pdf(request):
+    """Emite PDF com todos os sindicatos/documentos que têm desconto no mês selecionado."""
+    from xhtml2pdf import pisa
+    from django.template.loader import render_to_string
+
+    mes = request.GET.get("mes", "").strip()
+    if not mes.isdigit() or not 1 <= int(mes) <= 12:
+        messages.error(request, "Selecione um mês válido (1-12) para gerar o relatório.")
+        return redirect("cctdashboard:filtro_relatorio_desconto_mensal")
+    mes_numero = int(mes)
+    documentos = list(DocumentoCCT.objects.filter(ativo=True).order_by("sindicato__nome", "-data_inicio_vigencia"))
+    documentos = [d for d in documentos if mes_numero in _meses_do_desconto(d.contribuicao_sindical_empregado_meses)]
+
+    sindicatos_data = []
+    for doc in documentos:
+        sindicato = doc.sindicato
+        empresas = Empresa.objects.filter(sindicatos__sindicato=sindicato, ativo=True).distinct().order_by("nome")
+        sindicatos_data.append({
+            "sindicato": sindicato,
+            "documento": doc,
+            "empresas": empresas,
+        })
+
+    html_string = render_to_string("cctdashboard/relatorio_desconto_mensal_pdf.html", {
+        "sindicatos_data": sindicatos_data,
+        "mes": mes_numero,
+        "mes_nome": MESES_RELATORIO.get(mes_numero, ("",))[0],
+        "data_geracao": timezone.localtime().strftime("%d/%m/%Y %H:%M"),
+    })
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="relatorio_desconto_mensal_{mes_numero:02d}.pdf"'
     resultado = pisa.CreatePDF(html_string, dest=response)
     if resultado.err:
         return HttpResponse(b"Nao foi possivel gerar o PDF.", content_type="text/plain", status=500)

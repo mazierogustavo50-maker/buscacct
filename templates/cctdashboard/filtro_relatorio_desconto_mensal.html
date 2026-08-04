@@ -1,0 +1,14 @@
+{% extends "cctdashboard/base.html" %}
+{% block title %}Relatório de desconto mensal{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div><h2><i class="bi bi-file-earmark-pdf text-danger me-2"></i>Relatório de desconto mensal</h2><p class="text-muted">Listagem de sindicatos e empresas com desconto no mês selecionado.</p></div>
+</div>
+<div class="card shadow-sm"><div class="card-body">
+<form method="get" action="{% url 'cctdashboard:relatorio_desconto_mensal_pdf' %}" target="_blank" class="row g-3 align-items-end">
+ <div class="col-md-4"><label class="form-label">Mês do desconto</label><select name="mes" class="form-select" required><option value="">Selecione</option>{% for numero, nomes in meses_relatorio.items %}<option value="{{ numero }}" {% if mes == numero|stringformat:'i' %}selected{% endif %}>{{ nomes.0|title }}</option>{% endfor %}</select></div>
+ <div class="col-md-2"><button class="btn btn-danger w-100"><i class="bi bi-file-earmark-pdf me-1"></i>Emitir PDF</button></div>
+</form>
+<hr><div class="small text-muted"><strong>O relatório apresenta:</strong> sindicatos, empresas vinculadas, CCT vigente, contribuição do empregado, contribuição patronal e meses de desconto para o mês selecionado.</div>
+</div></div>
+{% endblock %}
