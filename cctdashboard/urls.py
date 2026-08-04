@@ -31,6 +31,7 @@ urlpatterns = [
     # Documentos
     path("documentos/", views.lista_documentos, name="lista_documentos"),
     path("documentos/<int:pk>/", views.detalhe_documento, name="detalhe_documento"),
+    path("documentos/<int:pk>/editar-manual/", views.editar_documento_manual, name="editar_documento_manual"),
     path("documentos/<int:pk>/excluir/", views.excluir_documento, name="excluir_documento"),
     path("documentos/<int:pk>/desativar/", views.desativar_documento, name="desativar_documento"),
     path("documentos/<int:pk>/reativar/", views.reativar_documento, name="reativar_documento"),

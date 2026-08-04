@@ -116,6 +116,32 @@ class DocumentoCCT(models.Model):
         verbose_name="Trecho contribuição patronal",
         help_text="Texto original da CCT referente à contribuição sindical/negocial patronal"
     )
+    # Campos para inserção manual (sobrescrevem os extraídos quando ativados)
+    trecho_contribuicao_empregado_manual = models.TextField(
+        blank=True, null=True,
+        verbose_name="Trecho contribuição empregado (manual)",
+        help_text="Texto inserido manualmente pelo usuário. Quando preenchido, sobrescreve o trecho extraído automaticamente."
+    )
+    trecho_contribuicao_patronal_manual = models.TextField(
+        blank=True, null=True,
+        verbose_name="Trecho contribuição patronal (manual)",
+        help_text="Texto inserido manualmente pelo usuário. Quando preenchido, sobrescreve o trecho extraído automaticamente."
+    )
+    contribuicao_sindical_empregado_meses_manual = models.CharField(
+        max_length=100, blank=True, null=True,
+        verbose_name="Meses desconto (manual)",
+        help_text="Mês(ses) de desconto inserido manualmente. Ex: MAR, MAI, AGO, OUT ou '12x ao ano'"
+    )
+    usa_trechos_manuais = models.BooleanField(
+        default=False,
+        verbose_name="Usar trechos manuais",
+        help_text="Quando ativo, os trechos de contribuição manual sobrescrevem os extraídos automaticamente."
+    )
+    usa_meses_manual = models.BooleanField(
+        default=False,
+        verbose_name="Usar mês de desconto manual",
+        help_text="Quando ativo, o mês de desconto manual sobrescreve o extraído automaticamente."
+    )
     status_extracao = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDENTE
     )
@@ -145,6 +171,29 @@ class DocumentoCCT(models.Model):
     analise_ia_json = models.JSONField(null=True, blank=True)
     analise_ia_texto = models.TextField(blank=True)
     data_analise_ia = models.DateTimeField(null=True, blank=True)
+
+    def get_trecho_empregado(self):
+        if self.usa_trechos_manuais and self.trecho_contribuicao_empregado_manual:
+            return self.trecho_contribuicao_empregado_manual
+        return self.trecho_contribuicao_empregado
+
+    def get_trecho_patronal(self):
+        if self.usa_trechos_manuais and self.trecho_contribuicao_patronal_manual:
+            return self.trecho_contribuicao_patronal_manual
+        return self.trecho_contribuicao_patronal
+
+    def get_meses_desconto(self):
+        if self.usa_meses_manual and self.contribuicao_sindical_empregado_meses_manual:
+            return self.contribuicao_sindical_empregado_meses_manual
+        return self.contribuicao_sindical_empregado_meses
+
+    def save(self, *args, **kwargs):
+        # Ativa automaticamente as flags quando o usuário preenche dados manuais
+        if self.trecho_contribuicao_empregado_manual or self.trecho_contribuicao_patronal_manual:
+            self.usa_trechos_manuais = True
+        if self.contribuicao_sindical_empregado_meses_manual:
+            self.usa_meses_manual = True
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Documento CCT"

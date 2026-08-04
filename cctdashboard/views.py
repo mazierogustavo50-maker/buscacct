@@ -17,7 +17,7 @@ import unicodedata
 
 from cctcore.models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT
 from cctbuscador.models import ExecucaoScraper, AgendamentoScraper
-from .forms import SindicatoForm, EmpresaForm, ImportarSindicatosForm, ImportarEmpresasForm
+from .forms import SindicatoForm, EmpresaForm, ImportarSindicatosForm, ImportarEmpresasForm, DocumentoCCTManualForm
 from cctcore.services import extrair_texto_pdf, garantir_ocr_pdf
 
 
@@ -528,6 +528,24 @@ def detalhe_documento(request, pk):
 
 
 @login_required
+def editar_documento_manual(request, pk):
+    documento = get_object_or_404(DocumentoCCT, pk=pk)
+    if request.method == "POST":
+        form = DocumentoCCTManualForm(request.POST, instance=documento)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Dados manuais da CCT atualizados com sucesso.")
+            return redirect("cctdashboard:detalhe_documento", pk=pk)
+    else:
+        form = DocumentoCCTManualForm(instance=documento)
+    return render(request, "cctdashboard/form_documento_manual.html", {
+        "form": form,
+        "documento": documento,
+        "titulo": "Editar Dados Manualmente",
+    })
+
+
+@login_required
 def ver_pdf(request, pk):
     """Serve o arquivo PDF do documento via FileResponse."""
     documento = get_object_or_404(DocumentoCCT, pk=pk)
@@ -966,7 +984,7 @@ def relatorio_contribuicoes_pdf(request):
         documentos = [d for d in documentos if d.contribuicao_sindical_patronal is not None or d.trecho_contribuicao_patronal]
     mes_numero = int(mes) if mes.isdigit() and 1 <= int(mes) <= 12 else None
     if mes_numero:
-        documentos = [d for d in documentos if mes_numero in _meses_do_desconto(d.contribuicao_sindical_empregado_meses)]
+        documentos = [d for d in documentos if mes_numero in _meses_do_desconto(d.get_meses_desconto())]
     # Monta estrutura por documento
     documento_padrao = None
     if len(documentos) > 1:
@@ -1019,7 +1037,7 @@ def relatorio_desconto_mensal_pdf(request):
         return redirect("cctdashboard:filtro_relatorio_desconto_mensal")
     mes_numero = int(mes)
     documentos = list(DocumentoCCT.objects.filter(ativo=True).order_by("sindicato__nome", "-data_inicio_vigencia"))
-    documentos = [d for d in documentos if mes_numero in _meses_do_desconto(d.contribuicao_sindical_empregado_meses)]
+    documentos = [d for d in documentos if mes_numero in _meses_do_desconto(d.get_meses_desconto())]
 
     sindicatos_data = []
     for doc in documentos:

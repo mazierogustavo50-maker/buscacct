@@ -91,3 +91,40 @@ class ImportarEmpresasForm(forms.Form):
         label="Arquivo Excel (.xlsx)",
         widget=forms.FileInput(attrs={"class": "form-control", "accept": ".xlsx"}),
     )
+
+
+class DocumentoCCTManualForm(forms.ModelForm):
+    class Meta:
+        model = DocumentoCCT
+        fields = [
+            "trecho_contribuicao_empregado_manual",
+            "trecho_contribuicao_patronal_manual",
+            "contribuicao_sindical_empregado_meses_manual",
+            "usa_trechos_manuais",
+            "usa_meses_manual",
+        ]
+        widgets = {
+            "trecho_contribuicao_empregado_manual": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 10,
+                "placeholder": "Cole aqui o trecho da CCT referente à contribuição do empregado..."
+            }),
+            "trecho_contribuicao_patronal_manual": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 10,
+                "placeholder": "Cole aqui o trecho da CCT referente à contribuição patronal..."
+            }),
+            "contribuicao_sindical_empregado_meses_manual": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Ex: MAR, MAI, AGO, OUT  ou  12x ao ano"
+            }),
+            "usa_trechos_manuais": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "usa_meses_manual": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+        labels = {
+            "trecho_contribuicao_empregado_manual": "Trecho Contribuição Empregado (manual)",
+            "trecho_contribuicao_patronal_manual": "Trecho Contribuição Patronal (manual)",
+            "contribuicao_sindical_empregado_meses_manual": "Mês(es) de Desconto (manual)",
+            "usa_trechos_manuais": "Usar trechos manuais no lugar dos extraídos",
+            "usa_meses_manual": "Usar mês de desconto manual no lugar do extraído",
+        }
