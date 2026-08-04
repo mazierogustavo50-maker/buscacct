@@ -31,7 +31,14 @@ def extrair_texto_pdf(caminho_pdf: str, max_paginas: int = 0) -> str:
                 except Exception:
                     txt = ""
                 if txt:
-                    texto_paginas.append(f"--- Página {i + 1} ---\n{txt}")
+                    linhas = [linha.strip() for linha in txt.splitlines() if linha.strip()]
+                    agrupadas = []
+                    for linha in linhas:
+                        if agrupadas and not agrupadas[-1].endswith((".", ":", ";", "!", "?")) and not linha.startswith(("-", "•", "§")):
+                            agrupadas[-1] += " " + linha
+                        else:
+                            agrupadas.append(linha)
+                    texto_paginas.append(f"--- Página {i + 1} ---\n" + "\n".join(agrupadas))
     except Exception as e:
         return f"[ERRO ao ler PDF: {e}]"
 

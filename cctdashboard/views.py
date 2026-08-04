@@ -944,7 +944,7 @@ def filtro_relatorio_contribuicoes(request):
 
 @login_required
 def relatorio_contribuicoes_pdf(request):
-    """Emite PDF filtrável pelo mês em que ocorre o desconto do empregado."""
+    """Emite PDF filtrável pelo mês em que ocorre o desconto."""
     from xhtml2pdf import pisa
     from django.template.loader import render_to_string
 
@@ -952,10 +952,10 @@ def relatorio_contribuicoes_pdf(request):
     tipo = request.GET.get("tipo", "todas").strip()
     empresa_id = request.GET.get("empresa", "").strip()
     mes = request.GET.get("mes", "").strip()
-    if not sindicato_id:
-        messages.error(request, "Selecione um sindicato para gerar o relatório.")
+    if not sindicato_id or not sindicato_id.isdigit():
+        messages.error(request, "Selecione um sindicato válido para gerar o relatório.")
         return redirect("cctdashboard:filtro_relatorio_contribuicoes")
-    sindicato = get_object_or_404(Sindicato, pk=sindicato_id)
+    sindicato = get_object_or_404(Sindicato, pk=int(sindicato_id))
     empresas = Empresa.objects.filter(sindicatos__sindicato=sindicato, ativo=True).distinct().order_by("nome")
     if empresa_id.isdigit():
         empresas = empresas.filter(pk=empresa_id)
@@ -967,10 +967,16 @@ def relatorio_contribuicoes_pdf(request):
     mes_numero = int(mes) if mes.isdigit() and 1 <= int(mes) <= 12 else None
     if mes_numero:
         documentos = [d for d in documentos if mes_numero in _meses_do_desconto(d.contribuicao_sindical_empregado_meses)]
-    documento = documentos[0] if documentos else None
-    linhas = [{"empresa": empresa, "documento": documento} for empresa in empresas]
+    documento_padrao = documentos[0] if documentos else None
+    linhas = []
+    for empresa in empresas:
+        documento = documento_padrao
+        if (empresa.convencao_aplicada_id and empresa.sindicato_aplicado_id == sindicato.pk
+                and empresa.convencao_aplicada and empresa.convencao_aplicada.ativo):
+            documento = empresa.convencao_aplicada
+        linhas.append({"empresa": empresa, "documento": documento})
     html_string = render_to_string("cctdashboard/relatorio_contribuicoes_pdf.html", {
-        "sindicato": sindicato, "empresas": empresas, "documentos": documentos, "documento": documento,
+        "sindicato": sindicato, "empresas": empresas, "documentos": documentos, "documento": documento_padrao,
         "linhas": linhas, "tipo": tipo, "mes": mes_numero, "mes_nome": MESES_RELATORIO.get(mes_numero, ("",))[0] if mes_numero else "Todos",
         "data_geracao": timezone.localtime().strftime("%d/%m/%Y %H:%M"),
     })
@@ -1017,8 +1023,22 @@ def criar_agendamento(request):
             messages.error(request, "Horário inválido. Use o formato HH:MM.")
             return render(request, "cctdashboard/form_agendamento.html", {"sindicatos": Sindicato.objects.order_by("nome")})
 
-        dia_semana_int = int(dia_semana) if dia_semana is not None else None
-        dia_mes_int = int(dia_mes) if dia_mes is not None else None
+        try:
+            dia_semana_int = int(dia_semana) if dia_semana is not None else None
+            dia_mes_int = int(dia_mes) if dia_mes is not None else None
+        except ValueError:
+            messages.error(request, "Dia da semana ou do mês inválido.")
+            return render(request, "cctdashboard/form_agendamento.html", {"sindicatos": Sindicato.objects.order_by("nome")})
+        if recorrencia == AgendamentoScraper.RECORRENCIA_SEMANAL and dia_semana_int not in range(7):
+            messages.error(request, "Selecione um dia da semana válido.")
+            return render(request, "cctdashboard/form_agendamento.html", {"sindicatos": Sindicato.objects.order_by("nome")})
+        if recorrencia == AgendamentoScraper.RECORRENCIA_MENSAL and dia_mes_int not in range(1, 32):
+            messages.error(request, "O dia do mês deve estar entre 1 e 31.")
+            return render(request, "cctdashboard/form_agendamento.html", {"sindicatos": Sindicato.objects.order_by("nome")})
+        if recorrencia != AgendamentoScraper.RECORRENCIA_SEMANAL:
+            dia_semana_int = None
+        if recorrencia != AgendamentoScraper.RECORRENCIA_MENSAL:
+            dia_mes_int = None
 
         AgendamentoScraper.objects.create(
             horario=horario_obj,

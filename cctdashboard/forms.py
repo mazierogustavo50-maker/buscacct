@@ -19,6 +19,9 @@ class SindicatoForm(forms.ModelForm):
 
 
 class EmpresaForm(forms.ModelForm):
+    email = forms.EmailField(required=False, label="E-mail do cliente", widget=forms.EmailInput(attrs={"class": "form-control", "placeholder": "cliente@empresa.com.br"}))
+    sindicato_aplicado = forms.ModelChoiceField(queryset=Sindicato.objects.order_by("nome"), required=False, label="Sindicato aplicado", widget=forms.Select(attrs={"class": "form-select"}))
+    convencao_aplicada = forms.ModelChoiceField(queryset=DocumentoCCT.objects.filter(ativo=True).select_related("sindicato").order_by("-data_inicio_vigencia"), required=False, label="Convenção aplicada", widget=forms.Select(attrs={"class": "form-select"}))
     sindicatos = forms.ModelMultipleChoiceField(
         queryset=Sindicato.objects.order_by("nome"),
         required=False,
@@ -34,7 +37,7 @@ class EmpresaForm(forms.ModelForm):
 
     class Meta:
         model = Empresa
-        fields = ["codigo", "nome"]
+        fields = ["codigo", "nome", "email", "sindicato_aplicado", "convencao_aplicada"]
         widgets = {
             "codigo": forms.TextInput(attrs={"class": "form-control", "placeholder": "Código da empresa"}),
             "nome": forms.TextInput(attrs={"class": "form-control", "placeholder": "Nome da empresa"}),
@@ -47,6 +50,9 @@ class EmpresaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk:
+            self.fields["convencao_aplicada"].queryset = DocumentoCCT.objects.filter(
+                ativo=True, sindicato_id__in=Sindicato.objects.filter(empresas__empresa=self.instance).values("pk")
+            ).select_related("sindicato").order_by("-data_inicio_vigencia")
             self.fields["sindicatos"].initial = Sindicato.objects.filter(
                 empresas__empresa=self.instance
             ).values_list("pk", flat=True)

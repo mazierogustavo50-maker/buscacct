@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Sindicato, Empresa, EmpresaSindicato, EmpresaDocumentoCCT, DocumentoCCT, ConfiguracaoSistema
+from .models import Sindicato, Empresa, EmpresaSindicato, EmpresaDocumentoCCT, DocumentoCCT, ConfiguracaoSistema, NotificacaoDocumentoCCT
 
 
 @admin.register(Sindicato)
@@ -11,8 +11,8 @@ class SindicatoAdmin(admin.ModelAdmin):
 
 @admin.register(Empresa)
 class EmpresaAdmin(admin.ModelAdmin):
-    list_display = ("codigo", "nome")
-    search_fields = ("codigo", "nome")
+    list_display = ("codigo", "nome", "email", "ativo")
+    search_fields = ("codigo", "nome", "email")
 
 
 @admin.register(EmpresaSindicato)
@@ -53,3 +53,10 @@ class ConfiguracaoSistemaAdmin(admin.ModelAdmin):
         if ConfiguracaoSistema.objects.exists():
             return False
         return super().has_add_permission(request)
+
+
+@admin.register(NotificacaoDocumentoCCT)
+class NotificacaoDocumentoCCTAdmin(admin.ModelAdmin):
+    list_display = ("documento", "destinatario", "status", "tentativas", "enviada_em")
+    list_filter = ("status",)
+    search_fields = ("destinatario", "documento__sindicato__nome")

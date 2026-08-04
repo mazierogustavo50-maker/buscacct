@@ -20,6 +20,15 @@ class Sindicato(models.Model):
 class Empresa(models.Model):
     codigo = models.CharField(max_length=20, db_index=True)
     nome = models.CharField(max_length=255)
+    email = models.EmailField(blank=True, default="", verbose_name="E-mail do cliente")
+    sindicato_aplicado = models.ForeignKey(
+        "Sindicato", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="empresas_como_aplicado", verbose_name="Sindicato aplicado",
+    )
+    convencao_aplicada = models.ForeignKey(
+        "DocumentoCCT", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="empresas_como_aplicado", verbose_name="Convenção aplicada",
+    )
     ativo = models.BooleanField(default=True, db_index=True, verbose_name="Ativo")
 
     class Meta:
@@ -154,6 +163,30 @@ class ConfiguracaoSistema(models.Model):
     modelo_padrao_opencode = models.CharField(
         max_length=50, default="kimi-k2.6", verbose_name="Modelo padrão OpenCode Go"
     )
+    emails_internos = models.TextField(
+        blank=True,
+        default="",
+        verbose_name="E-mails internos para avisos de novas CCTs",
+        help_text="Informe um e-mail por linha ou separados por vírgula.",
+    )
+
+    def emails_internos_lista(self):
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError
+
+        emails = []
+        for valor in self.emails_internos.replace(",", "\n").splitlines():
+            email = valor.strip().lower()
+            if not email:
+                continue
+            try:
+                validate_email(email)
+            except ValidationError:
+                continue
+            if email not in emails:
+                emails.append(email)
+        return emails
+
     prompt_analise_cct = models.TextField(
         blank=True,
         verbose_name="Prompt para análise de CCT",
@@ -199,3 +232,22 @@ class ConfiguracaoSistema(models.Model):
 
     def __str__(self):
         return "Configuração do Sistema"
+
+
+class NotificacaoDocumentoCCT(models.Model):
+    STATUS_PENDENTE = "PENDENTE"
+    STATUS_ENVIADA = "ENVIADA"
+    STATUS_ERRO = "ERRO"
+    STATUS_CHOICES = [(STATUS_PENDENTE, "Pendente"), (STATUS_ENVIADA, "Enviada"), (STATUS_ERRO, "Erro")]
+
+    documento = models.ForeignKey(DocumentoCCT, on_delete=models.CASCADE, related_name="notificacoes")
+    destinatario = models.EmailField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDENTE, db_index=True)
+    criada_em = models.DateTimeField(auto_now_add=True)
+    enviada_em = models.DateTimeField(null=True, blank=True)
+    tentativas = models.PositiveIntegerField(default=0)
+    ultimo_erro = models.TextField(blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["documento", "destinatario"], name="uniq_notif_doc_dest")]
+        indexes = [models.Index(fields=["status", "criada_em"])]

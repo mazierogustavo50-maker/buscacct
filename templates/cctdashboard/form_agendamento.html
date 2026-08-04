@@ -95,6 +95,12 @@
     </div>
 </div>
 
+<div class="alert alert-info mt-3">
+    <strong>Como funciona:</strong> configure recorrência diária, semanal ou mensal.
+    Para executar automaticamente, cadastre no servidor:
+    <code>* * * * * cd /caminho/do/projeto && flock -n /tmp/buscacct.lock python manage.py executar_agendamentos</code>
+</div>
+
 <script>
 function toggleCamposRecorrencia() {
     const rec = document.getElementById('recorrencia').value;

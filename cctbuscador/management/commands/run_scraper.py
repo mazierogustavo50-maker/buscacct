@@ -22,6 +22,7 @@ from django.utils import timezone
 
 from cctbuscador.models import ExecucaoScraper
 from cctcore.models import Sindicato, DocumentoCCT
+from cctcore.notifications import enfileirar_notificacoes
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -976,6 +977,8 @@ class Command(BaseCommand):
                                     "data_registro_mte": data_reg_obj,
                                 }
                             )
+                            if created:
+                                enfileirar_notificacoes(doc)
                             if not created:
                                 doc.arquivo_pdf = caminho_relativo
                                 doc.status_extracao = DocumentoCCT.STATUS_EXTRAIDO
