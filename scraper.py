@@ -47,6 +47,37 @@ def formatar_nome_arquivo(tipo, sindicato, inicio_vigencia):
     nome = re.sub(r'[\\/*?:"<>|]', "", nome)
     return nome[:200]  # limita tamanho para evitar erros de path
 
+def gerar_nome_unico(tipo, sindicato, inicio_vigencia, nomes_usados=None, forcar=False):
+    """
+    Gera um nome de arquivo único, adicionando sufixo numérico (1), (2), etc.
+    quando já existe no disco ou já foi usado na execução atual.
+    """
+    nome_base = formatar_nome_arquivo(tipo, sindicato, inicio_vigencia)
+    if nomes_usados is None:
+        nomes_usados = set()
+
+    def _nome_disponivel(nome):
+        if nome in nomes_usados:
+            return False
+        if not forcar:
+            if any(os.path.exists(os.path.join(DOWNLOAD_DIR, f"{nome}{ext}"))
+                   for ext in ['.pdf', '.doc', '.docx']):
+                return False
+        return True
+
+    if _nome_disponivel(nome_base):
+        return nome_base
+
+    contador = 1
+    while True:
+        nome_tentativa = f"{nome_base} ({contador})"
+        if _nome_disponivel(nome_tentativa):
+            return nome_tentativa
+        contador += 1
+        if contador > 999:
+            # Segurança: evita loop infinito em cenários extremos
+            return nome_tentativa
+
 def normalizar_texto(texto):
     """Remove acentos, caixa e espaços extras."""
     try:
@@ -405,6 +436,7 @@ def processar_mediador():
     rel_nao_encontrados  = []  # CNPJ sem nenhum registro no site
     rel_ja_baixados      = []  # CNPJ encontrado mas arquivo já existia
     rel_baixados         = []  # CNPJ encontrado e arquivo baixado com sucesso
+    _nomes_usados        = set()  # rastreia nomes já gerados nesta execução
 
     # 2. Iniciar navegador
     print("Iniciando Chrome...")
@@ -608,19 +640,14 @@ def processar_mediador():
                     codigo_sind = mapa_codigo.get(cnpj_digits, "")
                     prefixo     = f"{codigo_sind}-" if codigo_sind else ""
 
-                    nome_esperado = formatar_nome_arquivo(
-                        f"{prefixo}{tipo_arq}", sindicato_esperado, inicio_vigencia
+                    # Gera nome único com sufixo numérico (1), (2), etc. quando houver duplicatas
+                    nome_esperado = gerar_nome_unico(
+                        f"{prefixo}{tipo_arq}", sindicato_esperado, inicio_vigencia,
+                        nomes_usados=_nomes_usados
                     )
 
-                    # Verifica se já existe
-                    ja_existe = any(
-                        os.path.exists(os.path.join(DOWNLOAD_DIR, f"{nome_esperado}{ext}"))
-                        for ext in ['.pdf', '.doc', '.docx']
-                    )
-                    if ja_existe:
-                        print(f"  [PULANDO] Arquivo já existe: {nome_esperado}")
-                        rel_ja_baixados.append((cnpj_formatado, sindicato_esperado, nome_esperado))
-                        continue
+                    # Registra nome como usado nesta execução (evita conflito entre downloads na mesma rodada)
+                    _nomes_usados.add(nome_esperado)
 
                     limpar_temp()
 

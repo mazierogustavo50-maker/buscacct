@@ -307,6 +307,38 @@ def parse_data_br(data_str):
     return None
 
 
+def gerar_nome_unico(tipo, sindicato, inicio_vigencia, nomes_usados=None, forcar=False):
+    """
+    Gera um nome de arquivo único, adicionando sufixo numérico (1), (2), etc.
+    quando já existe no disco ou já foi usado na execução atual.
+    """
+    nome_base = formatar_nome_arquivo(tipo, sindicato, inicio_vigencia)
+    if nomes_usados is None:
+        nomes_usados = set()
+
+    def _nome_disponivel(nome):
+        if nome in nomes_usados:
+            return False
+        if not forcar:
+            if any(os.path.exists(os.path.join(DOWNLOAD_DIR, f"{nome}{ext}"))
+                   for ext in ['.pdf', '.doc', '.docx']):
+                return False
+        return True
+
+    if _nome_disponivel(nome_base):
+        return nome_base
+
+    contador = 1
+    while True:
+        nome_tentativa = f"{nome_base} ({contador})"
+        if _nome_disponivel(nome_tentativa):
+            return nome_tentativa
+        contador += 1
+        if contador > 999:
+            # Segurança: evita loop infinito em cenários extremos
+            return nome_tentativa
+
+
 # ==========================================
 # MANAGEMENT COMMAND
 # ==========================================
@@ -521,6 +553,7 @@ class Command(BaseCommand):
         self.rel_nao_encontrados = []
         self.rel_ja_baixados = []
         self.rel_baixados = []
+        self._nomes_usados = set()  # rastreia nomes já gerados nesta execução
 
         self.log("Iniciando Chrome...")
         self._salvar_progresso(execucao)
@@ -825,19 +858,13 @@ class Command(BaseCommand):
                         # Usa o NOME do sindicato no arquivo, nunca o código (evita duplicação com o prefixo)
                         nome_sindicato_arquivo = sindicato.nome or sindicato_esperado
 
-                        nome_esperado = formatar_nome_arquivo(
-                            f"{prefixo}{tipo_arq}", nome_sindicato_arquivo, inicio_vigencia
+                        # Gera nome único com sufixo numérico (1), (2), etc. quando houver duplicatas
+                        nome_esperado = gerar_nome_unico(
+                            f"{prefixo}{tipo_arq}", nome_sindicato_arquivo, inicio_vigencia,
+                            nomes_usados=self._nomes_usados, forcar=forcar
                         )
 
-                        # Verifica se já existe no disco (ignora se --forcar)
-                        ja_existe = False
-                        if not forcar:
-                            ja_existe = any(
-                                os.path.exists(os.path.join(DOWNLOAD_DIR, f"{nome_esperado}{ext}"))
-                                for ext in ['.pdf', '.doc', '.docx']
-                            )
-
-                        # Também verifica no banco por DocumentoCCT já existente para o mesmo sindicato/tipo/data (ignora se --forcar)
+                        # Verifica no banco por DocumentoCCT já existente para o mesmo sindicato/tipo/data/nome (ignora se --forcar)
                         data_obj = parse_data_br(inicio_vigencia)
                         data_fim_obj = parse_data_br(fim_vigencia) if fim_vigencia else None
                         data_reg_obj = parse_data_br(data_registro_mte) if data_registro_mte else None
@@ -847,13 +874,16 @@ class Command(BaseCommand):
                         except Sindicato.DoesNotExist:
                             pass
 
-                        if not forcar and (ja_existe or (sindicato_db and DocumentoCCT.objects.filter(
-                            sindicato=sindicato_db, tipo=tipo_arq, data_inicio_vigencia=data_obj
-                        ).exists())):
-                            self.log(f"  [PULANDO] Arquivo já existe: {nome_esperado}")
+                        if not forcar and (sindicato_db and DocumentoCCT.objects.filter(
+                            sindicato=sindicato_db, tipo=tipo_arq, data_inicio_vigencia=data_obj, nome_arquivo=nome_esperado
+                        ).exists()):
+                            self.log(f"  [PULANDO] Arquivo já existe no banco: {nome_esperado}")
                             self.rel_ja_baixados.append((cnpj_formatado, sindicato_esperado, nome_esperado))
                             execucao.total_ja_existentes += 1
                             continue
+
+                        # Registra nome como usado nesta execução (evita conflito entre downloads na mesma rodada)
+                        self._nomes_usados.add(nome_esperado)
 
                         if forcar:
                             self.log(f"  [FORÇAR] Re-download ativado. Baixando mesmo se existir: {nome_esperado}")
