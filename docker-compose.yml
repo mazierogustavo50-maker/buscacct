@@ -36,6 +36,26 @@ services:
     depends_on:
       - web
 
+  # Serviço cron: executa scraper + análise às 05:00 todo dia (todos os sindicatos)
+  cron:
+    build: .
+    container_name: buscacct_cron
+    command: supercronic /app/crontab
+    volumes:
+      - buscacct_data:/app/data
+      - buscacct_convencoes:/app/convencoes
+      - buscacct_dados:/app/dados
+      - buscacct_media:/app/media
+      - buscacct_logs:/app/logs
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-django-insecure-change-me-in-production}
+      - DJANGO_DEBUG=${DJANGO_DEBUG:-False}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-*}
+      - TZ=America/Sao_Paulo
+    restart: unless-stopped
+    depends_on:
+      - web
+
 volumes:
   buscacct_data:
     driver: local
@@ -44,4 +64,6 @@ volumes:
   buscacct_dados:
     driver: local
   buscacct_media:
+    driver: local
+  buscacct_logs:
     driver: local

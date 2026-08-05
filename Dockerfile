@@ -65,6 +65,14 @@ RUN wget -q --timeout=30 https://dl.google.com/linux/direct/google-chrome-stable
 # O ChromeDriver é gerenciado automaticamente pelo webdriver-manager (já no requirements.txt)
 # Não instalamos chromedriver manualmente pois as URLs antigas do Google foram descontinuadas
 
+# Instala supercronic (cron para containers) — usado pelo serviço cron
+ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.48/supercronic-linux-amd64 \
+    SUPERCRONIC_SHA1SUM=016b7c9aebfc8d9fd9526e8ba33b191fc524485f
+RUN curl -fsSLO "$SUPERCRONIC_URL" \
+    && echo "$SUPERCRONIC_SHA1SUM  supercronic-linux-amd64" | sha1sum -c - \
+    && chmod +x supercronic-linux-amd64 \
+    && mv supercronic-linux-amd64 /usr/local/bin/supercronic
+
 # Instala dependências Python
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
