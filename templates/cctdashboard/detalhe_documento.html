@@ -66,7 +66,13 @@
                     <dd class="col-sm-8">{{ documento.data_base|date:"d/m/Y"|default:"-" }}</dd>
 
                     <dt class="col-sm-4">Reajuste (%)</dt>
-                    <dd class="col-sm-8">{{ documento.reajuste_percentual|default:"-" }}</dd>
+                    <dd class="col-sm-8">{{ documento.reajuste_percentual_manual|default:documento.reajuste_percentual|default:"-" }}</dd>
+
+                    <dt class="col-sm-4">Domínio da contribuição</dt>
+                    <dd class="col-sm-8">{{ documento.get_contribuicao_sindical_dominio_display|default:"-" }}</dd>
+
+                    <dt class="col-sm-4">Orientações de horas extras</dt>
+                    <dd class="col-sm-8">{{ documento.orientacoes_horas_extras|default:"-"|linebreaksbr }}</dd>
 
                     <dt class="col-sm-4">Mês(es) de Desconto</dt>
                     <dd class="col-sm-8">

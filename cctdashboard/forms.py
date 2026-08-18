@@ -102,6 +102,10 @@ class DocumentoCCTManualForm(forms.ModelForm):
             "contribuicao_sindical_empregado_meses_manual",
             "usa_trechos_manuais",
             "usa_meses_manual",
+            "reajuste_percentual_manual",
+            "contribuicao_sindical_dominio",
+            "contribuicao_sindical_valor_manual",
+            "orientacoes_horas_extras",
         ]
         widgets = {
             "trecho_contribuicao_empregado_manual": forms.Textarea(attrs={
@@ -120,6 +124,10 @@ class DocumentoCCTManualForm(forms.ModelForm):
             }),
             "usa_trechos_manuais": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "usa_meses_manual": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "reajuste_percentual_manual": forms.NumberInput(attrs={"class": "form-control", "step": "0.0001"}),
+            "contribuicao_sindical_dominio": forms.Select(attrs={"class": "form-select"}),
+            "contribuicao_sindical_valor_manual": forms.NumberInput(attrs={"class": "form-control", "step": "0.01"}),
+            "orientacoes_horas_extras": forms.Textarea(attrs={"class": "form-control", "rows": 6}),
         }
         labels = {
             "trecho_contribuicao_empregado_manual": "Trecho Contribuição Empregado (manual)",
@@ -127,4 +135,8 @@ class DocumentoCCTManualForm(forms.ModelForm):
             "contribuicao_sindical_empregado_meses_manual": "Mês(es) de Desconto (manual)",
             "usa_trechos_manuais": "Usar trechos manuais no lugar dos extraídos",
             "usa_meses_manual": "Usar mês de desconto manual no lugar do extraído",
+            "reajuste_percentual_manual": "Atualização de salário (%)",
+            "contribuicao_sindical_dominio": "Lançamento de contribuição sindical — domínio",
+            "contribuicao_sindical_valor_manual": "Valor manual da contribuição sindical",
+            "orientacoes_horas_extras": "Orientações de horas extras",
         }

@@ -375,6 +375,20 @@ def reativar_empresa(request, pk):
 
 
 @login_required
+@require_POST
+def acao_empresas_lote(request):
+    ids = [valor for valor in request.POST.getlist("empresas") if valor.isdigit()]
+    acao = request.POST.get("acao", "")
+    if not ids or acao not in {"ativar", "inativar"}:
+        messages.warning(request, "Selecione empresas e uma ação válida.")
+        return redirect("cctdashboard:lista_empresas")
+    ativo = acao == "ativar"
+    total = Empresa.objects.filter(pk__in=ids).update(ativo=ativo)
+    messages.success(request, f"{total} empresa(s) {'ativada(s)' if ativo else 'inativada(s)'} com sucesso.")
+    return redirect("cctdashboard:lista_empresas")
+
+
+@login_required
 def importar_empresas(request):
     if request.method == "POST":
         form = ImportarEmpresasForm(request.POST, request.FILES)
@@ -1040,6 +1054,7 @@ def relatorio_desconto_mensal_pdf(request):
     documentos = [d for d in documentos if mes_numero in _meses_do_desconto(d.get_meses_desconto())]
 
     sindicatos_data = []
+    empresas_desconto = Empresa.objects.none()
     for doc in documentos:
         sindicato = doc.sindicato
         empresas = Empresa.objects.filter(sindicatos__sindicato=sindicato, ativo=True).distinct().order_by("nome")
@@ -1048,9 +1063,14 @@ def relatorio_desconto_mensal_pdf(request):
             "documento": doc,
             "empresas": empresas,
         })
+        empresas_desconto = empresas_desconto | Empresa.objects.filter(
+            sindicatos__sindicato=sindicato, ativo=True
+        )
+    empresas_desconto = empresas_desconto.distinct().order_by("nome")
 
     html_string = render_to_string("cctdashboard/relatorio_desconto_mensal_pdf.html", {
         "sindicatos_data": sindicatos_data,
+        "empresas_desconto": empresas_desconto,
         "mes": mes_numero,
         "mes_nome": MESES_RELATORIO.get(mes_numero, ("",))[0],
         "data_geracao": timezone.localtime().strftime("%d/%m/%Y %H:%M"),

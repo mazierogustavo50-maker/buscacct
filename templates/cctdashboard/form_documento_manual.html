@@ -46,6 +46,22 @@
                 <form method="post" novalidate>
                     {% csrf_token %}
                     <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">{{ form.reajuste_percentual_manual.label }}</label>
+                            {{ form.reajuste_percentual_manual }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">{{ form.contribuicao_sindical_dominio.label }}</label>
+                            {{ form.contribuicao_sindical_dominio }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">{{ form.contribuicao_sindical_valor_manual.label }}</label>
+                            {{ form.contribuicao_sindical_valor_manual }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">{{ form.orientacoes_horas_extras.label }}</label>
+                            {{ form.orientacoes_horas_extras }}
+                        </div>
                         <div class="col-md-6">
                             <label for="{{ form.trecho_contribuicao_empregado_manual.id_for_label }}" class="form-label fw-bold">
                                 {{ form.trecho_contribuicao_empregado_manual.label }}

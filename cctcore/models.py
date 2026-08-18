@@ -151,6 +151,22 @@ class DocumentoCCT(models.Model):
         max_length=64, unique=True, null=True, blank=True, db_index=True,
         verbose_name="Identificador do documento na origem",
     )
+    reajuste_percentual_manual = models.DecimalField(
+        max_digits=7, decimal_places=4, null=True, blank=True,
+        verbose_name="Atualização salarial manual (%)",
+    )
+    contribuicao_sindical_dominio = models.CharField(
+        max_length=20, blank=True, default="",
+        choices=[("EMPREGADO", "Empregado"), ("PATRONAL", "Patronal"), ("AMBOS", "Ambos")],
+        verbose_name="Domínio da contribuição sindical",
+    )
+    contribuicao_sindical_valor_manual = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True,
+        verbose_name="Valor manual da contribuição sindical",
+    )
+    orientacoes_horas_extras = models.TextField(
+        blank=True, default="", verbose_name="Orientações de horas extras",
+    )
 
     class Meta:
         verbose_name = "Documento CCT"

@@ -43,12 +43,19 @@
     </div>
 </div>
 
+<form method="post" action="{% url 'cctdashboard:acao_empresas_lote' %}">
+{% csrf_token %}
+<div class="d-flex gap-2 mb-2">
+    <button name="acao" value="ativar" class="btn btn-sm btn-outline-success">Ativar selecionadas</button>
+    <button name="acao" value="inativar" class="btn btn-sm btn-outline-danger">Inativar selecionadas</button>
+</div>
 <div class="card shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover table-striped mb-0">
                 <thead >
                     <tr>
+                        <th><input type="checkbox" id="selecionar-todas" aria-label="Selecionar todas"></th>
                         <th>Código</th>
                         <th>Nome</th>
                         <th>Sindicatos</th>
@@ -59,6 +66,7 @@
                 <tbody>
                     {% for empresa in page_obj %}
                     <tr>
+                        <td><input type="checkbox" name="empresas" value="{{ empresa.pk }}" aria-label="Selecionar {{ empresa.nome }}"></td>
                         <td class="font-monospace">{{ empresa.codigo }}</td>
                         <td>{{ empresa.nome }}</td>
                         <td>{{ empresa.sindicatos.count }}</td>
@@ -80,7 +88,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center text-muted py-4">Nenhuma empresa encontrada.</td>
+                        <td colspan="6" class="text-center text-muted py-4">Nenhuma empresa encontrada.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -115,4 +123,10 @@
     </div>
     {% endif %}
 </div>
+</form>
+<script>
+document.getElementById('selecionar-todas')?.addEventListener('change', function () {
+    document.querySelectorAll('input[name="empresas"]').forEach((item) => item.checked = this.checked);
+});
+</script>
 {% endblock %}
