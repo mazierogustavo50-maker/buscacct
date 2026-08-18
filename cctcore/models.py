@@ -95,6 +95,10 @@ class DocumentoCCT(models.Model):
     )
     ativo = models.BooleanField(default=True, db_index=True)
     data_registro_mte = models.DateField(null=True, blank=True, verbose_name="Data de registro no MTE")
+    identificador_origem = models.CharField(
+        max_length=64, unique=True, null=True, blank=True, db_index=True,
+        verbose_name="Identificador do documento na origem",
+    )
 
     class Meta:
         verbose_name = "Documento CCT"

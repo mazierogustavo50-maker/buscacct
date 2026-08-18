@@ -4,6 +4,7 @@ import re
 import shutil
 import signal
 import unicodedata
+import hashlib
 import requests
 from datetime import datetime
 from urllib.parse import urljoin
@@ -65,6 +66,11 @@ def formatar_nome_arquivo(tipo, sindicato, inicio_vigencia):
     nome = f"{tipo}-{sindicato}-{inicio_vigencia}"
     nome = re.sub(r'[\\/*?:"<>|]', "", nome)
     return nome[:200]
+
+
+def identificador_do_link(href):
+    """Gera uma chave estável para cada documento retornado pelo MTE."""
+    return hashlib.sha256(href.strip().encode("utf-8")).hexdigest()[:32]
 
 
 def normalizar_texto(texto):
@@ -820,6 +826,13 @@ class Command(BaseCommand):
                                 data_registro_mte = m_reg.group(1).replace('/', '-')
 
                         tipo_arq = "TA-CCT" if "TERMO ADITIVO" in tipo_check else "CCT"
+                        link = linha.find_element(By.TAG_NAME, "a")
+                        href_origem = (link.get_attribute("href") or "").strip()
+                        if not href_origem:
+                            onclick = link.get_attribute("onclick") or ""
+                            match_link = re.search(r"window\.open\(['\"](.+?)['\"]", onclick)
+                            href_origem = match_link.group(1).strip() if match_link else ""
+                        identificador_origem = identificador_do_link(href_origem) if href_origem else None
                         codigo_sind = mapa_codigo.get(cnpj_digits, sindicato.codigo or "")
                         prefixo = f"{codigo_sind}-" if codigo_sind else ""
 
@@ -829,6 +842,8 @@ class Command(BaseCommand):
                         nome_esperado = formatar_nome_arquivo(
                             f"{prefixo}{tipo_arq}", nome_sindicato_arquivo, inicio_vigencia
                         )
+                        if identificador_origem:
+                            nome_esperado = f"{nome_esperado}-{identificador_origem[:12]}"
 
                         # Verifica se já existe no disco (ignora se --forcar)
                         ja_existe = False
@@ -838,7 +853,8 @@ class Command(BaseCommand):
                                 for ext in ['.pdf', '.doc', '.docx']
                             )
 
-                        # Também verifica no banco por DocumentoCCT já existente para o mesmo sindicato/tipo/data (ignora se --forcar)
+                        # A mesma vigência pode ter mais de um instrumento; a origem
+                        # do documento é o identificador correto para deduplicação.
                         data_obj = parse_data_br(inicio_vigencia)
                         data_fim_obj = parse_data_br(fim_vigencia) if fim_vigencia else None
                         data_reg_obj = parse_data_br(data_registro_mte) if data_registro_mte else None
@@ -848,9 +864,9 @@ class Command(BaseCommand):
                         except Sindicato.DoesNotExist:
                             pass
 
-                        if not forcar and (ja_existe or (sindicato_db and DocumentoCCT.objects.filter(
-                            sindicato=sindicato_db, tipo=tipo_arq, data_inicio_vigencia=data_obj
-                        ).exists())):
+                        if not forcar and identificador_origem and DocumentoCCT.objects.filter(
+                            identificador_origem=identificador_origem
+                        ).exists():
                             self.log(f"  [PULANDO] Arquivo já existe: {nome_esperado}")
                             self.rel_ja_baixados.append((cnpj_formatado, sindicato_esperado, nome_esperado))
                             execucao.total_ja_existentes += 1
@@ -865,8 +881,6 @@ class Command(BaseCommand):
                         # DOWNLOAD DO ARQUIVO (direto primeiro, legado como fallback)
                         # ==========================================
                         destino_final = None
-                        link = linha.find_element(By.TAG_NAME, "a")
-
                         # TENTATIVA 1: Download direto via requests (mais rápido e confiável)
                         destino_base = os.path.join(DOWNLOAD_DIR, nome_esperado)
                         destino_final = baixar_arquivo_direto(
@@ -987,17 +1001,31 @@ class Command(BaseCommand):
                                     }
                                 )
 
-                            doc, created = DocumentoCCT.objects.get_or_create(
-                                sindicato=sindicato_db,
-                                tipo=tipo_arq,
-                                data_inicio_vigencia=data_obj,
-                                defaults={
-                                    "arquivo_pdf": caminho_relativo,
-                                    "status_extracao": DocumentoCCT.STATUS_EXTRAIDO,
-                                    "data_fim_vigencia": data_fim_obj,
-                                    "data_registro_mte": data_reg_obj,
-                                }
-                            )
+                            if identificador_origem:
+                                doc, created = DocumentoCCT.objects.get_or_create(
+                                    identificador_origem=identificador_origem,
+                                    defaults={
+                                        "sindicato": sindicato_db,
+                                        "tipo": tipo_arq,
+                                        "data_inicio_vigencia": data_obj,
+                                        "arquivo_pdf": caminho_relativo,
+                                        "status_extracao": DocumentoCCT.STATUS_EXTRAIDO,
+                                        "data_fim_vigencia": data_fim_obj,
+                                        "data_registro_mte": data_reg_obj,
+                                    },
+                                )
+                            else:
+                                doc, created = DocumentoCCT.objects.get_or_create(
+                                    sindicato=sindicato_db,
+                                    tipo=tipo_arq,
+                                    data_inicio_vigencia=data_obj,
+                                    defaults={
+                                        "arquivo_pdf": caminho_relativo,
+                                        "status_extracao": DocumentoCCT.STATUS_EXTRAIDO,
+                                        "data_fim_vigencia": data_fim_obj,
+                                        "data_registro_mte": data_reg_obj,
+                                    },
+                                )
                             if not created:
                                 doc.arquivo_pdf = caminho_relativo
                                 doc.status_extracao = DocumentoCCT.STATUS_EXTRAIDO
