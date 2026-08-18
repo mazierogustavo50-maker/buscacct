@@ -5,20 +5,25 @@ from cctcore.models import Sindicato, Empresa, EmpresaSindicato, EmpresaDocument
 class SindicatoForm(forms.ModelForm):
     class Meta:
         model = Sindicato
-        fields = ["codigo", "nome", "cnpj"]
+        fields = ["codigo", "nome", "apelido", "cnpj"]
         widgets = {
             "codigo": forms.TextInput(attrs={"class": "form-control", "placeholder": "Código do sindicato"}),
             "nome": forms.TextInput(attrs={"class": "form-control", "placeholder": "Nome do sindicato"}),
+            "apelido": forms.TextInput(attrs={"class": "form-control", "placeholder": "Apelido do sindicato"}),
             "cnpj": forms.TextInput(attrs={"class": "form-control", "placeholder": "CNPJ (somente números)"}),
         }
         labels = {
             "codigo": "Código",
             "nome": "Nome do Sindicato",
+            "apelido": "Apelido",
             "cnpj": "CNPJ",
         }
 
 
 class EmpresaForm(forms.ModelForm):
+    email = forms.EmailField(required=False, label="E-mail do cliente", widget=forms.EmailInput(attrs={"class": "form-control", "placeholder": "cliente@empresa.com.br"}))
+    sindicato_aplicado = forms.ModelChoiceField(queryset=Sindicato.objects.order_by("nome"), required=False, label="Sindicato aplicado", widget=forms.Select(attrs={"class": "form-select"}))
+    convencao_aplicada = forms.ModelChoiceField(queryset=DocumentoCCT.objects.filter(ativo=True).select_related("sindicato").order_by("-data_inicio_vigencia"), required=False, label="Convenção aplicada", widget=forms.Select(attrs={"class": "form-select"}))
     sindicatos = forms.ModelMultipleChoiceField(
         queryset=Sindicato.objects.order_by("nome"),
         required=False,
@@ -34,7 +39,7 @@ class EmpresaForm(forms.ModelForm):
 
     class Meta:
         model = Empresa
-        fields = ["codigo", "nome"]
+        fields = ["codigo", "nome", "email", "sindicato_aplicado", "convencao_aplicada"]
         widgets = {
             "codigo": forms.TextInput(attrs={"class": "form-control", "placeholder": "Código da empresa"}),
             "nome": forms.TextInput(attrs={"class": "form-control", "placeholder": "Nome da empresa"}),
@@ -47,6 +52,9 @@ class EmpresaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk:
+            self.fields["convencao_aplicada"].queryset = DocumentoCCT.objects.filter(
+                ativo=True, sindicato_id__in=Sindicato.objects.filter(empresas__empresa=self.instance).values("pk")
+            ).select_related("sindicato").order_by("-data_inicio_vigencia")
             self.fields["sindicatos"].initial = Sindicato.objects.filter(
                 empresas__empresa=self.instance
             ).values_list("pk", flat=True)
@@ -83,3 +91,40 @@ class ImportarEmpresasForm(forms.Form):
         label="Arquivo Excel (.xlsx)",
         widget=forms.FileInput(attrs={"class": "form-control", "accept": ".xlsx"}),
     )
+
+
+class DocumentoCCTManualForm(forms.ModelForm):
+    class Meta:
+        model = DocumentoCCT
+        fields = [
+            "trecho_contribuicao_empregado_manual",
+            "trecho_contribuicao_patronal_manual",
+            "contribuicao_sindical_empregado_meses_manual",
+            "usa_trechos_manuais",
+            "usa_meses_manual",
+        ]
+        widgets = {
+            "trecho_contribuicao_empregado_manual": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 10,
+                "placeholder": "Cole aqui o trecho da CCT referente à contribuição do empregado..."
+            }),
+            "trecho_contribuicao_patronal_manual": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 10,
+                "placeholder": "Cole aqui o trecho da CCT referente à contribuição patronal..."
+            }),
+            "contribuicao_sindical_empregado_meses_manual": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Ex: MAR, MAI, AGO, OUT  ou  12x ao ano"
+            }),
+            "usa_trechos_manuais": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "usa_meses_manual": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+        labels = {
+            "trecho_contribuicao_empregado_manual": "Trecho Contribuição Empregado (manual)",
+            "trecho_contribuicao_patronal_manual": "Trecho Contribuição Patronal (manual)",
+            "contribuicao_sindical_empregado_meses_manual": "Mês(es) de Desconto (manual)",
+            "usa_trechos_manuais": "Usar trechos manuais no lugar dos extraídos",
+            "usa_meses_manual": "Usar mês de desconto manual no lugar do extraído",
+        }

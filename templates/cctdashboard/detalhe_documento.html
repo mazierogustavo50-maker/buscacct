@@ -36,6 +36,12 @@
                     {% else %}
                         <span class="badge bg-warning text-dark">Inativo</span>
                     {% endif %}
+                    {% if documento.usa_trechos_manuais %}
+                        <span class="badge bg-info" title="Trechos manuais ativos"><i class="bi bi-pen-fill"></i> Manual</span>
+                    {% endif %}
+                    {% if documento.usa_meses_manual %}
+                        <span class="badge bg-info" title="Mês de desconto manual ativo"><i class="bi bi-calendar-check"></i> Mês Manual</span>
+                    {% endif %}
                 </span>
             </div>
             <div class="card-body">
@@ -62,11 +68,66 @@
                     <dt class="col-sm-4">Reajuste (%)</dt>
                     <dd class="col-sm-8">{{ documento.reajuste_percentual|default:"-" }}</dd>
 
-                    <dt class="col-sm-4">Contrib. Sindical Empregado</dt>
-                    <dd class="col-sm-8">{{ documento.contribuicao_sindical_empregado|default:"-" }}</dd>
+                    <dt class="col-sm-4">Mês(es) de Desconto</dt>
+                    <dd class="col-sm-8">
+                        {% if documento.usa_meses_manual %}
+                            <span class="badge bg-info me-1">MANUAL</span>
+                            {{ documento.get_meses_desconto|default:"-" }}
+                            <br><small class="text-muted">Original extraído: {{ documento.contribuicao_sindical_empregado_meses|default:"-" }}</small>
+                        {% else %}
+                            {{ documento.get_meses_desconto|default:"-" }}
+                        {% endif %}
+                    </dd>
 
-                    <dt class="col-sm-4">Contrib. Sindical Patronal</dt>
-                    <dd class="col-sm-8">{{ documento.contribuicao_sindical_patronal|default:"-" }}</dd>
+                    <dt class="col-sm-4">Trecho Contrib. Empregado</dt>
+                    <dd class="col-sm-8">
+                        {% with trecho=documento.get_trecho_empregado %}
+                        {% if trecho %}
+                            <div class="card border-info">
+                                <div class="card-header bg-info bg-opacity-10 text-info fw-bold small d-flex justify-content-between">
+                                    <span><i class="bi bi-person-fill me-1"></i>Contribuição Sindical / Negocial — Empregado</span>
+                                    {% if documento.usa_trechos_manuais and documento.trecho_contribuicao_empregado_manual %}
+                                        <span class="badge bg-info">MANUAL</span>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body p-3">
+                                    <pre class="mb-0" style="white-space: pre-wrap; overflow-wrap: anywhere; max-height: 520px; overflow-y: auto; font-family: Georgia, 'Times New Roman', serif; font-size: 0.92rem; line-height: 1.45; color: #333; background: transparent; border: none; padding: 0;">{{ trecho }}</pre>
+                                </div>
+                            </div>
+                            {% if documento.usa_trechos_manuais and documento.trecho_contribuicao_empregado %}
+                                <small class="text-muted d-block mt-1">Original extraído:</small>
+                                <pre class="text-muted small" style="white-space: pre-wrap; max-height: 200px; overflow-y: auto;">{{ documento.trecho_contribuicao_empregado }}</pre>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                        {% endwith %}
+                    </dd>
+
+                    <dt class="col-sm-4">Trecho Contrib. Patronal</dt>
+                    <dd class="col-sm-8">
+                        {% with trecho=documento.get_trecho_patronal %}
+                        {% if trecho %}
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning bg-opacity-10 text-warning fw-bold small d-flex justify-content-between">
+                                    <span><i class="bi bi-building-fill me-1"></i>Contribuição Sindical / Negocial — Patronal</span>
+                                    {% if documento.usa_trechos_manuais and documento.trecho_contribuicao_patronal_manual %}
+                                        <span class="badge bg-info">MANUAL</span>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body p-3">
+                                    <pre class="mb-0" style="white-space: pre-wrap; overflow-wrap: anywhere; max-height: 520px; overflow-y: auto; font-family: Georgia, 'Times New Roman', serif; font-size: 0.92rem; line-height: 1.45; color: #333; background: transparent; border: none; padding: 0;">{{ trecho }}</pre>
+                                </div>
+                            </div>
+                            {% if documento.usa_trechos_manuais and documento.trecho_contribuicao_patronal %}
+                                <small class="text-muted d-block mt-1">Original extraído:</small>
+                                <pre class="text-muted small" style="white-space: pre-wrap; max-height: 200px; overflow-y: auto;">{{ documento.trecho_contribuicao_patronal }}</pre>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                        {% endwith %}
+                    </dd>
 
                     <dt class="col-sm-4">Status Extração</dt>
                     <dd class="col-sm-8">{{ documento.get_status_extracao_display }}</dd>
@@ -100,6 +161,9 @@
             <div class="card-body">
                 <h6 class="card-title fw-bold"><i class="bi bi-lightning-fill me-2 text-warning"></i>Ações Rápidas</h6>
                 <div class="d-grid gap-2">
+                    <a href="{% url 'cctdashboard:editar_documento_manual' documento.pk %}" class="btn btn-outline-dark">
+                        <i class="bi bi-pen-fill me-2"></i>Editar Manualmente
+                    </a>
                     <a href="{% url 'cctdashboard:detalhe_sindicato' documento.sindicato.pk %}" class="btn btn-outline-primary">
                         <i class="bi bi-people-fill me-2"></i>Ver Sindicato
                     </a>

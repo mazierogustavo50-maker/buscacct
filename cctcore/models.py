@@ -5,6 +5,7 @@ class Sindicato(models.Model):
     codigo = models.CharField(max_length=20, unique=True, db_index=True)
     cnpj = models.CharField(max_length=14, blank=True, db_index=True)
     nome = models.CharField(max_length=255)
+    apelido = models.CharField(max_length=100, blank=True, db_index=True)
     sem_documentos = models.BooleanField(default=False, verbose_name="Sem documentos na última busca")
     data_ultima_busca = models.DateTimeField(null=True, blank=True, verbose_name="Data da última busca")
 
@@ -20,6 +21,16 @@ class Sindicato(models.Model):
 class Empresa(models.Model):
     codigo = models.CharField(max_length=20, db_index=True)
     nome = models.CharField(max_length=255)
+    email = models.EmailField(blank=True, default="", verbose_name="E-mail do cliente")
+    sindicato_aplicado = models.ForeignKey(
+        "Sindicato", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="empresas_como_aplicado", verbose_name="Sindicato aplicado",
+    )
+    convencao_aplicada = models.ForeignKey(
+        "DocumentoCCT", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="empresas_como_aplicado", verbose_name="Convenção aplicada",
+    )
+    ativo = models.BooleanField(default=True, db_index=True, verbose_name="Ativo")
 
     class Meta:
         verbose_name = "Empresa"
@@ -90,6 +101,47 @@ class DocumentoCCT(models.Model):
     contribuicao_sindical_patronal = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True
     )
+    contribuicao_sindical_empregado_meses = models.CharField(
+        max_length=100, blank=True, null=True,
+        verbose_name="Meses desconto contrib. sindical/negocial",
+        help_text="Meses em que a contribuição é descontada (ex: MAR, MAI, AGO, OUT ou '12x ao ano')"
+    )
+    trecho_contribuicao_empregado = models.TextField(
+        blank=True, null=True,
+        verbose_name="Trecho contribuição empregado",
+        help_text="Texto original da CCT referente à contribuição sindical/negocial dos empregados"
+    )
+    trecho_contribuicao_patronal = models.TextField(
+        blank=True, null=True,
+        verbose_name="Trecho contribuição patronal",
+        help_text="Texto original da CCT referente à contribuição sindical/negocial patronal"
+    )
+    # Campos para inserção manual (sobrescrevem os extraídos quando ativados)
+    trecho_contribuicao_empregado_manual = models.TextField(
+        blank=True, null=True,
+        verbose_name="Trecho contribuição empregado (manual)",
+        help_text="Texto inserido manualmente pelo usuário. Quando preenchido, sobrescreve o trecho extraído automaticamente."
+    )
+    trecho_contribuicao_patronal_manual = models.TextField(
+        blank=True, null=True,
+        verbose_name="Trecho contribuição patronal (manual)",
+        help_text="Texto inserido manualmente pelo usuário. Quando preenchido, sobrescreve o trecho extraído automaticamente."
+    )
+    contribuicao_sindical_empregado_meses_manual = models.CharField(
+        max_length=100, blank=True, null=True,
+        verbose_name="Meses desconto (manual)",
+        help_text="Mês(ses) de desconto inserido manualmente. Ex: MAR, MAI, AGO, OUT ou '12x ao ano'"
+    )
+    usa_trechos_manuais = models.BooleanField(
+        default=False,
+        verbose_name="Usar trechos manuais",
+        help_text="Quando ativo, os trechos de contribuição manual sobrescrevem os extraídos automaticamente."
+    )
+    usa_meses_manual = models.BooleanField(
+        default=False,
+        verbose_name="Usar mês de desconto manual",
+        help_text="Quando ativo, o mês de desconto manual sobrescreve o extraído automaticamente."
+    )
     status_extracao = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDENTE
     )
@@ -124,6 +176,29 @@ class DocumentoCCT(models.Model):
     analise_ia_texto = models.TextField(blank=True)
     data_analise_ia = models.DateTimeField(null=True, blank=True)
 
+    def get_trecho_empregado(self):
+        if self.usa_trechos_manuais and self.trecho_contribuicao_empregado_manual:
+            return self.trecho_contribuicao_empregado_manual
+        return self.trecho_contribuicao_empregado
+
+    def get_trecho_patronal(self):
+        if self.usa_trechos_manuais and self.trecho_contribuicao_patronal_manual:
+            return self.trecho_contribuicao_patronal_manual
+        return self.trecho_contribuicao_patronal
+
+    def get_meses_desconto(self):
+        if self.usa_meses_manual and self.contribuicao_sindical_empregado_meses_manual:
+            return self.contribuicao_sindical_empregado_meses_manual
+        return self.contribuicao_sindical_empregado_meses
+
+    def save(self, *args, **kwargs):
+        # Ativa automaticamente as flags quando o usuário preenche dados manuais
+        if self.trecho_contribuicao_empregado_manual or self.trecho_contribuicao_patronal_manual:
+            self.usa_trechos_manuais = True
+        if self.contribuicao_sindical_empregado_meses_manual:
+            self.usa_meses_manual = True
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = "Documento CCT"
         verbose_name_plural = "Documentos CCT"
@@ -142,6 +217,30 @@ class ConfiguracaoSistema(models.Model):
     modelo_padrao_opencode = models.CharField(
         max_length=50, default="kimi-k2.6", verbose_name="Modelo padrão OpenCode Go"
     )
+    emails_internos = models.TextField(
+        blank=True,
+        default="",
+        verbose_name="E-mails internos para avisos de novas CCTs",
+        help_text="Informe um e-mail por linha ou separados por vírgula.",
+    )
+
+    def emails_internos_lista(self):
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError
+
+        emails = []
+        for valor in self.emails_internos.replace(",", "\n").splitlines():
+            email = valor.strip().lower()
+            if not email:
+                continue
+            try:
+                validate_email(email)
+            except ValidationError:
+                continue
+            if email not in emails:
+                emails.append(email)
+        return emails
+
     prompt_analise_cct = models.TextField(
         blank=True,
         verbose_name="Prompt para análise de CCT",
@@ -187,3 +286,22 @@ class ConfiguracaoSistema(models.Model):
 
     def __str__(self):
         return "Configuração do Sistema"
+
+
+class NotificacaoDocumentoCCT(models.Model):
+    STATUS_PENDENTE = "PENDENTE"
+    STATUS_ENVIADA = "ENVIADA"
+    STATUS_ERRO = "ERRO"
+    STATUS_CHOICES = [(STATUS_PENDENTE, "Pendente"), (STATUS_ENVIADA, "Enviada"), (STATUS_ERRO, "Erro")]
+
+    documento = models.ForeignKey(DocumentoCCT, on_delete=models.CASCADE, related_name="notificacoes")
+    destinatario = models.EmailField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDENTE, db_index=True)
+    criada_em = models.DateTimeField(auto_now_add=True)
+    enviada_em = models.DateTimeField(null=True, blank=True)
+    tentativas = models.PositiveIntegerField(default=0)
+    ultimo_erro = models.TextField(blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["documento", "destinatario"], name="uniq_notif_doc_dest")]
+        indexes = [models.Index(fields=["status", "criada_em"])]

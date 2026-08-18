@@ -17,6 +17,17 @@
                 <span><i class="bi bi-info-circle-fill me-2"></i>Detalhes da Empresa</span>
                 <div class="d-flex gap-2">
                         <a class="btn btn-sm btn-outline-primary text-decoration-none" href="{% url 'cctdashboard:editar_empresa' empresa.pk %}"><i class="bi bi-pencil me-2"></i>Editar</a>
+                        {% if empresa.ativo %}
+                        <form method="post" action="{% url 'cctdashboard:inativar_empresa' empresa.pk %}" class="m-0" onsubmit="return confirm('Deseja inativar esta empresa?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-warning"><i class="bi bi-pause-circle me-2"></i>Inativar</button>
+                        </form>
+                        {% else %}
+                        <form method="post" action="{% url 'cctdashboard:reativar_empresa' empresa.pk %}" class="m-0">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-play-circle me-2"></i>Reativar</button>
+                        </form>
+                        {% endif %}
                         <a class="btn btn-sm btn-outline-danger text-decoration-none" href="{% url 'cctdashboard:excluir_empresa' empresa.pk %}"><i class="bi bi-trash me-2"></i>Excluir</a>
                     </div>
             </div>

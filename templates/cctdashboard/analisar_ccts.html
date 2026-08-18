@@ -1,0 +1,174 @@
+{% extends "cctdashboard/base.html" %}
+{% block title %}Analisar CCTs — Dashboard CCT{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="bi bi-gear-wide-connected text-primary me-2"></i>Analisar CCTs Disponíveis</h2>
+    <a href="{% url 'cctdashboard:lista_documentos' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Voltar para Documentos
+    </a>
+</div>
+
+<p class="text-muted">
+    Reprocessa todos os documentos CCT já disponíveis no banco, extraindo do PDF as datas de
+    <strong>vigência</strong>, dados complementares (<strong>contribuições</strong>,
+    <strong>reajuste</strong>, <strong>data-base</strong>) e, opcionalmente, resetando a
+    análise com IA.
+</p>
+
+<!-- Cards de resumo -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-primary h-100">
+            <div class="card-body text-center">
+                <h3 class="text-primary mb-1">{{ total_docs }}</h3>
+                <small class="text-muted">Documentos ativos</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-success h-100">
+            <div class="card-body text-center">
+                <h3 class="text-success mb-1">{{ com_pdf }}</h3>
+                <small class="text-muted">Com PDF no disco</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-warning h-100">
+            <div class="card-body text-center">
+                <h3 class="text-warning mb-1">{{ sem_data_fim }}</h3>
+                <small class="text-muted">Sem data de fim de vigência</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-danger h-100">
+            <div class="card-body text-center">
+                <h3 class="text-danger mb-1">{{ sem_trecho }}</h3>
+                <small class="text-muted">Sem trecho de contribuição</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status da execução -->
+{% if estado.rodando %}
+<div class="alert alert-info d-flex align-items-center">
+    <div class="spinner-border spinner-border-sm me-3" role="status"></div>
+    <div>
+        <strong>Análise em andamento...</strong>
+        <span class="ms-2">{{ estado.atual }} / {{ estado.total }} documentos processados</span>
+    </div>
+</div>
+
+<!-- Barra de progresso -->
+<div class="progress mb-3" style="height: 25px;">
+    {% if estado.total > 0 %}
+        {% widthratio estado.atual estado.total 100 as pct %}
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar"
+             style="width: {{ pct }}%" aria-valuenow="{{ estado.atual }}" aria-valuemin="0" aria-valuemax="{{ estado.total }}">
+            {{ estado.atual }} / {{ estado.total }}
+        </div>
+    {% else %}
+        <div class="progress-bar progress-bar-striped progress-bar-animated w-100 bg-success" role="progressbar">
+            Iniciando...
+        </div>
+    {% endif %}
+</div>
+
+<!-- Log -->
+<div class="card mb-4">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-terminal me-2"></i>Log de execução</span>
+        <form method="post" class="m-0" onsubmit="return confirm('Deseja parar a execução?');">
+            {% csrf_token %}
+            <input type="hidden" name="acao" value="parar">
+            <button type="submit" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-stop-fill me-1"></i>Parar
+            </button>
+        </form>
+    </div>
+    <div class="card-body p-0">
+        <pre class="m-0 p-3 bg-dark text-light" style="max-height: 400px; overflow-y: auto; font-size: 0.85rem;"><code>{% for msg in estado.mensagens %}{{ msg }}
+{% empty %}Aguardando início...{% endfor %}</code></pre>
+    </div>
+</div>
+
+<meta http-equiv="refresh" content="5">
+{% else %}
+    {% if estado.mensagens %}
+    <!-- Execução concluída — mostra resumo -->
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong>Última execução concluída!</strong>
+        Atualizados: <strong>{{ estado.atualizados }}</strong> &middot;
+        Sem mudança: <strong>{{ estado.sem_mudanca }}</strong> &middot;
+        Erros: <strong>{{ estado.erros }}</strong>
+    </div>
+    {% endif %}
+
+<!-- Formulário de início -->
+<div class="card">
+    <div class="card-header bg-light">
+        <i class="bi bi-play-circle me-2"></i>Iniciar nova análise
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="acao" value="iniciar">
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="modo" class="form-label">Modo de análise</label>
+                    <select name="modo" id="modo" class="form-select">
+                        <option value="datas">Apenas datas de vigência e MTE</option>
+                        <option value="completo" selected>Completo: datas + contribuições + trechos</option>
+                        <option value="completo_ia">Completo + resetar status IA para Pendente</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="sindicato" class="form-label">Sindicato (opcional)</label>
+                    <select name="sindicato_codigo" id="sindicato" class="form-select">
+                        <option value="">Todos os sindicatos</option>
+                        {% for s in sindicatos %}
+                        <option value="{{ s.codigo }}">{{ s.nome }} ({{ s.codigo }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="limite" class="form-label">Limite (opcional)</label>
+                    <input type="number" name="limite" id="limite" class="form-control" min="0" placeholder="0 = sem limite">
+                </div>
+            </div>
+
+            <div class="row g-3 mt-1">
+                <div class="col-md-6">
+                    <label for="modo_ocr" class="form-label">OCR dos PDFs</label>
+                    <select name="modo_ocr" id="modo_ocr" class="form-select">
+                        <option value="auto" selected>Automático: OCR somente quando necessário</option>
+                        <option value="sempre">Forçar OCR em todos os PDFs</option>
+                        <option value="somente">Somente documentos que precisam de OCR</option>
+                    </select>
+                    <div class="form-text">A opção automático preserva o PDF original e cria uma cópia pesquisável com OCR quando necessário.</div>
+                </div>
+                <div class="col-md-6 d-flex align-items-center">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="apenas_vazios" id="apenas_vazios" checked>
+                        <label class="form-check-label" for="apenas_vazios">
+                            Só documentos com dados faltando
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-play-fill me-1"></i>Iniciar Análise
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -12,11 +12,13 @@ import pandas as pd
 import subprocess
 import sys
 import os
+import re
+import unicodedata
 
 from cctcore.models import Sindicato, Empresa, EmpresaSindicato, DocumentoCCT
 from cctbuscador.models import ExecucaoScraper, AgendamentoScraper
-from .forms import SindicatoForm, EmpresaForm, ImportarSindicatosForm, ImportarEmpresasForm
-from cctcore.services import extrair_texto_pdf
+from .forms import SindicatoForm, EmpresaForm, ImportarSindicatosForm, ImportarEmpresasForm, DocumentoCCTManualForm
+from cctcore.services import extrair_texto_pdf, garantir_ocr_pdf
 
 
 @login_required
@@ -120,7 +122,7 @@ def lista_sindicatos(request):
     q = request.GET.get("q", "").strip()
     if q:
         queryset = queryset.filter(
-            Q(nome__icontains=q) | Q(codigo__icontains=q) | Q(cnpj__icontains=q)
+            Q(nome__icontains=q) | Q(codigo__icontains=q) | Q(cnpj__icontains=q) | Q(apelido__icontains=q)
         )
 
     paginator = Paginator(queryset, 20)
@@ -256,12 +258,24 @@ def importar_sindicatos(request):
 
 @login_required
 def lista_empresas(request):
+    # Por padrao mostra apenas ativas; ?inativas=1 mostra apenas inativas
+    mostrar_inativas = request.GET.get("inativas", "").strip() == "1"
     queryset = Empresa.objects.all()
+    if mostrar_inativas:
+        queryset = queryset.filter(ativo=False)
+    else:
+        queryset = queryset.filter(ativo=True)
+
     q = request.GET.get("q", "").strip()
+    sem_sindicato = request.GET.get("sem_sindicato", "").strip() == "1"
+
     if q:
         queryset = queryset.filter(
             Q(nome__icontains=q) | Q(codigo__icontains=q)
         )
+
+    if sem_sindicato:
+        queryset = queryset.filter(sindicatos__isnull=True)
 
     paginator = Paginator(queryset, 20)
     page_number = request.GET.get("page")
@@ -270,6 +284,8 @@ def lista_empresas(request):
     context = {
         "page_obj": page_obj,
         "q": q,
+        "mostrar_inativas": mostrar_inativas,
+        "sem_sindicato": sem_sindicato,
     }
     return render(request, "cctdashboard/lista_empresas.html", context)
 
@@ -336,6 +352,26 @@ def excluir_empresa(request, pk):
         "voltar_url": "cctdashboard:detalhe_empresa",
         "voltar_pk": pk,
     })
+
+
+@login_required
+@require_POST
+def inativar_empresa(request, pk):
+    empresa = get_object_or_404(Empresa, pk=pk)
+    empresa.ativo = False
+    empresa.save(update_fields=["ativo"])
+    messages.success(request, "Empresa inativada com sucesso.")
+    return redirect("cctdashboard:detalhe_empresa", pk=pk)
+
+
+@login_required
+@require_POST
+def reativar_empresa(request, pk):
+    empresa = get_object_or_404(Empresa, pk=pk)
+    empresa.ativo = True
+    empresa.save(update_fields=["ativo"])
+    messages.success(request, "Empresa reativada com sucesso.")
+    return redirect("cctdashboard:detalhe_empresa", pk=pk)
 
 
 @login_required
@@ -489,6 +525,24 @@ def detalhe_documento(request, pk):
         "documento": documento,
     }
     return render(request, "cctdashboard/detalhe_documento.html", context)
+
+
+@login_required
+def editar_documento_manual(request, pk):
+    documento = get_object_or_404(DocumentoCCT, pk=pk)
+    if request.method == "POST":
+        form = DocumentoCCTManualForm(request.POST, instance=documento)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Dados manuais da CCT atualizados com sucesso.")
+            return redirect("cctdashboard:detalhe_documento", pk=pk)
+    else:
+        form = DocumentoCCTManualForm(instance=documento)
+    return render(request, "cctdashboard/form_documento_manual.html", {
+        "form": form,
+        "documento": documento,
+        "titulo": "Editar Dados Manualmente",
+    })
 
 
 @login_required
@@ -859,6 +913,157 @@ def relatorio_empresas_sindicato_pdf(request):
 
 
 # ============================================================
+# RELATÓRIO PROFISSIONAL DE CONTRIBUIÇÕES
+# ============================================================
+
+MESES_RELATORIO = {
+    1: ("janeiro", "jan"), 2: ("fevereiro", "fev"), 3: ("março", "mar"),
+    4: ("abril", "abr"), 5: ("maio", "mai"), 6: ("junho", "jun"),
+    7: ("julho", "jul"), 8: ("agosto", "ago"), 9: ("setembro", "set"),
+    10: ("outubro", "out"), 11: ("novembro", "nov"), 12: ("dezembro", "dez"),
+}
+
+
+def _normalizar_mes_relatorio(texto):
+    valor = unicodedata.normalize("NFKD", texto or "").encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+", " ", valor).strip()
+
+
+def _meses_do_desconto(texto):
+    """Converte texto extraído (MAR, março, 12x ao ano) em meses 1..12."""
+    texto = _normalizar_mes_relatorio(texto)
+    if not texto:
+        return set()
+    if re.search(r"\b(?:12\s*x|12\s*vezes|mensalmente|todos\s+os\s+meses|cada\s+mes)\b", texto):
+        return set(range(1, 13))
+    encontrados = set()
+    for numero, nomes in MESES_RELATORIO.items():
+        for nome in nomes:
+            nome_normalizado = _normalizar_mes_relatorio(nome)
+            if re.search(rf"\b{re.escape(nome_normalizado)}(?:o|es)?\b", texto):
+                encontrados.add(numero)
+    return encontrados
+
+
+@login_required
+def filtro_relatorio_contribuicoes(request):
+    sindicatos = Sindicato.objects.order_by("nome")
+    sindicato_id = request.GET.get("sindicato", "").strip()
+    tipo = request.GET.get("tipo", "todas").strip()
+    empresa_id = request.GET.get("empresa", "").strip()
+    mes = request.GET.get("mes", "").strip()
+    sindicatos_ids = [sindicato_id] if sindicato_id.isdigit() else []
+    empresas = Empresa.objects.filter(sindicatos__sindicato_id__in=sindicatos_ids).distinct().order_by("nome") if sindicatos_ids else Empresa.objects.none()
+    return render(request, "cctdashboard/filtro_relatorio_contribuicoes.html", {
+        "sindicatos": sindicatos, "empresas": empresas, "sindicato_id": sindicato_id,
+        "empresa_id": empresa_id, "tipo": tipo, "mes": mes, "meses_relatorio": MESES_RELATORIO,
+    })
+
+
+@login_required
+def relatorio_contribuicoes_pdf(request):
+    """Emite PDF filtrável pelo mês em que ocorre o desconto."""
+    from xhtml2pdf import pisa
+    from django.template.loader import render_to_string
+
+    sindicato_id = request.GET.get("sindicato", "").strip()
+    tipo = request.GET.get("tipo", "todas").strip()
+    empresa_id = request.GET.get("empresa", "").strip()
+    mes = request.GET.get("mes", "").strip()
+    if not sindicato_id or not sindicato_id.isdigit():
+        messages.error(request, "Selecione um sindicato válido para gerar o relatório.")
+        return redirect("cctdashboard:filtro_relatorio_contribuicoes")
+    sindicato = get_object_or_404(Sindicato, pk=int(sindicato_id))
+    empresas = Empresa.objects.filter(sindicatos__sindicato=sindicato, ativo=True).distinct().order_by("nome")
+    if empresa_id.isdigit():
+        empresas = empresas.filter(pk=empresa_id)
+    documentos = list(DocumentoCCT.objects.filter(sindicato=sindicato, ativo=True).order_by("-data_inicio_vigencia"))
+    if tipo == "empregado":
+        documentos = [d for d in documentos if d.contribuicao_sindical_empregado is not None or d.trecho_contribuicao_empregado]
+    elif tipo == "patronal":
+        documentos = [d for d in documentos if d.contribuicao_sindical_patronal is not None or d.trecho_contribuicao_patronal]
+    mes_numero = int(mes) if mes.isdigit() and 1 <= int(mes) <= 12 else None
+    if mes_numero:
+        documentos = [d for d in documentos if mes_numero in _meses_do_desconto(d.get_meses_desconto())]
+    # Monta estrutura por documento
+    documento_padrao = None
+    if len(documentos) > 1:
+        documentos_com_linhas = []
+        for doc in documentos:
+            linhas_doc = [{"empresa": e, "documento": doc} for e in empresas]
+            documentos_com_linhas.append({"documento": doc, "linhas": linhas_doc})
+    else:
+        documento_padrao = documentos[0] if documentos else None
+        linhas = []
+        for empresa in empresas:
+            documento = documento_padrao
+            if (empresa.convencao_aplicada_id and empresa.sindicato_aplicado_id == sindicato.pk
+                    and empresa.convencao_aplicada and empresa.convencao_aplicada.ativo):
+                documento = empresa.convencao_aplicada
+            linhas.append({"empresa": empresa, "documento": documento})
+        documentos_com_linhas = [{"documento": documento_padrao, "linhas": linhas}]
+    html_string = render_to_string("cctdashboard/relatorio_contribuicoes_pdf.html", {
+        "sindicato": sindicato, "empresas": empresas, "documentos": documentos,
+        "documento": documento_padrao if len(documentos) <= 1 else None,
+        "documentos_com_linhas": documentos_com_linhas, "tipo": tipo, "mes": mes_numero,
+        "mes_nome": MESES_RELATORIO.get(mes_numero, ("",))[0] if mes_numero else "Todos",
+        "data_geracao": timezone.localtime().strftime("%d/%m/%Y %H:%M"),
+    })
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="relatorio_contribuicoes_{sindicato.codigo}.pdf"'
+    resultado = pisa.CreatePDF(html_string, dest=response)
+    if resultado.err:
+        return HttpResponse(b"Nao foi possivel gerar o PDF.", content_type="text/plain", status=500)
+    return response
+
+
+@login_required
+def filtro_relatorio_desconto_mensal(request):
+    mes = request.GET.get("mes", "").strip()
+    return render(request, "cctdashboard/filtro_relatorio_desconto_mensal.html", {
+        "mes": mes, "meses_relatorio": MESES_RELATORIO,
+    })
+
+
+@login_required
+def relatorio_desconto_mensal_pdf(request):
+    """Emite PDF com todos os sindicatos/documentos que têm desconto no mês selecionado."""
+    from xhtml2pdf import pisa
+    from django.template.loader import render_to_string
+
+    mes = request.GET.get("mes", "").strip()
+    if not mes.isdigit() or not 1 <= int(mes) <= 12:
+        messages.error(request, "Selecione um mês válido (1-12) para gerar o relatório.")
+        return redirect("cctdashboard:filtro_relatorio_desconto_mensal")
+    mes_numero = int(mes)
+    documentos = list(DocumentoCCT.objects.filter(ativo=True).order_by("sindicato__nome", "-data_inicio_vigencia"))
+    documentos = [d for d in documentos if mes_numero in _meses_do_desconto(d.get_meses_desconto())]
+
+    sindicatos_data = []
+    for doc in documentos:
+        sindicato = doc.sindicato
+        empresas = Empresa.objects.filter(sindicatos__sindicato=sindicato, ativo=True).distinct().order_by("nome")
+        sindicatos_data.append({
+            "sindicato": sindicato,
+            "documento": doc,
+            "empresas": empresas,
+        })
+
+    html_string = render_to_string("cctdashboard/relatorio_desconto_mensal_pdf.html", {
+        "sindicatos_data": sindicatos_data,
+        "mes": mes_numero,
+        "mes_nome": MESES_RELATORIO.get(mes_numero, ("",))[0],
+        "data_geracao": timezone.localtime().strftime("%d/%m/%Y %H:%M"),
+    })
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="relatorio_desconto_mensal_{mes_numero:02d}.pdf"'
+    resultado = pisa.CreatePDF(html_string, dest=response)
+    if resultado.err:
+        return HttpResponse(b"Nao foi possivel gerar o PDF.", content_type="text/plain", status=500)
+    return response
+
+
+# ============================================================
 # AGENDAMENTO DO SCRAPER
 # ============================================================
 
@@ -893,8 +1098,22 @@ def criar_agendamento(request):
             messages.error(request, "Horário inválido. Use o formato HH:MM.")
             return render(request, "cctdashboard/form_agendamento.html", {"sindicatos": Sindicato.objects.order_by("nome")})
 
-        dia_semana_int = int(dia_semana) if dia_semana is not None else None
-        dia_mes_int = int(dia_mes) if dia_mes is not None else None
+        try:
+            dia_semana_int = int(dia_semana) if dia_semana is not None else None
+            dia_mes_int = int(dia_mes) if dia_mes is not None else None
+        except ValueError:
+            messages.error(request, "Dia da semana ou do mês inválido.")
+            return render(request, "cctdashboard/form_agendamento.html", {"sindicatos": Sindicato.objects.order_by("nome")})
+        if recorrencia == AgendamentoScraper.RECORRENCIA_SEMANAL and dia_semana_int not in range(7):
+            messages.error(request, "Selecione um dia da semana válido.")
+            return render(request, "cctdashboard/form_agendamento.html", {"sindicatos": Sindicato.objects.order_by("nome")})
+        if recorrencia == AgendamentoScraper.RECORRENCIA_MENSAL and dia_mes_int not in range(1, 32):
+            messages.error(request, "O dia do mês deve estar entre 1 e 31.")
+            return render(request, "cctdashboard/form_agendamento.html", {"sindicatos": Sindicato.objects.order_by("nome")})
+        if recorrencia != AgendamentoScraper.RECORRENCIA_SEMANAL:
+            dia_semana_int = None
+        if recorrencia != AgendamentoScraper.RECORRENCIA_MENSAL:
+            dia_mes_int = None
 
         AgendamentoScraper.objects.create(
             horario=horario_obj,
@@ -975,28 +1194,43 @@ def excluir_agendamento(request, pk):
 # ============================================================
 
 import threading
-from cctcore.services import extrair_texto_pdf
 
-# Estado global para acompanhar execução em segundo plano
-_estado_atualizar_vigencias = {
+# ============================================================
+# ANALISAR CCTs (visão unificada de datas + dados complementares)
+# ============================================================
+
+# Estado global unificado para acompanhar execução em segundo plano
+_estado_analisar = {
     "rodando": False,
     "total": 0,
     "atual": 0,
     "mensagens": [],
     "atualizados": 0,
     "sem_mudanca": 0,
+    "erros": 0,
     "erro_pdf": 0,
 }
 
 
-def _thread_atualizar_vigencias(sindicato_codigo, apenas_vazios, limite):
-    """Executa a atualização em segundo plano."""
-    global _estado_atualizar_vigencias
-    _estado_atualizar_vigencias["rodando"] = True
-    _estado_atualizar_vigencias["mensagens"] = []
-    _estado_atualizar_vigencias["atualizados"] = 0
-    _estado_atualizar_vigencias["sem_mudanca"] = 0
-    _estado_atualizar_vigencias["erro_pdf"] = 0
+def _thread_analisar_ccts(sindicato_codigo, modo, apenas_vazios, limite, modo_ocr="auto"):
+    """Executa a análise de CCTs em segundo plano.
+
+    ``modo`` controla o escopo da reanálise:
+      - "datas"       : apenas vigência / data de registro MTE
+      - "completo"    : datas + dados complementares (data_base, reajuste,
+                        contribuições, trechos)
+      - "completo_ia" : completo + reset do status_analise_ia para PENDENTE
+
+    ``apenas_vazios`` filtra documentos que ainda não possuem
+    data_fim_vigencia ou data_registro_mte (somente no modo "datas").
+    """
+    global _estado_analisar
+    _estado_analisar["rodando"] = True
+    _estado_analisar["mensagens"] = []
+    _estado_analisar["atualizados"] = 0
+    _estado_analisar["sem_mudanca"] = 0
+    _estado_analisar["erros"] = 0
+    _estado_analisar["erro_pdf"] = 0
 
     queryset = DocumentoCCT.objects.filter(ativo=True).exclude(
         arquivo_pdf=""
@@ -1005,7 +1239,7 @@ def _thread_atualizar_vigencias(sindicato_codigo, apenas_vazios, limite):
     if sindicato_codigo:
         queryset = queryset.filter(sindicato__codigo=sindicato_codigo)
 
-    if apenas_vazios:
+    if apenas_vazios and modo == "datas":
         queryset = queryset.filter(
             data_fim_vigencia__isnull=True
         ) | queryset.filter(data_registro_mte__isnull=True)
@@ -1015,12 +1249,16 @@ def _thread_atualizar_vigencias(sindicato_codigo, apenas_vazios, limite):
         queryset = queryset[:limite]
         total = min(total, limite)
 
-    _estado_atualizar_vigencias["total"] = total
-    _estado_atualizar_vigencias["atual"] = 0
+    _estado_analisar["total"] = total
+    _estado_analisar["atual"] = 0
 
     for idx, doc in enumerate(queryset, start=1):
-        _estado_atualizar_vigencias["atual"] = idx
-        _estado_atualizar_vigencias["mensagens"].append(
+        if not _estado_analisar["rodando"]:
+            _estado_analisar["mensagens"].append("[PARADO] Execução interrompida pelo usuário.")
+            break
+
+        _estado_analisar["atual"] = idx
+        _estado_analisar["mensagens"].append(
             f"[{idx}/{total}] #{doc.pk} — {doc.sindicato} — {doc.tipo}"
         )
 
@@ -1029,22 +1267,44 @@ def _thread_atualizar_vigencias(sindicato_codigo, apenas_vazios, limite):
             caminho_pdf = str(Path(settings.BASE_DIR) / caminho_pdf)
 
         if not os.path.exists(caminho_pdf):
-            _estado_atualizar_vigencias["mensagens"].append(
+            _estado_analisar["mensagens"].append(
                 f"  [AVISO] PDF não encontrado: {caminho_pdf}"
             )
+            _estado_analisar["erros"] += 1
             continue
 
-        texto = extrair_texto_pdf(caminho_pdf, max_paginas=10)
+        if modo_ocr == "somente" and extrair_texto_pdf(caminho_pdf, max_paginas=3).strip():
+            _estado_analisar["mensagens"].append("  [OCR] Ignorado: PDF já possui texto nativo.")
+            continue
+        try:
+            caminho_ocr = garantir_ocr_pdf(caminho_pdf, modo="sempre" if modo_ocr in ("sempre", "somente") else "auto")
+            if caminho_ocr != caminho_pdf:
+                _estado_analisar["mensagens"].append(f"  [OCR] PDF pesquisável gerado: {os.path.basename(caminho_ocr)}")
+                caminho_pdf = caminho_ocr
+        except Exception as exc_ocr:
+            _estado_analisar["mensagens"].append(f"  [AVISO] OCR não executado: {exc_ocr}")
+
+        texto = extrair_texto_pdf(caminho_pdf)
         if not texto or texto.startswith("[ERRO"):
-            _estado_atualizar_vigencias["erro_pdf"] += 1
-            _estado_atualizar_vigencias["mensagens"].append(
+            _estado_analisar["erro_pdf"] += 1
+            _estado_analisar["erros"] += 1
+            _estado_analisar["mensagens"].append(
                 f"  [ERRO] Falha ao extrair texto do PDF."
             )
             continue
 
-        # Importa do management command para reaproveitar regex
-        from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto
-        datas = extrair_datas_do_texto(texto)
+        if modo == "datas":
+            # Importa do management command para reaproveitar regex
+            from cctcore.management.commands.atualizar_vigencias import extrair_datas_do_texto
+            datas = extrair_datas_do_texto(texto)
+            compl = None
+        else:
+            from cctcore.management.commands.atualizar_vigencias import (
+                extrair_datas_do_texto,
+                extrair_dados_complementares_do_texto,
+            )
+            datas = extrair_datas_do_texto(texto)
+            compl = extrair_dados_complementares_do_texto(texto)
 
         encontrado = []
         if datas["data_inicio"]:
@@ -1055,11 +1315,11 @@ def _thread_atualizar_vigencias(sindicato_codigo, apenas_vazios, limite):
             encontrado.append(f"registro_mte={datas['data_registro_mte']}")
 
         if encontrado:
-            _estado_atualizar_vigencias["mensagens"].append(
+            _estado_analisar["mensagens"].append(
                 f"  Encontrado: {', '.join(encontrado)}"
             )
         else:
-            _estado_atualizar_vigencias["mensagens"].append(
+            _estado_analisar["mensagens"].append(
                 f"  [AVISO] Nenhuma data encontrada no texto."
             )
 
@@ -1081,32 +1341,89 @@ def _thread_atualizar_vigencias(sindicato_codigo, apenas_vazios, limite):
             campos_atualizar.append("data_registro_mte")
             mudou = True
 
+        if compl is not None:
+            if compl["data_base"] and doc.data_base != compl["data_base"]:
+                doc.data_base = compl["data_base"]
+                campos_atualizar.append("data_base")
+                mudou = True
+
+            if compl["reajuste_percentual"] is not None:
+                from decimal import Decimal
+                novo_valor = Decimal(str(compl["reajuste_percentual"]))
+                if doc.reajuste_percentual != novo_valor:
+                    doc.reajuste_percentual = novo_valor
+                    campos_atualizar.append("reajuste_percentual")
+                    mudou = True
+
+            if compl["contribuicao_sindical_empregado"] is not None:
+                from decimal import Decimal
+                novo_valor = Decimal(str(compl["contribuicao_sindical_empregado"]))
+                if doc.contribuicao_sindical_empregado != novo_valor:
+                    doc.contribuicao_sindical_empregado = novo_valor
+                    campos_atualizar.append("contribuicao_sindical_empregado")
+                    mudou = True
+
+            if compl["contribuicao_sindical_patronal"] is not None:
+                from decimal import Decimal
+                novo_valor = Decimal(str(compl["contribuicao_sindical_patronal"]))
+                if doc.contribuicao_sindical_patronal != novo_valor:
+                    doc.contribuicao_sindical_patronal = novo_valor
+                    campos_atualizar.append("contribuicao_sindical_patronal")
+                    mudou = True
+
+            if compl["trecho_contribuicao_empregado"] is not None:
+                if doc.trecho_contribuicao_empregado != compl["trecho_contribuicao_empregado"]:
+                    doc.trecho_contribuicao_empregado = compl["trecho_contribuicao_empregado"]
+                    campos_atualizar.append("trecho_contribuicao_empregado")
+                    mudou = True
+
+            if compl["trecho_contribuicao_patronal"] is not None:
+                if doc.trecho_contribuicao_patronal != compl["trecho_contribuicao_patronal"]:
+                    doc.trecho_contribuicao_patronal = compl["trecho_contribuicao_patronal"]
+                    campos_atualizar.append("trecho_contribuicao_patronal")
+                    mudou = True
+
+            if compl["contribuicao_sindical_empregado_meses"] is not None:
+                if doc.contribuicao_sindical_empregado_meses != compl["contribuicao_sindical_empregado_meses"]:
+                    doc.contribuicao_sindical_empregado_meses = compl["contribuicao_sindical_empregado_meses"]
+                    campos_atualizar.append("contribuicao_sindical_empregado_meses")
+                    mudou = True
+
+        if modo == "completo_ia":
+            doc.status_analise_ia = DocumentoCCT.STATUS_ANALISE_PENDENTE
+            if "status_analise_ia" not in campos_atualizar:
+                campos_atualizar.append("status_analise_ia")
+            mudou = True
+
         if mudou:
             doc.save(update_fields=campos_atualizar)
-            _estado_atualizar_vigencias["atualizados"] += 1
-            _estado_atualizar_vigencias["mensagens"].append(
+            _estado_analisar["atualizados"] += 1
+            _estado_analisar["mensagens"].append(
                 f"  [OK] Atualizado: {', '.join(campos_atualizar)}"
             )
         else:
-            _estado_atualizar_vigencias["sem_mudanca"] += 1
+            _estado_analisar["sem_mudanca"] += 1
 
-    _estado_atualizar_vigencias["rodando"] = False
+    _estado_analisar["rodando"] = False
 
 
 @login_required
-def atualizar_vigencias(request):
-    """Página para executar a atualização de vigências dos documentos existentes."""
-    global _estado_atualizar_vigencias
+def analisar_ccts(request):
+    """Página unificada para analisar CCTs (datas e/ou dados complementares)."""
+    global _estado_analisar
 
     if request.method == "POST":
         acao = request.POST.get("acao", "")
 
         if acao == "iniciar":
-            if _estado_atualizar_vigencias["rodando"]:
+            if _estado_analisar["rodando"]:
                 messages.warning(request, "Já há uma execução em andamento.")
-                return redirect("cctdashboard:atualizar_vigencias")
+                return redirect("cctdashboard:analisar_ccts")
 
             sindicato_codigo = request.POST.get("sindicato_codigo", "").strip()
+            modo = request.POST.get("modo", "datas").strip()
+            if modo not in ("datas", "completo", "completo_ia"):
+                modo = "datas"
             apenas_vazios = request.POST.get("apenas_vazios") == "on"
             limite_str = request.POST.get("limite", "0").strip()
             try:
@@ -1114,34 +1431,60 @@ def atualizar_vigencias(request):
             except ValueError:
                 limite = 0
 
+            modo_ocr = request.POST.get("modo_ocr", "auto").strip()
+            if modo_ocr not in ("auto", "sempre", "somente"):
+                modo_ocr = "auto"
             t = threading.Thread(
-                target=_thread_atualizar_vigencias,
-                args=(sindicato_codigo, apenas_vazios, limite),
+                target=_thread_analisar_ccts,
+                args=(sindicato_codigo, modo, apenas_vazios, limite, modo_ocr),
                 daemon=True,
             )
             t.start()
 
-            messages.success(request, "Atualização de vigências iniciada em segundo plano.")
-            return redirect("cctdashboard:atualizar_vigencias")
+            messages.success(request, "Análise de CCTs iniciada em segundo plano.")
+            return redirect("cctdashboard:analisar_ccts")
 
         elif acao == "parar":
             # Não conseguimos matar a thread de forma segura,
             # mas podemos marcar para parar no próximo ciclo
-            _estado_atualizar_vigencias["rodando"] = False
+            _estado_analisar["rodando"] = False
             messages.info(request, "Sinal de parada enviado. A execução terminará no próximo documento.")
-            return redirect("cctdashboard:atualizar_vigencias")
+            return redirect("cctdashboard:analisar_ccts")
 
     # Contagens para os cards
     total_docs = DocumentoCCT.objects.filter(ativo=True).count()
+    com_pdf = (
+        DocumentoCCT.objects.filter(ativo=True)
+        .exclude(arquivo_pdf="")
+        .exclude(arquivo_pdf__isnull=True)
+        .count()
+    )
     sem_data_fim = DocumentoCCT.objects.filter(ativo=True, data_fim_vigencia__isnull=True).count()
-    sem_registro = DocumentoCCT.objects.filter(ativo=True, data_registro_mte__isnull=True).count()
+    sem_trecho = (
+        DocumentoCCT.objects.filter(ativo=True)
+        .filter(Q(trecho_contribuicao_empregado__isnull=True) | Q(trecho_contribuicao_empregado=""))
+        .count()
+    )
 
     context = {
-        "titulo": "Atualizar Vigências",
-        "estado": _estado_atualizar_vigencias,
+        "titulo": "Analisar CCTs",
+        "estado": _estado_analisar,
         "total_docs": total_docs,
+        "com_pdf": com_pdf,
         "sem_data_fim": sem_data_fim,
-        "sem_registro": sem_registro,
+        "sem_trecho": sem_trecho,
         "sindicatos": Sindicato.objects.order_by("nome"),
     }
-    return render(request, "cctdashboard/atualizar_vigencias.html", context)
+    return render(request, "cctdashboard/analisar_ccts.html", context)
+
+
+@login_required
+def atualizar_vigencias(request):
+    """Redireciona para a página unificada de análise de CCTs (compatibilidade)."""
+    return redirect("cctdashboard:analisar_ccts")
+
+
+@login_required
+def reanalisar_disponiveis(request):
+    """Redireciona para a página unificada de análise de CCTs (compatibilidade)."""
+    return redirect("cctdashboard:analisar_ccts")

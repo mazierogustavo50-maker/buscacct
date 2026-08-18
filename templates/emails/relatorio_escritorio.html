@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Desconto Mensal</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.5; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #0f4c81; color: #fff; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #f8f9fa; padding: 20px; border: 1px solid #dee2e6; border-radius: 0 0 8px 8px; }
+        .footer { margin-top: 20px; font-size: 12px; color: #6c757d; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2 style="margin:0;">Relatório de Desconto Mensal</h2>
+            <p style="margin:5px 0 0;">{{ mes_nome|title }}</p>
+        </div>
+        <div class="content">
+            <p>Prezado(a),</p>
+            <p>Segue em anexo o <strong>Relatório de Desconto Mensal</strong> referente a <strong>{{ mes_nome|title }}</strong>.</p>
+            <p>Este relatório contém <strong>{{ total_sindicatos }}</strong> sindicato(s) com desconto no mês especificado.</p>
+            <p>Para mais informações, acesse o sistema <strong>Mediador CCT</strong>.</p>
+        </div>
+        <div class="footer">
+            Mediador CCT · Diferencial Contabilidade<br>
+            E-mail enviado automaticamente em {{ data_envio }}
+        </div>
+    </div>
+</body>
+</html>

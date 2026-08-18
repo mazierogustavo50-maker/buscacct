@@ -50,8 +50,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link{% if request.resolver_match.url_name == 'atualizar_vigencias' %} active{% endif %}" href="{% url 'cctdashboard:atualizar_vigencias' %}">
-                            <i class="bi bi-arrow-repeat me-1"></i>Atualizar Vigências
+                        <a class="nav-link{% if request.resolver_match.url_name == 'analisar_ccts' %} active{% endif %}" href="{% url 'cctdashboard:analisar_ccts' %}">
+                            <i class="bi bi-gear-wide-connected me-1"></i>Analisar CCTs
                         </a>
                     </li>
                     <li class="nav-item">
@@ -60,12 +60,14 @@
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle{% if request.resolver_match.url_name == 'relatorio_execucoes' or request.resolver_match.url_name == 'filtro_empresas_por_sindicato' %} active{% endif %}" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle{% if request.resolver_match.url_name == 'relatorio_execucoes' or request.resolver_match.url_name == 'filtro_empresas_por_sindicato' or request.resolver_match.url_name == 'filtro_relatorio_contribuicoes' or request.resolver_match.url_name == 'filtro_relatorio_desconto_mensal' %} active{% endif %}" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-file-text me-1"></i>Relatórios
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{% url 'cctdashboard:relatorio_execucoes' %}"><i class="bi bi-robot me-2 text-primary"></i>Execuções do Scraper</a></li>
                             <li><a class="dropdown-item" href="{% url 'cctdashboard:filtro_empresas_por_sindicato' %}"><i class="bi bi-building me-2 text-success"></i>Empresas por Sindicato</a></li>
+                            <li><a class="dropdown-item" href="{% url 'cctdashboard:filtro_relatorio_contribuicoes' %}"><i class="bi bi-cash-coin me-2 text-danger"></i>Contribuições e descontos</a></li>
+                            <li><a class="dropdown-item" href="{% url 'cctdashboard:filtro_relatorio_desconto_mensal' %}"><i class="bi bi-calendar-month me-2 text-warning"></i>Desconto Mensal</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">

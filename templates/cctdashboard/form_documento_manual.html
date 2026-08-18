@@ -1,0 +1,109 @@
+{% extends "cctdashboard/base.html" %}
+{% block title %}{{ titulo }} - {{ documento }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:lista_documentos' %}">Documentos</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cctdashboard:detalhe_documento' documento.pk %}">#{{ documento.pk }}</a></li>
+        <li class="breadcrumb-item active">Editar Manualmente</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm">
+            <div class="card-header fw-bold">
+                <i class="bi bi-pen-fill me-2"></i>{{ titulo }}
+                <span class="ms-2 text-muted small">{{ documento.tipo }} — {{ documento.sindicato.codigo }} {{ documento.sindicato.nome }}</span>
+            </div>
+            <div class="card-body">
+                {% if documento.trecho_contribuicao_empregado or documento.trecho_contribuicao_patronal or documento.contribuicao_sindical_empregado_meses %}
+                <div class="alert alert-light border">
+                    <h6 class="fw-bold"><i class="bi bi-robot me-2"></i>Dados extraídos automaticamente (referência)</h6>
+                    {% if documento.trecho_contribuicao_empregado %}
+                    <div class="mb-2">
+                        <small class="text-muted fw-bold">Trecho Empregado (extraído):</small>
+                        <pre class="small text-muted border rounded p-2" style="max-height:150px;overflow-y:auto;white-space:pre-wrap;">{{ documento.trecho_contribuicao_empregado }}</pre>
+                    </div>
+                    {% endif %}
+                    {% if documento.trecho_contribuicao_patronal %}
+                    <div class="mb-2">
+                        <small class="text-muted fw-bold">Trecho Patronal (extraído):</small>
+                        <pre class="small text-muted border rounded p-2" style="max-height:150px;overflow-y:auto;white-space:pre-wrap;">{{ documento.trecho_contribuicao_patronal }}</pre>
+                    </div>
+                    {% endif %}
+                    {% if documento.contribuicao_sindical_empregado_meses %}
+                    <div>
+                        <small class="text-muted fw-bold">Mês de desconto (extraído):</small>
+                        <span class="small text-muted">{{ documento.contribuicao_sindical_empregado_meses }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.trecho_contribuicao_empregado_manual.id_for_label }}" class="form-label fw-bold">
+                                {{ form.trecho_contribuicao_empregado_manual.label }}
+                            </label>
+                            {{ form.trecho_contribuicao_empregado_manual }}
+                            {% if form.trecho_contribuicao_empregado_manual.errors %}
+                                <div class="invalid-feedback d-block">{{ form.trecho_contribuicao_empregado_manual.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Cole aqui o trecho exato da CCT sobre contribuição do empregado.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.trecho_contribuicao_patronal_manual.id_for_label }}" class="form-label fw-bold">
+                                {{ form.trecho_contribuicao_patronal_manual.label }}
+                            </label>
+                            {{ form.trecho_contribuicao_patronal_manual }}
+                            {% if form.trecho_contribuicao_patronal_manual.errors %}
+                                <div class="invalid-feedback d-block">{{ form.trecho_contribuicao_patronal_manual.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Cole aqui o trecho exato da CCT sobre contribuição patronal.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.contribuicao_sindical_empregado_meses_manual.id_for_label }}" class="form-label fw-bold">
+                                {{ form.contribuicao_sindical_empregado_meses_manual.label }}
+                            </label>
+                            {{ form.contribuicao_sindical_empregado_meses_manual }}
+                            {% if form.contribuicao_sindical_empregado_meses_manual.errors %}
+                                <div class="invalid-feedback d-block">{{ form.contribuicao_sindical_empregado_meses_manual.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Exemplos: <code>MAR, MAI, AGO, OUT</code> ou <code>12x ao ano</code> ou <code>Todos os meses</code></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-4">
+                                {{ form.usa_trechos_manuais }}
+                                <label class="form-check-label fw-bold" for="{{ form.usa_trechos_manuais.id_for_label }}">
+                                    {{ form.usa_trechos_manuais.label }}
+                                </label>
+                                <div class="form-text">Ative para usar os trechos manuais no lugar dos extraídos nos relatórios.</div>
+                            </div>
+                            <div class="form-check form-switch mt-3">
+                                {{ form.usa_meses_manual }}
+                                <label class="form-check-label fw-bold" for="{{ form.usa_meses_manual.id_for_label }}">
+                                    {{ form.usa_meses_manual.label }}
+                                </label>
+                                <div class="form-text">Ative para usar o mês manual no lugar do extraído nos relatórios.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>Salvar Alterações
+                        </button>
+                        <a href="{% url 'cctdashboard:detalhe_documento' documento.pk %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Voltar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -19,12 +19,19 @@ urlpatterns = [
     path("empresas/<int:pk>/", views.detalhe_empresa, name="detalhe_empresa"),
     path("empresas/<int:pk>/editar/", views.editar_empresa, name="editar_empresa"),
     path("empresas/<int:pk>/excluir/", views.excluir_empresa, name="excluir_empresa"),
+    path("empresas/<int:pk>/inativar/", views.inativar_empresa, name="inativar_empresa"),
+    path("empresas/<int:pk>/reativar/", views.reativar_empresa, name="reativar_empresa"),
     # Filtro de empresas por sindicato + relatório PDF
     path("relatorio/empresas-por-sindicato/", views.filtrar_empresas_por_sindicato, name="filtro_empresas_por_sindicato"),
     path("relatorio/empresas-por-sindicato/pdf/", views.relatorio_empresas_sindicato_pdf, name="relatorio_empresas_sindicato_pdf"),
+    path("relatorios/contribuicoes/", views.filtro_relatorio_contribuicoes, name="filtro_relatorio_contribuicoes"),
+    path("relatorios/contribuicoes/pdf/", views.relatorio_contribuicoes_pdf, name="relatorio_contribuicoes_pdf"),
+    path("relatorios/desconto-mensal/", views.filtro_relatorio_desconto_mensal, name="filtro_relatorio_desconto_mensal"),
+    path("relatorios/desconto-mensal/pdf/", views.relatorio_desconto_mensal_pdf, name="relatorio_desconto_mensal_pdf"),
     # Documentos
     path("documentos/", views.lista_documentos, name="lista_documentos"),
     path("documentos/<int:pk>/", views.detalhe_documento, name="detalhe_documento"),
+    path("documentos/<int:pk>/editar-manual/", views.editar_documento_manual, name="editar_documento_manual"),
     path("documentos/<int:pk>/excluir/", views.excluir_documento, name="excluir_documento"),
     path("documentos/<int:pk>/desativar/", views.desativar_documento, name="desativar_documento"),
     path("documentos/<int:pk>/reativar/", views.reativar_documento, name="reativar_documento"),
@@ -45,6 +52,9 @@ urlpatterns = [
     path("agendamentos/<int:pk>/excluir/", views.excluir_agendamento, name="excluir_agendamento"),
     # Relatório
     path("relatorio/", views.relatorio_execucoes, name="relatorio_execucoes"),
-    # Atualizar vigências de documentos existentes
+    # Analisar CCTs (visão unificada: datas / completo / completo+IA)
+    path("analisar-ccts/", views.analisar_ccts, name="analisar_ccts"),
+    # URLs mantidas por compatibilidade — redirecionam para a visão unificada
     path("atualizar-vigencias/", views.atualizar_vigencias, name="atualizar_vigencias"),
+    path("reanalisar-disponiveis/", views.reanalisar_disponiveis, name="reanalisar_disponiveis"),
 ]
